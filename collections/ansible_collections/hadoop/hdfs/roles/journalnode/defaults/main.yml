@@ -1,0 +1,3 @@
+journalnode_user: "{{ journalnode_user | default('journalnode') }}"
+journalnode_group: "{{ journalnode_group | default('journalnode') }}"
+hdfs_data_dir: "/var/hadoop/hdfs"

@@ -1,0 +1,87 @@
+- name: configure servers only if floating ip is defined
+  when: floating_ip is defined
+  block:
+    - name: persist floating ip in system configuration
+      copy: 
+        content: |
+          network:
+            version: 2
+            ethernets:
+             eth0:
+               addresses:
+               - {{ floating_ip }}/32
+        dest: "/etc/netplan/60-floating-ip.yaml"
+        mode: 0664
+
+    - name: reset network configurations
+      shell: "/usr/sbin/netplan apply"
+    
+- name: configure inventory on ansible server
+  delegate_to: localhost
+  become: no
+  run_once: yes
+  block:
+    - name: overwrite inventory with DNS of hosts
+      become: no
+      copy: 
+        content: |
+          all:
+            children:
+              ansible:
+                hosts:
+                  localhost
+          {% for host in groups.all | difference(groups.ansible) %}
+              {{ hostvars[host].hostname }}:
+                hosts: {{ hostvars[host].hostname }}.{{ domain }}
+          {% endfor %}
+              hubs:
+                children:
+                  hub1:
+                  hub2:
+                vars:
+                  keytab_user_hdfs: "{{ hdfs_user }}"
+                  keytab_user_yarn: "{{ yarn_user }}"
+                  keytab_user_journalnode: "{{ journalnode_user }}"
+                  keytab_user_jupyter: "{{ jupyterhub_user }}"
+                  keytab_user_http: "HTTP"
+              masters:
+                children:
+                  master1:
+                  master2:
+                  master3:
+                vars:
+                  keytab_user_hdfs: "{{ hdfs_user }}"
+                  keytab_user_yarn: "{{ yarn_user }}"
+                  keytab_user_journalnode: "{{ journalnode_user }}"
+                  keytab_user_http: "HTTP"
+                  keytab_user_jupyter: "{{ jupyterhub_user }}"
+              workers:
+                children:
+                  worker1:
+                  worker2:
+                  worker3:
+                vars:
+                  keytab_user_hdfs: "{{ hdfs_user }}"
+                  keytab_user_yarn: "{{ yarn_user }}"
+                  keytab_user_journalnode: "{{ journalnode_user }}"
+                  keytab_user_http: "HTTP"
+                  keytab_user_jupyter: "{{ jupyterhub_user }}"
+              securities:
+                children:
+                  security1:
+                  security2:
+        dest: "{{ playbook_dir }}/inventory"
+    
+    - name: check if hosts are reachable using DNS
+      shell: "ansible all -m ping"
+      register: ping_cloud_servers
+      until: "ping_cloud_servers is not failed"
+      retries: 10
+      delay: 4
+      ignore_errors: yes
+    
+    - name: print message depending on ansible ping command
+      assert:
+        that: ping_cloud_servers.rc == 0
+        fail_msg: "Created Hosts not reachable using DNS from Ansible Server. Check your domain, if this still fails after 40 seconds. Are all relevant A-records present?"
+        success_msg: "All relevant Hosts are reachable using DNS from Ansible Server"

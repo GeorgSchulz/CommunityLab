@@ -1,0 +1,14 @@
+- name: create hdfs data folder
+  file:
+    path: "{{ hdfs_data_dir }}"
+    state: directory
+    owner: "{{ hdfs_user }}"
+    group: "{{ hdfs_group }}"
+    mode: 0775
+
+- name: template hdfs-site.xml
+  template:
+    src: "hdfs-site.xml"
+    dest: "/opt/apache-hadoop/hadoop/etc/hadoop/hdfs-site.xml"
+    owner: "{{ hdfs_user }}"
+    group: "{{ hdfs_group }}"

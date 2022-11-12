@@ -1,0 +1,15 @@
+[Unit]
+Description=YARN Resourcemanager Service
+
+[Service]
+Type=forking
+ExecStart=/opt/apache-hadoop/hadoop/bin/yarn --daemon start resourcemanager
+ExecStop=/opt/apache-hadoop/hadoop/bin/yarn --daemon stop resourcemanager
+User={{ yarn_user }}
+Group={{ yarn_group }}
+TimeoutSec=30
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

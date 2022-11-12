@@ -1,0 +1,16 @@
+- name: create user '{{ item.name }}'
+  user:
+    name: "{{ item.name }}"
+    comment: "{{ item.name }}"
+    uid: "{{ item.uid }}"
+    group: "{{ item.group }}"
+    state: present
+    shell: /bin/bash
+
+- name: add user '{{ item.name }}' to group ssl-cert
+  user: 
+   name: "{{ item.name }}"
+   group: "{{ item.group }}"
+   shell: "/bin/bash"
+   groups: "ssl-cert"
+   append: yes

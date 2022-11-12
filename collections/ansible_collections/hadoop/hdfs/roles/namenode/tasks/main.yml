@@ -1,0 +1,69 @@
+- name: configure HDFS ZKFC
+  include_tasks: configure-zkfc.yml
+
+- name: configure HDFS namenode
+  include_tasks: configure-namenode.yml
+
+- name: check HDFS is already initialized
+  stat:
+    path: "{{ hdfs_data_dir }}/namenode/current"
+  register: namenode_initialized_dir
+
+- name: enable HDFS ZKFC
+  systemd:
+    name: "hdfs-zkfc.service"
+    enabled: yes
+    daemon_reload: yes
+
+- name: enable HDFS namenode
+  systemd:
+    name: "hdfs-namenode.service"
+    enabled: yes
+    daemon_reload: yes
+
+- name: stop HDFS namenode
+  systemd:
+    name: "hdfs-namenode.service"
+    state: stopped
+
+- name: stop HDFS ZKFC
+  systemd:
+    name: "hdfs-zkfc.service"
+    state: stopped
+
+- name: format HDFS ZKFC
+  become_user: "{{ hdfs_user }}"
+  shell: "/opt/apache-hadoop/hadoop/bin/hdfs zkfc -formatZK -force"
+  when: 
+    - "'master1' in group_names"
+    - not namenode_initialized_dir.stat.exists
+
+- name: format HDFS namenode
+  become_user: "{{ hdfs_user }}"
+  shell: "/opt/apache-hadoop/hadoop/bin/hdfs namenode -format -force"
+  when: 
+    - "'master1' in group_names"
+    - not namenode_initialized_dir.stat.exists
+
+- name: start HDFS ZKFC
+  systemd:
+    name: "hdfs-zkfc.service"
+    state: started
+
+- name: start HDFS namenode
+  systemd:
+    name: "hdfs-namenode.service"
+    state: started
+  when: "'master1' in group_names"
+
+- name: bootstrap HDFS namenode
+  become_user: "{{ hdfs_user }}"
+  shell: "/opt/apache-hadoop/hadoop/bin/hdfs namenode -bootstrapStandby -nonInteractive -force"
+  when: 
+    - "'master1' not in group_names"
+    - not namenode_initialized_dir.stat.exists
+
+- name: start HDFS namenode
+  systemd:
+    name: "hdfs-namenode.service"
+    state: started

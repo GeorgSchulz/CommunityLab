@@ -1,0 +1,7 @@
+[
+{% for host in groups['workers'] %}
+  {
+    "hostName": "{{ host }}", "adminState": "NORMAL"
+  }{% if not loop.last %},{% endif %}
+{% endfor %}
+]

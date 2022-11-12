@@ -1,0 +1,4 @@
+- name: create system service
+  template:
+    src: "hdfs-zkfc.service"
+    dest: "/etc/systemd/system/hdfs-zkfc.service"

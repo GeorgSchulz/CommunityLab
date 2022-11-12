@@ -1,0 +1,15 @@
+- name: check if JupyterHub GUI is reachable
+  uri:
+    url: "{% if jupyterhub_domain_ip is defined %}{{ jupyterhub_domain }}{% else %}https://{{ inventory_hostname }}{% endif %}"
+    method: GET
+    validate_certs: false
+  register: jupyterhub_gui_status
+  retries: 10
+  until: jupyterhub_gui_status.status == 200
+
+- debug:
+    var: jupyterhub_gui_status
+
+- debug:
+    msg: "IDE installed successfully, you can now visit JupyterHub GUI under: https://hub1.{{ domain }}:8443"
+  when: jupyterhub_gui_status.status == 200

@@ -1,0 +1,15 @@
+- name: enable patroni service
+  systemd:
+    name: "patroni.service"
+    enabled: yes
+    daemon_reload: yes
+
+- name: stop patroni service
+  systemd:
+    name: "patroni.service"
+    state: stopped
+
+- name: start patroni service
+  systemd:
+    name: "patroni.service"
+    state: started

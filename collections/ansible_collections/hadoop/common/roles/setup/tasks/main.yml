@@ -1,0 +1,64 @@
+- name: create hadoop configuration and log folder
+  file:
+    path: "{{ item.name }}"
+    state: directory
+    owner: "{{ hdfs_user }}"
+    group: "{{ hdfs_group }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - name: "{{ hadoop_conf_dir }}"
+      mode: "0755"
+    - name: "{{ hadoop_log_dir }}"
+      mode: "0775"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: get hadoop tarball
+  get_url:
+    url: "https://archive.apache.org/dist/hadoop/common/hadoop-{{ hadoop_version }}/hadoop-{{ hadoop_version }}.tar.gz"
+    dest: "/var/tmp/hadoop-{{ hadoop_version }}.tar.gz"
+
+- name: unpack hadoop tarball
+  unarchive: 
+    copy: no
+    src: "/var/tmp/hadoop-{{ hadoop_version }}.tar.gz"
+    dest: "{{ hadoop_conf_dir }}"
+    owner: "{{ hdfs_user }}"
+    group: "{{ hdfs_group }}"
+    creates: "/opt/apache-hadoop/hadoop-{{ hadoop_version }}"
+
+- name: create symbolic link
+  file: 
+    src: "{{ hadoop_conf_dir }}/hadoop-{{ hadoop_version }}"
+    dest: "{{ hadoop_conf_dir }}/hadoop"
+    state: link
+    owner: "{{ hdfs_user }}"
+    group: "{{ hdfs_group }}"
+
+- name: copy relevant sites
+  template:
+    src: "{{ item }}"
+    dest: "/opt/apache-hadoop/hadoop/etc/hadoop/{{ item }}"
+    owner: "{{ hdfs_user }}"
+    group: "{{ hdfs_group }}"
+  loop: 
+    - "core-site.xml"
+    - "ssl-server.xml"
+    - "ssl-client.xml"
+
+- name: copy hadoop-env.sh
+  template:
+    src: "hadoop-env.sh"
+    dest: "/opt/apache-hadoop/hadoop/etc/hadoop/hadoop-env.sh"
+    owner: "{{ hdfs_user }}"
+    group: "{{ hdfs_group }}"
+
+- name: generate secret key used for signing authentication tokens
+  shell: "dd if=/dev/urandom of={{ keytab_folder }}/hadoop_secret bs=1024 count=1"
+
+- name: change permissions of generated secret key
+  file:
+    path: "{{ keytab_folder }}/hadoop_secret"
+    owner: "{{ hdfs_user }}"
+    group: "{{ hdfs_group }}"
+    mode: "0440"

@@ -1,0 +1,8 @@
+miniforge_user: "{{ jupyterhub_user }}"
+miniforge_group: "{{ jupyterhub_group }}"
+
+kerberos_keytabs:
+  - principal: "{{ jupyterhub_user }}"
+
+hadoop_client_user: "{{ jupyterhub_user }}"
+hadoop_client_group: "{{ jupyterhub_group }}"

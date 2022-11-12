@@ -1,0 +1,19 @@
+- name: create system service
+  template:
+    src: "hdfs-namenode.service"
+    dest: "/etc/systemd/system/hdfs-namenode.service"
+
+- name: create namenode data folder
+  file:
+    path: "{{ hdfs_data_dir }}/namenode"
+    state: directory
+    owner: "{{ hdfs_user }}"
+    group: "{{ hdfs_group }}"
+    mode: 0775
+
+- name: create hosts file
+  template:
+    src: "hosts.json.j2"
+    dest: "/opt/apache-hadoop/hadoop/etc/hadoop/hosts.json"
+    owner: "{{ hdfs_user }}"
+    group: "{{ hdfs_group }}"

@@ -1,0 +1,30 @@
+- name: copy ldifs for organization and group creation to ldap server
+  template:
+    src: "{{ item }}"
+    dest: "/tmp/{{ item }}"
+  loop:
+     - "org_people.ldif"
+     - "org_groups.ldif"
+     - "group.ldif"
+
+- name: create organization unit 'ou=people,{{ ldap_organization }}' for IDE users 
+  shell: "ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/org_people.ldif"
+  register: ldapadd
+  until: ldapadd.rc in [0,68]
+  retries: 5
+  delay: 3
+  failed_when: ldapadd.rc not in [0,68]
+
+- name: create organization unit 'ou=groups,{{ ldap_organization }}' for IDE groups
+  shell: "ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/org_groups.ldif"
+  register: ldapadd
+  failed_when: ldapadd.rc not in [0,68]
+
+- name: create group 'cn={{ ide_users_group }},ou=groups,{{ ldap_organization }}' for IDE users 
+  shell: "ldapadd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/group.ldif"
+  register: ldapadd
+  failed_when: ldapadd.rc not in [0,68]
+
+- name: add IDE users to organization unit 'ou=people,{{ ldap_organization }}' and ldap group 'cn={{ ide_users_group }},ou=groups,{{ ldap_organization }}'
+  include_tasks: add-ldap-users.yml
+  loop: "{{ ldap_users }}"

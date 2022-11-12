@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+    <property>
+       <name>fs.defaultFS</name>
+       <value>hdfs://{{ hadoop_nameservice }}</value>	
+    </property>	
+    <property>
+       <name>fs.default.name</name>
+       <value>hdfs://{{ hadoop_nameservice }}</value>	
+    </property>	
+    <property>
+      <name>hadoop.rpc.protection</name>
+      <value>privacy</value>
+    </property>
+    <property>
+      <name>hadoop.security.token.service.use_ip</name>
+      <value>false</value>
+    </property>
+    <property>
+      <name>hadoop.security.authorization</name>
+      <value>true</value>
+    </property>
+    <property>
+      <name>ha.zookeeper.quorum</name>
+      <value>{% for host in groups.masters %}{{ host }}:2281{% if not loop.last %},{% endif %}{% endfor %}</value>
+    </property>
+    <property>
+      <name>ha.zookeeper.acl</name>
+      <value>world:anyone:cdrwa</value>
+    </property>
+    <property>
+      <name>hadoop.http.authentication.signature.secret.file</name>
+      <value>{{ keytab_folder }}/hadoop_secret</value>
+    </property>
+    <property>
+      <name>hadoop.http.authentication.type</name>
+      <value>simple</value>
+      <value>kerberos</value>
+    </property>
+    <property>
+      <name>hadoop.http.authentication.kerberos.keytab</name>
+      <value>{{ keytab_folder }}/{{ keytab_user_http }}.keytab</value>
+    </property>
+    <property>
+      <name>hadoop.http.authentication.kerberos.principal</name>
+      <value>{{ keytab_user_http }}/_HOST@{{ realm }}</value>
+    </property>
+    <property>
+      <name>hadoop.http.filter.initializers</name>
+      <value>org.apache.hadoop.security.AuthenticationFilterInitializer</value>
+    </property>
+    <property>
+      <name>hadoop.http.authentication.simple.anonymous.allowed</name>
+      <value>true</value>
+    </property>
+    <property>
+      <name>hadoop.security.authentication</name>
+      <value>kerberos</value>
+    </property>
+    <property>
+      <name>dfs.web.authentication.kerberos.keytab</name>
+      <value>{{ keytab_folder }}/{{ keytab_user_http }}.keytab</value>
+    </property>
+    <property>
+      <name>dfs.web.authentication.kerberos.principal</name>
+      <value>{{ keytab_user_http }}/_HOST@{{ realm }}</value>
+    </property>
+    <property>
+      <name>hadoop.http.authentication.cookie.domain</name>
+      <value>{{ domain }}</value>
+    </property>
+    <property>
+      <name>hadoop.security.auth_to_local</name>
+      <value>RULE:[1:$1@$0](.*@{{ realm }})s/@.*///L
+	  RULE:[2:$1@$0]({{ keytab_user_hdfs }}@{{ realm }})s/.*/{{ keytab_user_hdfs }}/
+	  RULE:[2:$1@$0]({{ keytab_user_journalnode }}@{{ realm }})s/.*/{{ keytab_user_journalnode }}/
+	  RULE:[2:$1@$0]({{ keytab_user_yarn }}@{{ realm }})s/.*/{{ keytab_user_yarn }}/
+	  RULE:[2:$1@$0]({{ keytab_user_jupyter }}@{{ realm }})s/.*/{{ keytab_user_jupyter }}/
+	  RULE:[2:$1@$0]({{ keytab_user_http }}@{{ realm }})s/.*/{{ keytab_user_http }}/
+          DEFAULT</value>
+    </property>
+    <property>
+      <name>hadoop.proxyuser.HTTP.hosts</name>
+      <value>*</value>
+    </property>
+    <property>
+      <name>hadoop.proxyuser.HTTP.groups</name>
+      <value>*</value>
+    </property>
+    <property>
+      <name>hadoop.proxyuser.yarn.hosts</name>
+      <value>*</value>
+    </property>
+    <property>
+      <name>hadoop.proxyuser.yarn.groups</name>
+      <value>*</value>
+    </property>
+    <property>
+      <name>hadoop.proxyuser.jupyterhub.hosts</name>
+      <value>*</value>
+    </property>
+    <property>
+      <name>hadoop.proxyuser.jupyterhub.groups</name>
+      <value>*</value>
+    </property>
+    <property>
+      <name>hadoop.ssl.require.client.cert</name>
+      <value>false</value>
+    </property>
+    <property>
+      <name>hadoop.ssl.hostname.verifier</name>
+      <value>DEFAULT</value>
+    </property>
+    <property>
+      <name>hadoop.ssl.keystore.factory.class</name>
+      <value>org.apache.hadoop.security.ssl.FileBasedKeyStoresFactory</value>
+    </property>
+    <property>
+      <name>hadoop.ssl.server.conf</name>
+      <value>ssl-server.xml</value>
+    </property>
+    <property>
+      <name>hadoop.ssl.client.conf</name>
+      <value>ssl-client.xml</value>
+    </property>
+    <property>
+      <name>hadoop.ssl.enabled.protocols</name>
+      <value>TLSv1.2</value>
+    </property>
+    <property>
+      <name>hadoop.http.cross-origin.enabled</name>
+      <value>true</value>
+    </property>
+    <property>
+      <name>hadoop.http.cross-origin.allowed-origins</name>
+      <value>*</value>
+    </property>
+    <property>
+      <name>hadoop.http.cross-origin.allowed-methods</name>
+      <value>GET,POST,HEAD,DELETE,OPTIONS</value>
+    </property>
+    <property>
+      <name>hadoop.http.cross-origin.allowed-headers</name>
+      <value>X-Requested-With,Content-Type,Accept,Origin</value>
+    </property>
+    <property>
+      <name>hadoop.http.cross-origin.max-age</name>
+      <value>1800</value>
+    </property>
+    <property>
+      <name>hadoop.security.group.mapping</name>
+      <value>org.apache.hadoop.security.CompositeGroupsMapping</value>
+    </property>
+    <property>
+      <name>hadoop.security.group.mapping.providers</name>
+      <value>shell4services,ad4users</value>
+    </property>
+    <property>
+      <name>hadoop.security.group.mapping.providers.combined</name>
+      <value>true</value>
+    </property>
+    <property>
+      <name>hadoop.security.group.mapping.provider.shell4services</name>
+      <value>org.apache.hadoop.security.ShellBasedUnixGroupsMapping</value>
+    </property>
+    <property>
+        <name>hadoop.security.group.mapping.provider.ad4users</name>
+        <value>org.apache.hadoop.security.LdapGroupsMapping</value>
+    </property>
+    <property>
+        <name>hadoop.security.group.mapping.provider.ad4users.ldap.url</name>
+	<value>ldap://{% if ldap_server_address is defined %}{{ ldap_server_address }}{% else %}{{ inventory_hostname }}{% endif %}:389</value>
+    </property>
+    <property>
+        <name>hadoop.security.group.mapping.provider.ad4users.ldap.bind.user</name>
+	<value>{% if ldap_bind_user is defined %}{{ ldap_bind_user }}{% else %}cn=admin,{{ ldap_organization }}{% endif %}</value>
+    </property>
+    <property>
+        <name>hadoop.security.group.mapping.provider.ad4users.ldap.bind.password</name>
+	<value>{{ ldap_password }}</value>
+    </property>
+    <property>
+       <name>hadoop.security.group.mapping.provider.ad4users.ldap.base</name>
+       <value>{{ ldap_organization }}</value>
+    </property>
+    <property>
+       <name>hadoop.security.group.mapping.provider.ad4users.ldap.userbase</name>
+       <value>{% if ldap_user_search_base is defined %}{{ ldap_user_search_base }}{% else %}ou=people,{{ ldap_organization }}{% endif %}</value>
+    </property>
+    <property>
+       <name>hadoop.security.group.mapping.provider.ad4users.ldap.groupbase</name>
+       <value>{% if ldap_group_search_base is defined %}{{ ldap_group_search_base }}{% else %}ou=groups,{{ ldap_organization }}{% endif %}</value>
+    </property>
+    <property>
+        <name>hadoop.security.group.mapping.provider.ad4users.ldap.search.filter.user</name>
+	<value>(&amp;(objectClass=posixAccount)(uid={0}))</value>
+	</property>
+    <property>
+        <name>hadoop.security.group.mapping.provider.ad4users.ldap.search.filter.group</name>
+        <value>(objectClass=posixGroup)</value>
+    </property>
+    <property>
+        <name>hadoop.security.group.mapping.provider.ad4users.ldap.search.attr.memberof</name>
+        <value>memberOf</value>
+    </property>
+</configuration>

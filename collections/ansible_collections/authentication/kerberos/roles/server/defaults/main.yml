@@ -1,0 +1,8 @@
+primary_kdc_packages:
+  - "krb5-kdc"
+  - "krb5-admin-server"
+  
+secondary_kdc_packages:
+  - "krb5-kdc"
+  - "krb5-admin-server"
+  - "krb5-kpropd"

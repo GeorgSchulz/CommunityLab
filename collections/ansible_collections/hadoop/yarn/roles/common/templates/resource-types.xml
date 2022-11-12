@@ -1,0 +1,14 @@
+<configuration>
+  <resource>
+    <name>yarn.io/memory</name>
+    <units>MB</units>
+    <type>countable</type>
+    <enabled>true</enabled>
+  </resource>
+  <resource>
+    <name>yarn.io/cpu</name>
+    <units>vcores</units>
+    <type>countable</type>
+    <enabled>true</enabled>
+  </resource>
+</configuration>

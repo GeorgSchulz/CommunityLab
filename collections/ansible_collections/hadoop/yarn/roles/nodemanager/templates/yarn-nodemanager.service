@@ -1,0 +1,14 @@
+Description=YARN Nodemanager Service
+
+[Service]
+Type=forking
+ExecStart=/opt/apache-hadoop/hadoop/bin/yarn --daemon start nodemanager
+ExecStop=/opt/apache-hadoop/hadoop/bin/yarn --daemon stop nodemanager
+User={{ yarn_user }}
+Group={{ yarn_group }}
+TimeoutSec=30
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

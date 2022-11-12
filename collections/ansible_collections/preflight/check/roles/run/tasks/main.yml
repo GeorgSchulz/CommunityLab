@@ -1,0 +1,49 @@
+- name: check that group_vars/all.yml exists
+  stat:
+    path: "{{ playbook_dir }}/group_vars/all.yml"
+  register: all_yml
+
+- name: print message depending on group_vars/all.yml check
+  assert:
+    that: "all_yml.stat.exists"
+    fail_msg: "File group_vars/all.yml is not present, please define it for IDE setup. See {{ playbook_dir }}/examples/all.yml for examples."
+    success_msg: "File group_vars/all.yml is present."
+
+- name: print message depending on variable check
+  assert:
+    that: "{{ item }} is defined"
+    fail_msg: "Variable {{ item }} is not defined in group_vars/all.yml, please define it for IDE setup."
+    success_msg: "Variable {{ item }} is defined."
+  loop:
+    - ansible_private_key
+    - ansible_public_key
+    - domain
+    - realm
+    - realm_password
+    - my_email
+    - truststore_password
+    - keystore_password
+    - keytab_folder
+    - hadoop_nameservice
+    - haproxy_admin_password
+
+- name: print message depending on variable check for Hetzner Cloud deployment
+  assert:
+    that: hetzner_api_token is defined
+    fail_msg: "Hetzner API token is not defined using variable hetzner_api_token in group_vars/all.yml, please define it for deployment in Hetzner Cloud."
+    success_msg: "Hetzner API token is defined and will be used for deployment in Hetzner Cloud."
+  when: custom_inventory_file is not defined
+
+- name: check if defined domain is reachable
+  wait_for:
+    host: "{{ domain }}"
+    port: 443
+    timeout: 3
+  register: domain_reachable
+  failed_when: false
+
+- name: print message depending on domain check
+  assert:
+    that: domain_reachable.state is defined and domain_reachable.state == "started"
+    fail_msg: "Configured domain {{ domain }} is not reachable, check your network settings."
+    success_msg: "Configured domain {{ domain }} is reachable and will be used for installation."

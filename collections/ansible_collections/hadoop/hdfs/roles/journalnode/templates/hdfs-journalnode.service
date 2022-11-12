@@ -1,0 +1,18 @@
+[Unit]
+Description=Hadoop Journalnode Service
+After=zookeeper.service
+Wants=zookeeper.service
+
+[Service]
+Type=forking
+ExecStart=/opt/apache-hadoop/hadoop/bin/hdfs --daemon start journalnode
+ExecStop=/opt/apache-hadoop/hadoop/bin/hdfs --daemon stop journalnode
+User={{ journalnode_user }}
+Group={{ journalnode_group }}
+TimeoutSec=30
+RestartSec=30
+Restart=always
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,31 @@
+- name: create zookeeper data and log folder
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ zookeeper_user }}"
+    group: "{{ zookeeper_group }}"
+  loop:
+    - "{{ zookeeper_data_dir }}"
+    - "{{ zookeeper_log_dir }}"
+
+- name: set id for zookeeper node
+  copy:
+    content: "{{ zookeeper_id }}"
+    dest: "{{ zookeeper_data_dir }}/myid"
+    owner: "{{ zookeeper_user }}"
+    group: "{{ zookeeper_group }}"
+
+- name: configure zookeeper with zoo.cfg and zookeeper-env.sh
+  template:
+    src: "{{ item }}"
+    dest: "/opt/apache-zookeeper/zookeeper/conf/{{ item }}"
+    owner: "{{ zookeeper_user }}"
+    group: "{{ zookeeper_group }}"
+  loop:
+    - "zoo.cfg"
+    - "zookeeper-env.sh"
+
+- name: create system unit
+  template:
+    src: "zookeeper.service"
+    dest: "/etc/systemd/system/zookeeper.service"

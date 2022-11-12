@@ -1,0 +1,26 @@
+- name: execute as root user
+  become: yes
+  block:
+    - name: delete present java keystore files
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "/etc/ssl/private/{{ inventory_hostname }}.jks"
+        - "/etc/ssl/private/{{ inventory_hostname }}.p12"
+    
+    - name: generate PKCS 12 archive for building java keystore
+      shell: "openssl pkcs12 -export -in /etc/ssl/private/cert.pem -inkey /etc/ssl/private/key.pem -out /etc/ssl/private/{{ inventory_hostname }}.p12 -name {{ inventory_hostname }} -CAfile /etc/ssl/private/chain.pem -caname \"Let's Encrypt Authority X3\" -password pass:{{ keystore_password }}"
+    
+    - name: create java keystore 
+      shell: "keytool -importkeystore -deststorepass {{ keystore_password }} -destkeypass {{ keystore_password }} -deststoretype pkcs12 -srckeystore /etc/ssl/private/{{ inventory_hostname }}.p12 -srcstoretype PKCS12 -srcstorepass {{ keystore_password }} -destkeystore /etc/ssl/private/{{ inventory_hostname }}.jks -alias {{ inventory_hostname }}"
+    
+    - name: give access to created java keystore
+      file: 
+        path: "{{ item }}"
+        owner: "{{ tls_user }}"
+        group: "ssl-cert"
+        mode: "0440"
+      loop:
+        - "/etc/ssl/private/{{ inventory_hostname }}.jks"
+        - "/etc/ssl/private/{{ inventory_hostname }}.p12"

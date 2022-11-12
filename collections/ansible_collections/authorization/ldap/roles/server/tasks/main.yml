@@ -1,0 +1,79 @@
+- name: install necessary packages
+  environment: 
+    DEBIAN_FRONTEND: noninteractive
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+    install_recommends: no
+  loop: "{{ ldap_server_packages }}"
+
+- name: configure ldap server
+  debconf:
+    name: "slapd"
+    question: "{{ item.question }}"
+    value: "{{ item.value }}"
+    vtype: select
+  loop: "{{ ldap_slapd_debconf }}"
+  no_log: true
+
+- name: reconfigure slapd 
+  failed_when: false
+  shell: "dpkg-reconfigure -f noninteractive slapd --force"
+    
+- name: change ownership of ldap folders
+  shell: "chown -R {{ ldap_user }}:{{ ldap_group }} {{ item }}"
+  loop:
+    - "/etc/ldap/slapd.d"
+    - "/var/lib/ldap"
+    - "/var/run/slapd"
+
+- name: copy ssl.ldif to ldap server
+  template:
+    src: "ssl.ldif"
+    dest: "/tmp/ssl.ldif"
+
+- name: configure ldap server for TLS
+  shell: "ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/ssl.ldif"
+  register: ldapmodify
+
+- name: copy update-module.ldif
+  copy:
+    src: "update-module.ldif"
+    dest: "/tmp/update-module.ldif"
+
+- name: load ldap module memberOf
+  shell: "ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/update-module.ldif"
+  register: ldapadd
+
+- name: copy memberof-overlay.ldif 
+  copy:
+    src: "add-memberof-overlay.ldif"
+    dest: "/tmp/add-memberof-overlay.ldif"
+
+- name: add overlay to database
+  shell: "ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/add-memberof-overlay.ldif"
+
+- name: copy add-refint.ldif
+  copy:
+    src: "add-refint.ldif"
+    dest: "/tmp/add-refint.ldif"
+
+- name: ldapadd add-refint.ldif
+  shell: "ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/add-refint.ldif"
+  register: ldapadd
+
+- name: configure ldap.conf
+  template: 
+    src: "ldap.conf"
+    dest: "/etc/ldap/ldap.conf"
+
+- name: configure slapd service
+  copy: 
+    src: "slapd"
+    dest: "/etc/default/slapd"
+
+- name: restart slapd
+  service:
+    name: "slapd"
+    state: restarted

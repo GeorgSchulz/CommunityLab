@@ -1,0 +1,26 @@
+- name: download miniforge installation script
+  failed_when: false
+  get_url:
+    url: "https://github.com/conda-forge/miniforge/releases/latest/download/{{ miniforge_version }}.sh"
+    dest: "/var/tmp/{{ miniforge_version }}.sh"
+
+- name: check if miniforge is already installed
+  stat: 
+    path: "/opt/miniforge/{{ miniforge_version }}"
+  register: miniforge_install
+
+- name: install miniforge using miniforge installation script when not already present
+  shell: "bash /var/tmp/{{ miniforge_version }}.sh -b -p /opt/miniforge/{{ miniforge_version }}"
+  when: not miniforge_install.stat.exists
+
+- name: change ownership to miniforge user and group
+  shell: "chown -R {{ miniforge_user }}:{{ miniforge_group }} /opt/miniforge"
+  when: not miniforge_install.stat.exists
+
+- name: create symbolic link
+  file: 
+    dest: "/opt/miniforge/miniforge"
+    src: "/opt/miniforge/{{ miniforge_version }}"
+    state: link
+    owner: "{{ miniforge_user }}"
+    group: "{{ miniforge_group }}"

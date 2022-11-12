@@ -1,0 +1,38 @@
+- name: execute as root user
+  become: yes
+  block:
+    - name: delete present Java truststore
+      file:
+        path: "/etc/ssl/certs/truststore.jks"
+        state: absent
+    
+    - name: copy JRE internal truststore to /etc/ssl/certs/truststore.jks
+      copy:
+        src: "{{ java_home }}/lib/security/cacerts"
+        dest: "/etc/ssl/certs/truststore.jks"
+        remote_src: yes
+    
+    - name: copy temporary all certs of hosts to /var/tmp of each host
+      copy:
+        src: "/opt/letsencrypt/{{ item }}/cert1.pem"
+        dest: "/var/tmp/{{ item }}_cert.pem"
+      loop: "{{ groups.all | difference(groups.ansible) }}"
+    
+    - name: import all certs from hosts into /etc/ssl/certs/truststore.jks
+      shell: "keytool -import -alias {{ item }} -keystore /etc/ssl/certs/truststore.jks -file /var/tmp/{{ item }}_cert.pem -storepass {{ truststore_password }} -noprompt" 
+      loop: "{{ groups.all | difference(groups.ansible) }}"
+    
+    - name: import chain.pem into /etc/ssl/certs/truststore.jks
+      shell: "keytool -import -alias {{ domain }}_chain -keystore /etc/ssl/certs/truststore.jks -file /etc/ssl/private/chain.pem -storepass {{ truststore_password }} -noprompt" 
+    
+    - name: give access to create Java truststore
+      file:
+        path: "/etc/ssl/certs/truststore.jks"
+        owner: "{{ tls_user }}"
+        group: "ssl-cert"
+        mode: "0644"
+    
+    - name: delete all certs in /var/tmp
+      file: 
+        path: "/var/tmp/{{ inventory_hostname }}_cert.pem"
+        state: absent

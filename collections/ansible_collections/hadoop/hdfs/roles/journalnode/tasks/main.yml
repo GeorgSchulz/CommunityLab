@@ -1,0 +1,27 @@
+- name: create configurations folder
+  file:
+    path: "{{ hdfs_data_dir }}/journalnode"
+    state: directory
+    owner: "{{ journalnode_user }}"
+    group: "{{ journalnode_group }}"
+
+- name: create system service
+  template:
+    src: "hdfs-journalnode.service"
+    dest: "/etc/systemd/system/hdfs-journalnode.service"
+
+- name: enable hdfs-journalnode service
+  systemd:
+    name: "hdfs-journalnode.service"
+    enabled: yes
+    daemon_reload: yes
+
+- name: stop hdfs-journalnode service
+  systemd:
+    name: "hdfs-journalnode.service"
+    state: stopped
+
+- name: start hdfs-journalnode service
+  systemd:
+    name: "hdfs-journalnode.service"
+    state: started

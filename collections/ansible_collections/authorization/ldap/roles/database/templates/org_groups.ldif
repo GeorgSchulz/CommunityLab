@@ -1,0 +1,4 @@
+dn: ou=groups,{{ ldap_organization }}
+objectClass: organizationalUnit
+objectClass: top
+ou: groups

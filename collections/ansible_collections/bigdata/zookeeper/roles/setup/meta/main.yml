@@ -1,0 +1,7 @@
+dependencies:
+  - name: ide.environment.variables
+  - name: bigdata.zookeeper.cluster
+  - name: bigdata.zookeeper.service
+  - name: bigdata.zookeeper.check
+    tags:
+      - check

@@ -1,0 +1,5 @@
+- name: install Zookeeper cluster
+  include_tasks: install.yml
+
+- name: configure Zookeeper cluster
+  include_tasks: configure.yml

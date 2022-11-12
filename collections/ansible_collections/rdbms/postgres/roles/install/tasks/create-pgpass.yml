@@ -1,0 +1,10 @@
+- name: copy .pgpass file to postgres home directory
+  copy:
+    content: |
+      {% for hostname,port,database,username,password in postgres_users %}
+      {{ user.hostname }}:{{ user.port }}:{{ user.database}}:{{ user.username }}:{{ user.password }}
+      {% endfor %}
+    dest: "/var/lib/postgresql/.pgpass"
+    owner: "postgres"
+    group: "postgres"
+    mode: "0400"

@@ -1,0 +1,6 @@
+spark_version: "3.1.2"
+spark_hadoop_version: "3.2"
+hdfs_user: "{{ hdfs_user | default('hdfs')  }}"
+hdfs_group: "{{ hdfs_group | default('hdfs')  }}"
+yarn_user: "{{ yarn_user | default('yarn')  }}"
+yarn_group: "{{ yarn_group | default('yarn')  }}"

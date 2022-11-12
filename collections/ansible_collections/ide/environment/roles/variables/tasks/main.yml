@@ -1,0 +1,6 @@
+- name: get Java Home
+  shell: "dirname $(dirname $(readlink -f $(which java)))"
+  register: java_home
+
+- set_fact:
+    java_home: "{{ java_home.stdout }}"

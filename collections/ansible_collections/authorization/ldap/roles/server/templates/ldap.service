@@ -1,0 +1,13 @@
+[Unit]
+Description=LDAP Service
+Wants=network.target network-online.target
+After=network.target network-online.target
+
+[Service]
+Type=simple
+ExecStart=slapd -h "ldap:/// ldaps:/// ldapi:///" -d -1 -u {{ ldap_user }} -g {{ ldap_group }}
+TimeoutSec=30
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

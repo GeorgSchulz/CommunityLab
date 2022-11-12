@@ -1,0 +1,5 @@
+- name: create relevant environment folders
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop: "{{ environment_folders }}"

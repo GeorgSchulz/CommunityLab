@@ -1,0 +1,27 @@
+- name: create system service for YARN resourcemanager
+  template:
+    src: "yarn-resourcemanager.service"
+    dest: "/etc/systemd/system/yarn-resourcemanager.service"
+
+- name: enable yarn-resourcemanager service
+  systemd:
+    name: "yarn-resourcemanager.service"
+    enabled: yes
+    daemon_reload: yes
+
+- name: stop yarn-resourcemanager service
+  systemd:
+    name: "yarn-resourcemanager.service"
+    state: stopped
+
+- name: start active yarn-resourcemanager
+  systemd:
+    name: "yarn-resourcemanager.service"
+    state: started
+  when: "'master1' in group_names"
+
+- name: start passive yarn-resourcemanagers
+  systemd:
+    name: "yarn-resourcemanager.service"
+    state: started
+  when: "'master1' not in group_names"

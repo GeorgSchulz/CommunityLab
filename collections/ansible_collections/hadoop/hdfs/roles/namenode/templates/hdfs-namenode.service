@@ -1,0 +1,19 @@
+[Unit]
+Description=Hadoop Namenode Service
+After=hdfs-zkfc.service
+Wants=hdfs-zkfc.service
+After=hdfs-journalnode.service
+Wants=hdfs-journalnode.service
+
+[Service]
+Type=forking
+ExecStart=/opt/apache-hadoop/hadoop/bin/hdfs --daemon start namenode
+ExecStop=/opt/apache-hadoop/hadoop/bin/hdfs --daemon stop namenode
+User={{ hdfs_user }}
+Group={{ hdfs_group }}
+TimeoutSec=30
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

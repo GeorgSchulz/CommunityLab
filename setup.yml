@@ -1,0 +1,329 @@
+################################################################################################################
+##########      Check if all mandatory variables for installation and configuration are defined       ##########
+################################################################################################################
+
+- hosts: ansible
+  tags:
+    - preflight
+  roles:
+    - name: preflight.check.run
+
+################################################################################################################
+##########      Check if all mandatory variables for installation and configuration are defined       ##########
+################################################################################################################
+
+################################################################################################################
+########## Setup of Cloud server and DNS configuration, Cloud server definition in group_vars/all.yml ##########
+################################################################################################################
+
+- hosts: ansible
+  tags:
+    - hetzner
+  roles:
+    - name: hetzner.cloud.servers_and_ips
+      when: custom_inventory_file is not defined
+  post_tasks:
+    - name: refresh dynamic changed inventory
+      meta: refresh_inventory
+
+- hosts: all,!ansible
+  become: yes
+  tags:
+    - dns
+  roles:
+    - name: hetzner.cloud.dns
+      when: custom_inventory_file is not defined
+
+- hosts: all,!ansible
+  become: yes
+  tags:
+    - dns
+  tasks:
+    - name: refresh dynamic changed inventory
+      delegate_to: localhost
+      become: no
+      run_once: yes
+      meta: refresh_inventory
+
+- hosts: all,!ansible
+  become: yes
+  tags:
+    - dns
+    - reverse_dns
+  roles:
+    - name: hetzner.cloud.reverse_dns
+      when: custom_inventory_file is not defined
+
+- hosts: all,!ansible
+  become: yes
+  tags:
+    - dns
+  tasks:
+    - name: set hostnames and fqdn for all hosts on global level
+      shell: "hostnamectl set-hostname {{ inventory_hostname }}"
+      when: custom_inventory_file is not defined
+
+    - name: reboot all servers
+      reboot:
+        msg: "Reboot initiated by Ansible"
+        connect_timeout: 5
+        reboot_timeout: 600
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        test_command: whoami
+      when: custom_inventory_file is not defined
+
+################################################################################################################
+########## Setup of Cloud server and DNS configuration, Cloud server definition in group_vars/all.yml ##########
+################################################################################################################
+
+################################################################################################################
+##########                              Setup environment of hosts                                    ##########
+################################################################################################################
+
+- hosts: all,!ansible
+  become: yes
+  tags:
+    - environment
+  roles:
+    - name: ide.environment.setup
+
+################################################################################################################
+##########                              Setup environment of hosts                                    ##########
+################################################################################################################
+
+################################################################################################################
+##########                              Setup TLS preparation                                         ##########
+################################################################################################################
+
+- hosts: all,!ansible
+  tags:
+    - tls
+  roles:
+    - name: tls.certs.common
+      when: tls_external is not defined
+
+################################################################################################################
+##########                              Setup TLS preparation                                         ##########
+################################################################################################################
+
+################################################################################################################
+##########                                   Setup LDAP                                               ##########
+################################################################################################################
+
+- name: install and configure LDAP server and database
+  hosts: securities
+  become: yes
+  tags:
+    - ldap
+    - ldap_server
+  roles:
+    - name: authorization.ldap.setup
+      when: ldap_external is not defined
+
+- name: install and configure LDAP client
+  hosts: all,!ansible,!securities
+  become: yes
+  tags:
+    - ldap
+    - ldap_client
+  roles:
+    - name: authorization.ldap.client
+      when: ldap_external is not defined
+
+################################################################################################################
+##########                              Setup LDAP server                                             ##########
+################################################################################################################
+
+################################################################################################################
+##########                              Setup Kerberos server                                         ##########
+################################################################################################################
+
+- name: install and configure Kerberos server
+  hosts: securities
+  become: yes
+  tags:
+    - kerberos
+  roles:
+    - name: authentication.kerberos.setup
+      when: kerberos_external is not defined
+
+################################################################################################################
+##########                              Setup Kerberos server                                         ##########
+################################################################################################################
+
+################################################################################################################
+##########                              Setup Zookeeper cluster                                       ##########
+################################################################################################################
+
+- name: install and configure Zookeeper cluster
+  hosts: masters
+  become: yes
+  tags:
+    - zookeeper
+  roles:
+    - name: bigdata.zookeeper.setup
+
+################################################################################################################
+##########                              Setup Zookeeper cluster                                       ##########
+################################################################################################################
+
+################################################################################################################
+##########                              Install and configure HDFS cluster                            ##########
+################################################################################################################
+
+- name: install and configure HDFS Namenodes
+  hosts: masters
+  become: yes
+  tags:
+    - hadoop
+    - hdfs
+  roles:
+    - name: hadoop.common.setup
+    - name: hadoop.hdfs.common
+    - name: hadoop.hdfs.journalnode
+    - name: hadoop.hdfs.namenode
+
+- name: install and configure HDFS Datanodes
+  hosts: workers
+  become: yes
+  tags:
+    - hadoop
+    - hdfs
+  roles:
+    - name: hadoop.common.setup
+    - name: hadoop.hdfs.common
+    - name: hadoop.hdfs.datanode
+
+- name: check HDFS is running and healthy
+  hosts: master1
+  become: yes
+  become_user: "{{ hdfs_user }}"
+  tags:
+    - hadoop
+    - hdfs
+    - check
+  roles:
+    - name: hadoop.hdfs.check
+
+################################################################################################################
+##########                              Install and configure HDFS cluster                            ##########
+################################################################################################################
+
+################################################################################################################
+##########                              Install and configure YARN cluster                            ##########
+################################################################################################################
+
+- name: install and configure YARN resourcemanager
+  hosts: masters
+  become: yes
+  tags:
+    - hadoop
+    - yarn
+  roles:
+    - name: hadoop.yarn.common
+    - name: hadoop.yarn.resourcemanager
+
+- name: install and configure YARN nodemanager
+  hosts: workers
+  become: yes
+  tags:
+    - hadoop
+    - yarn
+  roles:
+    - name: hadoop.yarn.common
+    - name: hadoop.yarn.nodemanager
+
+- name: check YARN is running and healthy
+  hosts: master1
+  become: yes
+  become_user: "{{ yarn_user }}"
+  tags:
+    - hadoop
+    - yarn
+    - check
+  roles:
+    - name: hadoop.yarn.check
+
+################################################################################################################
+##########                              Install and configure YARN cluster                            ##########
+################################################################################################################
+
+################################################################################################################
+##########                                    Install Spark                                           ##########
+################################################################################################################
+
+- name: install Spark common libs
+  hosts: workers
+  become: yes
+  tags:
+    - spark
+  roles:
+    - name: bigdata.spark.common
+
+################################################################################################################
+##########                                    Install Spark                                           ##########
+################################################################################################################
+
+################################################################################################################
+##########                     Install and configure JupyterHub and JupyterLab                        ##########
+################################################################################################################
+
+- name: install Keepalived for PostgreSQL user and schemes creation
+  hosts: hubs
+  become: yes
+  tags:
+    - jupyter
+    - keepalived
+  roles:
+    - name: loadbalancing.keepalived.setup
+      when: jupyterhub_domain_ip is defined
+
+- name: install PostgreSQL HA cluster on Worker Nodes as Backend for JupyterHub
+  hosts: workers
+  become: yes
+  tags:
+    - jupyter
+    - postgres
+  roles: 
+    - name: rdbms.postgres.cluster
+
+- name: install JupyterHub
+  hosts: hubs
+  become: yes
+  tags:
+    - jupyter
+    - jupyterhub
+  roles:
+    - name: jupyter.hub.install
+    - name: jupyter.hub.configure
+    - name: jupyter.hub.service
+
+- name: install JupyterLab
+  hosts: workers
+  become: yes
+  tags:
+    - jupyter
+    - jupyterlab
+  roles:
+    - name: jupyter.lab.setup
+
+################################################################################################################
+##########                     Install and configure JupyterHub and JupyterLab                        ##########
+################################################################################################################
+
+################################################################################################################
+##########                  Delete all Cloud servers using Ansible Tag delete                         ##########
+################################################################################################################
+      
+- hosts: ansible
+  tags:
+    - never
+    - delete
+  roles:
+    - name: hetzner.delete.servers_and_ips
+      when: custom_inventory_file is not defined
+
+################################################################################################################
+##########                  Delete all Cloud servers using Ansible Tag delete                         ##########
+################################################################################################################

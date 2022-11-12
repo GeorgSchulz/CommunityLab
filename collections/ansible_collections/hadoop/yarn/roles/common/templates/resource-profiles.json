@@ -1,0 +1,18 @@
+{
+  "default": {
+  "memory-mb": 2048,
+  "vcores": 2
+  },
+  "small": {
+  "memory-mb": 1024,
+  "vcores": 1
+  },
+  "medium": {
+  "memory-mb": 3072,
+  "vcores": 3
+  },
+  "large": {
+  "memory-mb": 8192,
+  "vcores": 8
+  }
+}

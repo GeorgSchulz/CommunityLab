@@ -1,0 +1,26 @@
+- name: get valid keytab for YARN user
+  shell: "kinit -k yarn/{{ inventory_hostname }}@{{ realm }} -t {{ keytab_folder }}/yarn.keytab"
+
+- name: check if YARN resourcemanagers are running
+  shell: "/opt/apache-hadoop/hadoop/bin/yarn rmadmin -getAllServiceState"
+  register: ha_resourcemanagers
+
+- name: print message depending on yarn rmadmin -getAllServiceState output
+  assert:
+    that: "'active' in ha_resourcemanagers.stdout"
+    fail_msg: "YARN resourcemanagers failed to start, check Logs for more information"
+    success_msg: "YARN resourcemanagers are running"
+
+- name: check if YARN nodemanagers are running
+  shell: "/opt/apache-hadoop/hadoop/bin/yarn node -list"
+  register: nodemanagers
+  until: nodemanagers.rc == 0
+  retries: 3
+  delay: 5
+  failed_when: false
+    
+- name: print message depending on yarn node -list output
+  assert:
+    that: "'Total Nodes:{{ groups.workers | length | int }}' in nodemanagers.stdout"
+    fail_msg: "Not all {{ groups.workers | length | int }} nodemanagers started, check Logs for details"
+    success_msg: "All {{ groups.workers | length | int }} nodemanagers started successfully"

@@ -1,0 +1,40 @@
+- name: set fact for no root user
+  set_fact:
+    no_root_user: "{{ ansible_user_id }}"
+
+- name: create folder for certs and keystores
+  delegate_to: localhost
+  run_once: yes
+  become: yes
+  file:
+    path: "/opt/letsencrypt"
+    state: directory
+    owner: "{{ no_root_user }}"
+
+- name: check if certificate is already present on ansible server
+  delegate_to: localhost
+  stat:
+    path: "/opt/letsencrypt/{{ inventory_hostname }}"
+  register: cert_dir
+
+- name: issue and fetch certificates only if not present on ansible server
+  when: not cert_dir.stat.exists
+  become: yes
+  block:
+    - name: install certbot
+      apt:
+        name: "certbot"
+        state: present
+        update_cache: yes
+
+    - name: issue certificate using certbot
+      shell: "certbot certonly --standalone --preferred-challenges http --agree-tos --email {{ my_email }} -d {{ inventory_hostname }}"
+      
+      # for getting cert for HA frontend for both hub nodes use dns challenge:
+      # certbot -d jupyterhub.{{ domain }} --manual --preferred-challenges dns certonly --email {{ my_email }}
+
+    - name: fetch certificate to ansible server for Backend server
+      synchronize:
+        src: "/etc/letsencrypt/archive/{{ inventory_hostname }}"
+        dest: "/opt/letsencrypt/"
+        mode: pull

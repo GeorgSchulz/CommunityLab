@@ -1,0 +1,20 @@
+- name: create system unit for HDFS datanode
+  template:
+    src: "hdfs-datanode.service"
+    dest: "/etc/systemd/system/hdfs-datanode.service"
+
+- name: enable hdfs-datanode service
+  systemd:
+    name: "hdfs-datanode.service"
+    enabled: yes
+    daemon_reload: yes
+
+- name: stop hdfs-datanode service
+  systemd:
+    name: "hdfs-datanode.service"
+    state: stopped
+
+- name: start hdfs-datanode service
+  systemd:
+    name: "hdfs-datanode.service"
+    state: started

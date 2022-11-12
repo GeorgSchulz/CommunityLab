@@ -1,0 +1,29 @@
+- name: check if jupyterhub environment is already present
+  stat:
+    path: "/opt/miniforge/miniforge/envs/jupyterhub/bin/python"
+  register: jupyterhub_env
+
+- name: install jupyterhub environment if not present
+  block:
+    - name: create jupyterhub environment in '{{ miniforge_base_path }}'
+      shell: |
+        . /opt/miniforge/miniforge/bin/activate
+        conda create -n jupyterhub python={{ environment_python_version }} -y
+
+    - name: install jupyterhub conda packages in jupyterhub environment
+      shell: |
+        . /opt/miniforge/miniforge/bin/activate jupyterhub
+        conda install -c conda-forge {% for conda_package in jupyterhub_conda_packages %}{{ conda_package }}{% if not loop.last %} {% endif %}{% endfor %} -y
+      args:
+        executable: /bin/bash
+
+    - name: install jupyterhub pip packages in jupyterhub environment
+      shell: |
+        . /opt/miniforge/miniforge/bin/activate jupyterhub
+        pip install {% for pip_package in jupyterhub_pip_packages %}{{ pip_package }}{% if not loop.last %} {% endif %}{% endfor %}
+      args:
+        executable: /bin/bash
+
+    - name: change owner to jupyterhub user and group - use shell module because of better performance
+      shell: "chown {{ jupyterhub_user }}:{{ jupyterhub_group }} -R {{ miniforge_base_path }}/envs/jupyterhub"
+  when: not jupyterhub_env.stat.exists

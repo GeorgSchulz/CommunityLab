@@ -1,0 +1,28 @@
+- name: create /opt/apache-spark folder
+  file:
+    path: /opt/apache-spark
+    state: directory
+    owner: "{{ hdfs_user }}"
+    group: "{{ hdfs_group }}"
+
+- name: get spark tarball
+  get_url:
+    url: "https://archive.apache.org/dist/spark/spark-{{ spark_version }}/spark-{{ spark_version }}-bin-hadoop{{ spark_hadoop_version }}.tgz"
+    dest: "/var/tmp/spark-{{ spark_version }}-bin-hadoop{{ spark_hadoop_version }}.tgz"
+
+- name: unpack spark tarball
+  unarchive: 
+    copy: no
+    src: "/var/tmp/spark-{{ spark_version }}-bin-hadoop{{ spark_hadoop_version }}.tgz"
+    dest: "/opt/apache-spark"
+    owner: "{{ yarn_user }}"
+    group: "{{ yarn_group }}"
+    creates: "/opt/apache-spark/spark-{{ spark_version }}"
+
+- name: create symbolic link
+  file: 
+    src: "/opt/apache-spark/spark-{{ spark_version }}-bin-hadoop{{ spark_hadoop_version }}"
+    dest: "/opt/apache-spark/spark"
+    state: link
+    owner: "{{ yarn_user }}"
+    group: "{{ yarn_group }}"

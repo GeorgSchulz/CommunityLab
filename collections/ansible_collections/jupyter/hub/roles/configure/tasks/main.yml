@@ -1,0 +1,51 @@
+- name: create folders for jupyterhub
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ jupyterhub_user }}"
+    group: "{{ jupyterhub_group }}"
+  loop:
+    - "/opt/jupyterhub"
+    - "/etc/jupyterhub"
+    - "/var/jupyterhub"
+    - "/var/log/jupyterhub"
+
+- name: copy config files to /etc/jupyterhub
+  template:
+    src: "{{ item }}"
+    dest: "/etc/jupyterhub/{{ item }}"
+    owner: "{{ jupyterhub_user }}"
+    group: "{{ jupyterhub_group }}"
+    mode: "0660"
+  loop:
+    - "jupyterhub_config.py"
+    - "env"
+
+- name: copy start-jupyterhub to /opt/jupyterhub
+  template:
+    src: "start-jupyterhub"
+    dest: "/opt/jupyterhub/start-jupyterhub"
+    owner: "{{ jupyterhub_user }}"
+    group: "{{ jupyterhub_group }}"
+    mode: "0755"
+
+- name: check if jupyterhub cookie secret is already present
+  stat:
+    path: "/etc/jupyterhub/jupyterhub_cookie_secret"
+  register: jupyterhub_cookie_secret
+
+- name: generate jupyterhub cookie secret
+  shell: "openssl rand -hex 32 > /etc/jupyterhub/jupyterhub_cookie_secret"
+  when: not jupyterhub_cookie_secret.stat.exists
+
+- name: change permissions for jupyterhub cookie secret
+  file:
+    path: "/etc/jupyterhub/jupyterhub_cookie_secret"
+    owner: "{{ jupyterhub_user }}"
+    group: "{{ jupyterhub_group }}"
+    mode: "0600"
+
+- name: create system service for JupyterHub
+  template:
+    src: "jupyterhub.service"
+    dest: "/etc/systemd/system/jupyterhub.service"

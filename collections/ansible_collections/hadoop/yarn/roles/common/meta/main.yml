@@ -1,0 +1,3 @@
+dependencies:
+  - name: authentication.kerberos.keytab
+    when: kerberos_external is not defined

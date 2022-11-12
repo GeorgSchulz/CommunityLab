@@ -1,0 +1,25 @@
+- name: create postgres user and schemes
+  become_user: "postgres"
+  run_once: yes
+  block:
+    - name: check if PostgreSQL is available
+      shell: "psql -h {{ postgres_host }} -c \"SELECT 1\""
+      register: psql_check
+      until: psql_check.rc == 0
+      retries: 10
+      delay: 5
+    
+    - name: create postgres user '{{ item.username }}'
+      postgresql_user:
+        login_host: "{{ postgres_host }}"
+        name: "{{ item.username }}"
+        password: "{{ item.password }}"
+        role_attr_flags: CREATEDB,NOSUPERUSER
+      no_log: true
+    
+    - name: create postgres scheme '{{ item.scheme }}'
+      postgresql_db:
+        login_host: "{{ postgres_host }}"
+        name: "{{ item.scheme }}"
+        owner: "{{ item.username }}"
+  when: item.scheme is defined

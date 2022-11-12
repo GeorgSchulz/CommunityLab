@@ -1,0 +1,15 @@
+- name: block for checking Apache Zookeeper health
+  run_once: yes
+  block:
+    - name: check if main ZNode is accessible using zkCli.sh
+      shell: "/opt/apache-zookeeper/zookeeper/bin/zkCli.sh -server {% for host in groups.masters %}{{ host }}:2281{% if not loop.last %},{% endif %}{% endfor %} get /zookeeper"
+      register: main_znode_get
+      retries: 5
+      until: main_znode_get.rc == 0
+      failed_when: false
+    
+    - name: print message depending on zkCli.sh return code
+      assert:
+        that: main_znode_get.rc == 0
+        fail_msg: "Apache Zookeeper Cluster failed to start, check Logs for more information"
+        success_msg: "Apache Zookeeper Cluster started successfully"

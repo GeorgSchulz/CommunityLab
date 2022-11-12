@@ -1,0 +1,15 @@
+[Unit]
+Description=HDFS Datanode Service
+
+[Service]
+Type=forking
+ExecStart=/opt/apache-hadoop/hadoop/bin/hdfs --daemon start datanode
+ExecStop=/opt/apache-hadoop/hadoop/bin/hdfs --daemon stop datanode
+User={{ hdfs_user }}
+Group={{ hdfs_group }}
+TimeoutSec=30
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

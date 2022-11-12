@@ -1,0 +1,2 @@
+environment_folders:
+  - "{{ keytab_folder | default('/etc/keytabs') }}"

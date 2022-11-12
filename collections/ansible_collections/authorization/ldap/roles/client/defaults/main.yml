@@ -1,0 +1,28 @@
+ldap_client_packages:
+  - "libnss-ldap"
+  - "libpam-ldap"
+  - "ldap-utils"
+
+ldap_auth_config_debconf:
+  - question: "ldap-auth-config/rootbindpw"
+    value: "{{ ldap_password }}"
+  - question: "ldap-auth-config/bindpw"
+    value: "{{ ldap_password }}"
+  - question: "ldap-auth-config/move-to-debconf"
+    value: true
+  - question: "ldap-auth-config/override"
+    value: false
+  - question: "ldap-auth-config/dbrootlogin"
+    value: true
+  - question: "ldap-auth-config/binddn"
+    value: "cn=admin,{{ ldap_organization }}"
+  - question: "ldap-auth-config/dblogin"
+    value: true
+  - question: "ldap-auth-config/rootbinddn"
+    value: "cn=admin,{{ ldap_organization }}"
+  - question: "ldap-auth-config/ldapns/ldap-server"
+    value: "ldap://{{ inventory_hostname }}:389"
+  - question: "ldap-auth-config/ldapns/base-dn"
+    value: "{{ ldap_organization }}"
+  - question: "ldap-auth-config/ldapns/ldap_version"
+    value: 3

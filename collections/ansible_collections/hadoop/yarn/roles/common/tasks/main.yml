@@ -1,0 +1,20 @@
+- name: create data folder for yarn
+  file:
+    path: "{{ yarn_data_dir }}"
+    state: directory
+    owner: "{{ yarn_user }}"
+    group: "{{ yarn_group }}"
+
+- name: copy important configuration files
+  template:
+    src: "{{ item }}"
+    dest: "/opt/apache-hadoop/hadoop/etc/hadoop/{{ item }}"
+    owner: "{{ yarn_user }}"
+    group: "{{ yarn_group }}"
+    mode: 0644
+  loop:
+    - "resource-profiles.json"
+    - "resource-profiles.xml"
+    - "resource-types.xml"
+    - "node-resources.xml"
+    - "yarn-site.xml"

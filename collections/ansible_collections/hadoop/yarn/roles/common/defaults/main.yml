@@ -1,0 +1,4 @@
+yarn_user: "{{ yarn_user | default('yarn') }}"
+yarn_group: "{{ yarn_group | default('yarn') }}"
+hdfs_data_dir: "/var/hadoop/hdfs"
+yarn_data_dir: "/var/hadoop/yarn"

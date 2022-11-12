@@ -1,0 +1,4 @@
+dn: cn={{ ide_users_group }},ou=groups,{{ ldap_organization }}
+objectClass: top
+objectClass: posixGroup
+gidNumber: 5001

@@ -1,0 +1,34 @@
+- name: get valid keytab for HDFS user
+  shell: "kinit -k hdfs/{{ inventory_hostname }}@{{ realm }} -t {{ keytab_folder }}/hdfs.keytab"
+
+- name: check if HDFS namenodes are running
+  shell: "/opt/apache-hadoop/hadoop/bin/hdfs haadmin -getAllServiceState"
+  register: ha_namenodes
+
+- name: print message depending on hdfs haadmin -getAllServiceState output
+  assert:
+    that: "'active' in ha_namenodes.stdout"
+    fail_msg: "HDFS namenodes failed to start, check Logs for more information"
+    success_msg: "HDFS namenodes are running"
+
+- name: check if HDFS Datanodes are running
+  shell: "/opt/apache-hadoop/hadoop/bin/hdfs dfsadmin -report"
+  register: hdfs_report
+
+- name: print message depending on hdfs dfsadmin -report output
+  assert:
+    that: "'Live datanodes ({{ groups.workers | length | int }})' in hdfs_report.stdout"
+    fail_msg: "Not all {{ groups.workers | length | int }} HDFS datanodes are running successfully, check Logs for more information"
+    success_msg: "All {{ groups.workers | length | int }} HDFS datanodes are running"
+
+- name: check if HDFS is writable as HDFS user
+  shell: |
+    /opt/apache-hadoop/hadoop/bin/hdfs dfs -mkdir /test
+    /opt/apache-hadoop/hadoop/bin/hdfs dfs -rm -r /test
+  register: hdfs_writable
+
+- name: print message depending on hdfs writable commands
+  assert:
+    that: hdfs_writable.rc == 0
+    fail_msg: "HDFS is not writable as HDFS user, check Logs for more information"
+    success_msg: "HDFS is writable as HDFS user"

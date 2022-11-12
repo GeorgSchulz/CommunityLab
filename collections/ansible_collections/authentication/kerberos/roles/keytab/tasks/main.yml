@@ -1,0 +1,6 @@
+- name: create keytab looping over kerberos_keytabs list
+  include_tasks: create-keytab.yml
+  loop: "{{ kerberos_keytabs }}"
+  loop_control:
+    loop_var: keytab
+    label: "{{ keytab.principal }}"

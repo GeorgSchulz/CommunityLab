@@ -1,0 +1,4 @@
+dn: uid={{ item.name }},ou=people,{{ ldap_organization }}
+changetype: modify
+add: memberOf
+memberOf: cn={{ ide_users_group }},ou=groups,{{ ldap_organization }}

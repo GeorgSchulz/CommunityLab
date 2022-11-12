@@ -1,0 +1,10 @@
+- name: install necessary packages
+  apt:
+    name: "krb5-user"
+    state: present
+    update_cache: yes
+    
+- name: copy krb5.conf
+  template:
+    src: "krb5.conf"
+    dest: "/etc/krb5.conf"

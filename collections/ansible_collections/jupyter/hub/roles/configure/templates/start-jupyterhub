@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+{{ miniforge_base_path }}/envs/jupyterhub/bin/jupyterhub -f /etc/jupyterhub/jupyterhub_config.py --debug &>> '/var/log/jupyterhub/jupyterhub.log'

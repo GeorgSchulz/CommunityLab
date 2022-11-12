@@ -1,0 +1,3 @@
+dependencies:
+  - name: ide.environment.variables
+  - name: jupyter.miniforge.install

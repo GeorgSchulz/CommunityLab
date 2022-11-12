@@ -1,0 +1,243 @@
+<?xml version="1.0"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+<configuration>
+
+<!-- Site specific YARN configuration properties -->
+  <property>
+    <name>yarn.resourcemanager.ha.enabled</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.cluster-id</name>
+    <value>{{ hadoop_nameservice }}</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.ha.rm-ids</name>
+    <value>master1,master2,master3</value>
+  </property>
+{% for host in groups['masters'] %} <property>
+    <name>yarn.resourcemanager.hostname.{{ hostvars[host].inventory_hostname_short }}</name>
+    <value>{{ host }}</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.webapp.address.{{ hostvars[host].inventory_hostname_short }}</name>
+    <value>{{ host }}:8088</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.webapp.https.address.{{ hostvars[host].inventory_hostname_short }}</name>
+    <value>{{ host }}:8090</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.resource-tracker.address.{{ hostvars[host].inventory_hostname_short }}</name>
+    <value>{{ host }}:8031</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.address.{{ hostvars[host].inventory_hostname_short }}</name>
+    <value>{{ host }}:8032</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.scheduler.address.{{ hostvars[host].inventory_hostname_short }}</name>
+    <value>{{ host }}:8030</value>
+  </property>
+{% endfor %} 
+  <property>
+    <name>yarn.resourcemanager.store.class</name>
+    <value>org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore</value>
+  </property>
+  <properties>
+    <name>yarn.alc.enable</name>
+    <value>false</value>
+  </properties>
+  <properties>
+    <name>yarn.admin.alc</name>
+    <value>*</value>
+  </properties>
+  <properties>
+    <name>yarn.log-aggregation-enable</name>
+    <value>false</value>
+  </properties>
+  <properties>
+    <name>yarn.resourcemanager.scheduler.class</name>
+    <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</value>
+  </properties>
+  <properties>
+    <name>yarn.scheduler.maximum-allocation-vcores</name>
+    <value>4</value>
+  </properties>
+  <properties>
+    <name>yarn.scheduler.minimum-allocation-vcores</name>
+    <value>1</value>
+  </properties>
+  <properties>
+    <name>yarn.scheduler.maximum-allocation-mb</name>
+    <value>8192</value>
+  </properties>
+  <properties>
+    <name>yarn.scheduler.minimum-allocation-mb</name>
+    <value>1024</value>
+  </properties>
+  <properties>
+    <name>yarn.nodemanager.resource.memory-mb</name>
+    <value>8192</value>
+  </properties>
+  <properties>
+    <name>yarn.nodemanager.vmem-check-enabled</name>
+    <value>false</value>
+  </properties>
+  <properties>
+    <name>yarn.nodemanager.resource.detect-hardware-capabilities</name>
+    <value>true</value>
+  </properties>
+  <properties>
+    <name>yarn.nodemanager.vmem-pmem-ratio</name>
+    <value>1.5</value>
+  </properties>
+  <!--properties>
+    <name>yarn.nodemanager.log-dirs</name>
+    <value>{{ hdfs_data_dir }}/yarn/log_dirs</value>
+  </properties-->
+  <properties>
+    <name>yarn.nodemanager.log.retain-seconds</name>
+    <value>10800</value>
+  </properties>
+  <properties>
+    <name>yarn.nodemanager.remote-app-log-dir</name>
+    <value>/tmp/logs</value>
+  </properties>
+  <properties>
+    <name>yarn.nodemanager.remote-app-log-dir-suffix</name>
+    <value>logs</value>
+  </properties>
+  <properties>
+    <name>yarn.nodemanager.aux-services</name>
+    <value>mapreduce_shuffle</value>
+  </properties>
+  <properties>
+    <name>yarn.log-aggregation.retain-seconds</name>
+    <value>-1</value>
+  </properties>
+  <properties>
+    <name>yarn.log-aggregation.retain-check-interval-seconds</name>
+    <value>-1</value>
+  </properties>
+  <property>
+       <name>yarn.resourcemanager.principal</name>
+       <value>{{ keytab_user_yarn }}/_HOST@{{ realm }}</value>
+  </property>
+  <property>
+       <name>yarn.resourcemanager.keytab</name>
+       <value>{{ keytab_folder }}/{{ keytab_user_yarn }}.keytab</value>
+  </property>
+  <property>
+       <name>yarn.nodemanager.principal</name>
+       <value>{{ keytab_user_yarn }}/_HOST@{{ realm }}</value>
+  </property>
+  <property>
+       <name>yarn.nodemanager.keytab</name>
+       <value>{{ keytab_folder }}/{{ keytab_user_yarn }}.keytab</value>
+  </property>
+  <property>
+       <name>yarn.nodemanager.container-executor.class</name>
+       <value>org.apache.hadoop.yarn.server.nodemanager.DefaultContainerExecutor</value>
+  </property>
+  <property>
+       <name>yarn.timeline-service.principal</name>
+       <value>{{ keytab_user_yarn }}/_HOST@{{ realm }}</value>
+  </property>
+  <property>
+       <name>yarn.timeline-service.keytab</name>
+       <value>{{ keytab_folder }}/{{ keytab_user_yarn }}.keytab</value>
+  </property>
+  <property>
+       <name>yarn.resourcemanager.webapp.delegation-token-auth-filter.enabled</name>
+       <value>true</value>
+  </property>
+  <property>
+       <name>yarn.timeline-service.http-authentication.type</name>
+       <value>kerberos</value>
+  </property>
+  <property>
+       <name>yarn.timeline-service.http-authentication.kerberos.principal</name>
+       <value>{{ keytab_user_http }}/_HOST@{{ realm }}</value>
+  </property>
+  <property>
+       <name>yarn.timeline-service.http-authentication.kerberos.keytab</name>
+       <value>{{ keytab_folder }}/{{ keytab_user_http }}.keytab</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.webapp.spnego-keytab-file</name>
+    <value>{{ keytab_folder }}/{{ keytab_user_http }}.keytab</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.webapp.spnego-principal</name>
+    <value>{{ keytab_user_http }}/_HOST@{{ realm }}</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.ha.automatic-failover.enabled</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>yarn.client.failover-max-attempts</name>
+    <value>5</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.ha.automatic-failover.embedded</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>yarn.client.failover-proxy-provider</name>
+    <value>org.apache.hadoop.yarn.client.ConfiguredRMFailoverProxyProvider</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.zk-address</name>
+    <value>{% for host in groups.masters %}{{ host }}:2281{%- if not loop.last %},{% endif %}{% endfor %}</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.zk-state-store.parent-path</name>
+    <value>/rmstatestore</value>
+  </property>
+  <property>
+       <name>yarn.nodemanager.resource.detect-hardware-capabilities</name>
+       <value>true</value>
+  </property>
+  <property>
+       <name>yarn.resourcemanager.resource-profiles.enabled</name>
+       <value>true</value>
+  </property>
+  <property>
+     <name>yarn.scheduler.capacity.root.support.user-limit-factor</name>  
+     <value>2</value>
+     </property>
+  <property>
+     <name>yarn.nodemanager.disk-health-checker.min-healthy-disks</name>
+     <value>0.0</value>
+  </property>
+  <!--property>
+     <name>yarn.nodemanager.disk-health-checker.max-disk-utilization-per-disk-percentage</name>
+     <value>100.0</value>
+  </property-->
+  <property>
+     <name>yarn.nodemanager.resource.percentage-physical-cpu-limit</name>
+     <value>30</value>
+  </property>
+  <property>
+    <name>yarn.nodemanager.webapp.address</name>
+    <value>0.0.0.0:8090</value>
+  </property>
+  <property>
+    <name>yarn.nodemanager.address</name>
+    <value>0.0.0.0:8042</value>
+  </property>
+</configuration>

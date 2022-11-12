@@ -1,0 +1,5 @@
+- name: create postgres user and schemes
+  include_tasks: create-user-and-schemes.yml
+  loop: "{{ postgres }}"
+  loop_control:
+    label: "{{ item.username }}"

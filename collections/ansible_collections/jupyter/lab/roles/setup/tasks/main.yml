@@ -1,0 +1,80 @@
+- name: check if jupyterlab environment is already present
+  stat:
+    path: "/opt/miniforge/miniforge/envs/jupyterlab/bin/python"
+  register: jupyterlab_env
+
+- name: install jupyterlab environment if not present
+  block:
+    - name: create jupyterlab environment
+      tags:
+        - conda_packages
+      shell: |
+        . /opt/miniforge/miniforge/bin/activate
+        conda create -n jupyterlab python={{ environment_python_version }} -y
+    
+    - name: install jupyterlab conda packages in jupyterlab environment
+      tags:
+        - conda_packages
+      shell: |
+        . /opt/miniforge/miniforge/bin/activate jupyterlab
+        conda install -c conda-forge {% for conda_package in jupyterlab_conda_packages %}{{ conda_package }}{% if not loop.last %} {% endif %}{% endfor %} -y
+      args:
+        executable: /bin/bash
+    
+    - name: install jupyterlab pip packages in jupyterlab environment
+      shell: |
+        . /opt/miniforge/miniforge/bin/activate jupyterlab
+        pip install {% for pip_package in jupyterlab_pip_packages %}{{ pip_package }}{% if not loop.last %} {% endif %}{% endfor %}
+      args:
+        executable: /bin/bash
+    
+    - name: change owner to yarn user and group - use shell module because of better performance
+      shell: "chown -R {{ yarn_user }}:{{ yarn_group }} -R {{ miniforge_base_path }}/envs/jupyterlab"
+  when: not jupyterlab_env.stat.exists
+
+- name: create folders for environment variables in jupyterlab environment
+  file:
+    path: "{{ miniforge_base_path }}/envs/jupyterlab/etc/conda/{{ item }}"
+    state: directory
+    owner: "{{ yarn_user }}"
+    group: "{{ yarn_group }}"
+  loop:
+    - "activate.d"
+    - "deactivate.d"
+
+- name: copy script for environment variables to jupyterlab environment
+  template:
+    src: "env_vars.sh"
+    dest: "{{ miniforge_base_path }}/envs/jupyterlab/etc/conda/{{ item }}/env_vars.sh"
+    owner: "{{ yarn_user }}"
+    group: "{{ yarn_group }}"
+  loop:
+    - "activate.d"
+    - "deactivate.d"
+
+- name: only run on one HDFS data node
+  run_once: yes
+  become_user: "{{ hdfs_user }}"
+  block:
+    - name: get valid keytab for HDFS user
+      shell: "kinit -k {{ hdfs_user }}/{{ inventory_hostname }}@{{ realm }} -t {{ keytab_folder }}/{{ hdfs_user }}.keytab"
+
+    - name: set ACL 'group:{{ ide_users_group }}:rwx' in root folder of HDFS
+      shell: "/opt/apache-hadoop/hadoop/bin/hdfs dfs -setfacl -m \"group:{{ ide_users_group }}:rwx\" /"
+    
+    - name: create HDFS folder /user
+      shell: "/opt/apache-hadoop/hadoop/bin/hdfs dfs -mkdir -p /user"
+    
+    - name: set ACL 'group:{{ ide_users_group }}:rwx' in /user folder of HDFS
+      shell: "/opt/apache-hadoop/hadoop/bin/hdfs dfs -setfacl -m \"group:{{ ide_users_group }}:rwx\" /user"
+    
+    - name: create HDFS folder /share
+      shell: "/opt/apache-hadoop/hadoop/bin/hdfs dfs -mkdir -p /share"
+    
+    - name: set ACL 'group:{{ ide_users_group }}:rwx,default:group:{{ ide_users_group }}:rwx' in /share folder of HDFS
+      shell: "/opt/apache-hadoop/hadoop/bin/hdfs dfs -setfacl -m \"group:{{ ide_users_group }}:rwx,default:group:{{ ide_users_group }}:rwx\" /share"
+
+- name: trigger kerberos propagation to replicate all kerberos principals without cronjob
+  run_once: yes
+  delegate_to: "{{ groups.security1[0] }}"
+  shell: "/etc/cron.hourly/kpropd"

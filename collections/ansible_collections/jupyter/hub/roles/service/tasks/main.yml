@@ -1,0 +1,15 @@
+- name: enable jupyterhub service
+  systemd:
+    name: "jupyterhub.service"
+    enabled: yes
+    daemon_reload: yes
+
+- name: stop jupyterhub service
+  systemd:
+    name: "jupyterhub.service"
+    state: stopped
+
+- name: start jupyterhub service
+  systemd:
+    name: "jupyterhub.service"
+    state: started

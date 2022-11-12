@@ -1,0 +1,29 @@
+- name: install haproxy
+  apt:
+    name: "haproxy"
+    state: latest
+    update_cache: yes
+
+- name: configure haproxy.cfg 
+  template:
+    src: "haproxy.cfg"
+    dest: "/etc/haproxy/haproxy.cfg"
+
+- name: create haproxy.pem
+  shell: "cat /etc/ssl/private/cert.pem /etc/ssl/private/key.pem > /etc/ssl/private/haproxy.pem"
+
+- name: enable haproxy service
+  systemd:
+    name: "haproxy.service"
+    enabled: yes
+    daemon_reload: yes
+
+- name: stop haproxy service
+  systemd:
+    name: "haproxy.service"
+    state: stopped
+
+- name: start haproxy service
+  systemd:
+    name: "haproxy.service"
+    state: started

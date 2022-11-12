@@ -1,0 +1,42 @@
+- name: create hadoop configuration folder
+  file:
+    path: "/opt/apache-hadoop"
+    state: directory
+    owner: "{{ hadoop_client_user }}"
+    group: "{{ hadoop_client_group }}"
+
+- name: get hadoop tarball
+  get_url:
+    url: "https://archive.apache.org/dist/hadoop/common/hadoop-{{ hadoop_version }}/hadoop-{{ hadoop_version }}.tar.gz"
+    dest: "/var/tmp/hadoop-{{ hadoop_version }}.tar.gz"
+
+- name: unpack hadoop tarball
+  unarchive: 
+    copy: no
+    src: "/var/tmp/hadoop-{{ hadoop_version }}.tar.gz"
+    dest: "/opt/apache-hadoop"
+    owner: "{{ hadoop_client_user }}"
+    group: "{{ hadoop_client_group }}"
+    creates: "/opt/apache-hadoop/hadoop-{{ hadoop_version }}"
+
+- name: create symbolic link
+  file: 
+    src: "/opt/apache-hadoop/hadoop-{{ hadoop_version }}"
+    dest: "/opt/apache-hadoop/hadoop"
+    state: link
+    owner: "{{ hadoop_client_user }}"
+    group: "{{ hadoop_client_group }}"
+
+- name: copy important hadoop client files
+  template:
+    src: "{{ item }}"
+    dest: "/opt/apache-hadoop/hadoop/etc/hadoop/{{ item }}"
+    owner: "{{ hadoop_client_user }}"
+    group: "{{ hadoop_client_group }}"
+  loop: 
+    - "core-site.xml"
+    - "hdfs-site.xml"
+    - "ssl-server.xml"
+    - "ssl-client.xml"
+    - "hadoop-env.sh"
+    - "yarn-site.xml"

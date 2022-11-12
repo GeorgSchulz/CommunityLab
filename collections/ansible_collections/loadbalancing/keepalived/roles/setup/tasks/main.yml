@@ -1,0 +1,31 @@
+- name: install keepalived
+  apt:
+    name: "keepalived"
+    state: latest
+    update_cache: yes
+
+- name: configure keepalived for Hetzner Cloud
+  include_tasks: configure-keepalived-hetzner.yml
+  when: custom_inventory_file is not defined
+
+- name: configure keepalived
+  template:
+    src: "keepalived.conf"
+    dest: "/etc/keepalived/keepalived.conf"
+
+- name: stop keepalived service
+  systemd:
+    name: "keepalived.service"
+    state: stopped
+
+- name: start keepalived service on first hub
+  systemd:
+    name: "keepalived.service"
+    state: started
+  when: "'hub1' in group_names"
+
+- name: start keepalived service on second hub
+  systemd:
+    name: "keepalived.service"
+    state: started
+  when: "'hub2' in group_names"

@@ -1,0 +1,8 @@
+dependencies:
+  - name: ide.environment.variables
+  - name: jupyter.miniforge.install
+  - name: authentication.kerberos.client
+    when: kerberos_external is not defined
+  - name: authentication.kerberos.keytab
+    when: kerberos_external is not defined
+  - name: hadoop.client.setup

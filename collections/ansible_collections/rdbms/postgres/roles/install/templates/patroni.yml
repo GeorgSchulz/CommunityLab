@@ -1,0 +1,116 @@
+scope: "postgres_cluster"
+name: "patroni_{{ hostvars[inventory_hostname].patroni_id }}"
+
+restapi:
+  listen: "{{ inventory_hostname }}:8008"
+  connect_address: "{{ inventory_hostname }}:8008"
+  authentication:
+    username: "postgres"
+    password: "{{ postgres_user_password }}"
+  http_extra_headers:
+    'X-Frame-Options': 'SAMEORIGIN'
+    'X-XSS-Protection': '1; mode=block'
+    'X-Content-Type-Options': 'nosniff'
+  cafile: "{% if chain_file_postgres is defined %}{{  chain_file_postgres }}{% else %}/etc/ssl/private/chain_postgres.pem{% endif %}"
+  certfile: "{% if cert_file_postgres is defined %}{{ cert_file_postgres }}{% else %}/etc/ssl/private/cert_postgres.pem{% endif %}"
+  keyfile: "{% if key_file_postgres is defined %}{{ key_file_postgres }}{% else %}/etc/ssl/private/key_postgres.pem{% endif %}"
+  https_extra_headers:
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+
+zookeeper:
+  hosts: "{%for host in groups.masters %}{{ host }}:2281{% if not loop.last %},{% endif %}{% endfor %}"
+  use_ssl: true
+  cacert: "{% if chain_file_postgres is defined %}{{  chain_file_postgres }}{% else %}/etc/ssl/private/chain_postgres.pem{% endif %}"
+  cert: "{% if cert_file_postgres is defined %}{{ cert_file_postgres }}{% else %}/etc/ssl/private/cert_postgres.pem{% endif %}"
+  key: "{% if key_file_postgres is defined %}{{ key_file_postgres }}{% else %}/etc/ssl/private/key_postgres.pem{% endif %}"
+  verify: false
+
+bootstrap:
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 1048576
+    postgresql:
+      use_pg_rewind: true
+      use_slots: true
+      parameters:
+        wal_level: replica
+        hot_standby: "on"
+        wal_keep_segments: 8
+        max_wal_senders: 5
+        max_replication_slots: 5
+        checkpoint_timeout: 30
+
+  initdb:
+  - encoding: UTF8
+
+  pg_hba:
+{%for host in groups.workers %}
+    - host postgres postgres {{ host }} scram-sha-256
+{% endfor %}
+{%for host in groups.workers %}
+    - hostssl postgres postgres {{ host }} scram-sha-256
+{% endfor %}
+{%for host in groups.workers %}
+    - hostssl replication repl {{ host }} scram-sha-256
+{% endfor %}
+    - hostssl all         all         0.0.0.0/0  scram-sha-256
+{%for host in groups.hubs %}
+    - host postgres postgres {{ host }} scram-sha-256
+{% endfor %}
+{%for host in groups.hubs %}
+    - host jupyterhub jupyterhub {{ host }} scram-sha-256
+{% endfor %}
+{%for host in groups.hubs %}
+    - hostssl jupyterhub jupyterhub {{ host }} scram-sha-256
+{% endfor %}
+
+  users:
+    postgres:
+      password: "{{ postgres_user_password }}"
+      options:
+        - createrole
+        - createdb
+    repl:
+      password: "{{ repl_user_password }}"
+      options:
+        - replication
+
+postgresql:
+  listen: "{{ inventory_hostname }}:5432"
+  connect_address: "{{ inventory_hostname }}:5432"
+  data_dir: "/var/lib/postgresql/14/main"
+  config_dir: "/etc/postgresql/14/main"
+  bin_dir: "/usr/lib/postgresql/14/bin"
+  authentication:
+    replication:
+      username: repl
+      password: "{{ repl_user_password }}"
+    superuser:
+      username: postgres
+      password: "{{ postgres_user_password }}"
+  parameters:
+  pg_hba:
+{%for host in groups.workers %}
+      - host postgres postgres {{ host }} scram-sha-256
+{% endfor %}
+{%for host in groups.workers %}
+      - hostssl postgres postgres {{ host }} scram-sha-256
+{% endfor %}
+{%for host in groups.workers %}
+      - hostssl replication repl {{ host }} scram-sha-256
+{% endfor %}
+      - hostssl all         all         0.0.0.0/0  scram-sha-256
+{%for host in groups.hubs %}
+      - host postgres postgres {{ host }} scram-sha-256
+{% endfor %}
+{%for host in groups.hubs %}
+      - host jupyterhub jupyterhub {{ host }} scram-sha-256
+{% endfor %}
+{%for host in groups.hubs %}
+      - hostssl jupyterhub jupyterhub {{ host }} scram-sha-256
+{% endfor %}
+  ssl: on
+  ssl_cert_file: "/etc/ssl/private/cert_postgres.pem"
+  ssl_key_file: "/etc/ssl/private/key_postgres.pem"

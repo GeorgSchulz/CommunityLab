@@ -1,0 +1,12 @@
+dn: uid={{ item.name }},ou=people,{{ ldap_organization }}
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: inetOrgPerson
+cn: First Name
+sn: Last Name
+uid: {{ item.name }}
+uidNumber: {{ item.uid_number }}
+gidNumber: {{ item.gid_number }}
+homeDirectory: /home/{{ item.name }}
+loginShell: /bin/sh
+gecos: Comments
