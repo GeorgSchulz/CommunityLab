@@ -42,7 +42,7 @@
     owner: "{{ hdfs_user }}"
     group: "{{ hdfs_group }}"
   loop: 
-    - "core-site.xml"
+    - "{{ core_site_name }}"
     - "ssl-server.xml"
     - "ssl-client.xml"
 

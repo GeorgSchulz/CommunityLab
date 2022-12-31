@@ -34,9 +34,9 @@
     owner: "{{ hadoop_client_user }}"
     group: "{{ hadoop_client_group }}"
   loop: 
-    - "core-site.xml"
-    - "hdfs-site.xml"
+    - "{{ core_site_name }}"
+    - "{{ hdfs_site_name }}"
     - "ssl-server.xml"
     - "ssl-client.xml"
     - "hadoop-env.sh"
-    - "yarn-site.xml"
+    - "{{ yarn_site_name }}"

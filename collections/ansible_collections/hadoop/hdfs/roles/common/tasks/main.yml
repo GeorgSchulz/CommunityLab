@@ -8,7 +8,7 @@
 
 - name: template hdfs-site.xml
   template:
-    src: "hdfs-site.xml"
+    src: "{{ hdfs_site_name }}"
     dest: "/opt/apache-hadoop/hadoop/etc/hadoop/hdfs-site.xml"
     owner: "{{ hdfs_user }}"
     group: "{{ hdfs_group }}"

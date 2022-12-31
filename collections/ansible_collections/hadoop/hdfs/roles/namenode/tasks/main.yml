@@ -1,5 +1,8 @@
 - name: configure HDFS ZKFC
   include_tasks: configure-zkfc.yml
+  when:
+    - ide_ha_setup is defined
+    - ide_ha_setup
 
 - name: configure HDFS namenode
   include_tasks: configure-namenode.yml
@@ -14,6 +17,9 @@
     name: "hdfs-zkfc.service"
     enabled: yes
     daemon_reload: yes
+  when:
+    - ide_ha_setup is defined
+    - ide_ha_setup
 
 - name: enable HDFS namenode
   systemd:
@@ -30,6 +36,9 @@
   systemd:
     name: "hdfs-zkfc.service"
     state: stopped
+  when:
+    - ide_ha_setup is defined
+    - ide_ha_setup
 
 - name: format HDFS ZKFC
   become_user: "{{ hdfs_user }}"
@@ -37,6 +46,8 @@
   when: 
     - "'master1' in group_names"
     - not namenode_initialized_dir.stat.exists
+    - ide_ha_setup is defined
+    - ide_ha_setup
 
 - name: format HDFS namenode
   become_user: "{{ hdfs_user }}"
@@ -49,6 +60,9 @@
   systemd:
     name: "hdfs-zkfc.service"
     state: started
+  when:
+    - ide_ha_setup is defined
+    - ide_ha_setup
 
 - name: start HDFS namenode
   systemd:
@@ -62,8 +76,14 @@
   when: 
     - "'master1' not in group_names"
     - not namenode_initialized_dir.stat.exists
+    - ide_ha_setup is defined
+    - ide_ha_setup
 
 - name: start HDFS namenode
   systemd:
     name: "hdfs-namenode.service"
     state: started
+  when: 
+    - "'master1' not in group_names"
+    - ide_ha_setup is defined
+    - ide_ha_setup

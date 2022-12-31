@@ -1,7 +1,7 @@
 dependencies:
-  - name: authentication.kerberos.check
+  - name: authentication.kerberos.get_facts
   - name: authentication.kerberos.server
-    when: "'krb5-kdc' not in ansible_facts.packages"
+    #when: "'krb5-kdc' not in ansible_facts.packages"
   - name: authentication.kerberos.check
     tags:
       - check

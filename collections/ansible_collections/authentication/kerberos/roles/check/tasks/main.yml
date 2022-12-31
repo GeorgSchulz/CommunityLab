@@ -1,7 +1,3 @@
-- name: gather package facts
-  package_facts:
-    manager: auto
-
 - name: only execute if kerberos server is already installed
   block:
     - name: delete existing test kerberos propagation principal '{{ test_kerberos_propagation_principal }}@{{ realm }}'
@@ -32,4 +28,6 @@
     
     - name: delete test kerberos propagation principal '{{ test_kerberos_propagation_principal }}/{{ realm }}'
       shell: "kadmin.local -q \"delprinc -force {{ test_kerberos_propagation_principal }}\""
-  when: "'krb5-kdc' in ansible_facts.packages"
+  when: 
+    - "'krb5-kdc' in ansible_facts.packages"
+    - "{{ (groups.securities | length) == 2 }}"

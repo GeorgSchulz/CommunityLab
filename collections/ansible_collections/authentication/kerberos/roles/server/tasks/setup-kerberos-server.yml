@@ -1,0 +1,5 @@
+- name: install kerberos server
+  include_tasks: install.yml
+
+- name: configure kerberos server
+  include_tasks: configure.yml

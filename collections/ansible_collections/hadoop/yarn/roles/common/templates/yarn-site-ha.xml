@@ -15,26 +15,46 @@
 <configuration>
 
 <!-- Site specific YARN configuration properties -->
-
   <property>
-    <name>yarn.resourcemanager.webapp.address</name>
-    <value>{{ groups.master1[0] }}:8088</value>
+    <name>yarn.resourcemanager.ha.enabled</name>
+    <value>true</value>
   </property>
   <property>
-    <name>yarn.resourcemanager.webapp.https.address</name>
-    <value>{{ groups.master1[0] }}:8090</value>
+    <name>yarn.resourcemanager.cluster-id</name>
+    <value>{{ hadoop_nameservice }}</value>
   </property>
   <property>
-    <name>yarn.resourcemanager.resource-tracker.address</name>
-    <value>{{ groups.master1[0] }}:8031</value>
+    <name>yarn.resourcemanager.ha.rm-ids</name>
+    <value>master1,master2,master3</value>
+  </property>
+{% for host in groups['masters'] %} <property>
+    <name>yarn.resourcemanager.hostname.{{ hostvars[host].inventory_hostname_short }}</name>
+    <value>{{ host }}</value>
   </property>
   <property>
-    <name>yarn.resourcemanager.address</name>
-    <value>{{ groups.master1[0] }}:8032</value>
+    <name>yarn.resourcemanager.webapp.address.{{ hostvars[host].inventory_hostname_short }}</name>
+    <value>{{ host }}:8088</value>
   </property>
   <property>
-    <name>yarn.resourcemanager.scheduler.address</name>
-    <value>{{ groups.master1[0] }}:8030</value>
+    <name>yarn.resourcemanager.webapp.https.address.{{ hostvars[host].inventory_hostname_short }}</name>
+    <value>{{ host }}:8090</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.resource-tracker.address.{{ hostvars[host].inventory_hostname_short }}</name>
+    <value>{{ host }}:8031</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.address.{{ hostvars[host].inventory_hostname_short }}</name>
+    <value>{{ host }}:8032</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.scheduler.address.{{ hostvars[host].inventory_hostname_short }}</name>
+    <value>{{ host }}:8030</value>
+  </property>
+{% endfor %} 
+  <property>
+    <name>yarn.resourcemanager.store.class</name>
+    <value>org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore</value>
   </property>
   <properties>
     <name>yarn.alc.enable</name>
@@ -165,8 +185,28 @@
     <value>{{ keytab_user_http }}/_HOST@{{ realm }}</value>
   </property>
   <property>
+    <name>yarn.resourcemanager.ha.automatic-failover.enabled</name>
+    <value>true</value>
+  </property>
+  <property>
     <name>yarn.client.failover-max-attempts</name>
     <value>5</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.ha.automatic-failover.embedded</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>yarn.client.failover-proxy-provider</name>
+    <value>org.apache.hadoop.yarn.client.ConfiguredRMFailoverProxyProvider</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.zk-address</name>
+    <value>{% for host in groups.masters %}{{ host }}:2281{%- if not loop.last %},{% endif %}{% endfor %}</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.zk-state-store.parent-path</name>
+    <value>/rmstatestore</value>
   </property>
   <property>
        <name>yarn.nodemanager.resource.detect-hardware-capabilities</name>

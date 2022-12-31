@@ -17,4 +17,4 @@
     - "resource-profiles.xml"
     - "resource-types.xml"
     - "node-resources.xml"
-    - "yarn-site.xml"
+    - "{{ yarn_site_name }}"

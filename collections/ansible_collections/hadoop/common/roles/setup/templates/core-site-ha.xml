@@ -19,11 +19,11 @@
 <configuration>
     <property>
        <name>fs.defaultFS</name>
-       <value>hdfs://{{ groups.master1[0] }}</value>	
+       <value>hdfs://{{ hadoop_nameservice }}</value>	
     </property>	
     <property>
        <name>fs.default.name</name>
-       <value>hdfs://{{ groups.master1[0] }}</value>	
+       <value>hdfs://{{ hadoop_nameservice }}</value>	
     </property>	
     <property>
       <name>hadoop.rpc.protection</name>
@@ -90,6 +90,7 @@
       <name>hadoop.security.auth_to_local</name>
       <value>RULE:[1:$1@$0](.*@{{ realm }})s/@.*///L
 	  RULE:[2:$1@$0]({{ keytab_user_hdfs }}@{{ realm }})s/.*/{{ keytab_user_hdfs }}/
+	  RULE:[2:$1@$0]({{ keytab_user_journalnode }}@{{ realm }})s/.*/{{ keytab_user_journalnode }}/
 	  RULE:[2:$1@$0]({{ keytab_user_yarn }}@{{ realm }})s/.*/{{ keytab_user_yarn }}/
 	  RULE:[2:$1@$0]({{ keytab_user_jupyter }}@{{ realm }})s/.*/{{ keytab_user_jupyter }}/
 	  RULE:[2:$1@$0]({{ keytab_user_http }}@{{ realm }})s/.*/{{ keytab_user_http }}/

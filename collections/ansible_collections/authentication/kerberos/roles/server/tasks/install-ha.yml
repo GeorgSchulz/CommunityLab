@@ -1,0 +1,15 @@
+- name: install necessary packages on primary kdc
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop: "{{ primary_kdc_packages }}"
+  when: '"security1" in group_names'
+
+- name: install necessary packages on secondary kdc
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop: "{{ secondary_kdc_packages }}"
+  when: '"security2" in group_names'

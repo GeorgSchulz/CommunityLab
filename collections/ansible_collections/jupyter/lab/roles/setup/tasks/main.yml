@@ -30,7 +30,7 @@
     
     - name: change owner to yarn user and group - use shell module because of better performance
       shell: "chown -R {{ yarn_user }}:{{ yarn_group }} -R {{ miniforge_base_path }}/envs/jupyterlab"
-  when: not jupyterlab_env.stat.exists
+      #when: not jupyterlab_env.stat.exists
 
 - name: create folders for environment variables in jupyterlab environment
   file:
@@ -78,3 +78,4 @@
   run_once: yes
   delegate_to: "{{ groups.security1[0] }}"
   shell: "/etc/cron.hourly/kpropd"
+  when: groups.securities | length == 2
