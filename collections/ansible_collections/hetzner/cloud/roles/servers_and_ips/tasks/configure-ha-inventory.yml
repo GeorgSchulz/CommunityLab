@@ -1,0 +1,63 @@
+- name: overwrite ansible inventory hosts file with created hosts - HA setup
+  copy:
+    content: |
+      all:
+        children:
+          ansible:
+            hosts: localhost
+      {% for host in response_server.hcloud_server_info %}
+          {{ host.name }}:
+            hosts: {{ host.ipv4_address }}
+      {% endfor %}
+          hubs:
+            children:
+              hub1:
+              hub2:
+          masters:
+            children:
+              master1:
+              master2:
+              master3:
+          workers:
+            children:
+              worker1:
+              worker2:
+              worker3:
+          securities:
+            children:
+              security1:
+              security2:
+    dest: "{{ playbook_dir }}/inventory"
+
+- name: assign variables for configuring floating IPs and DNS on created hosts - HA setup
+  copy:
+    content: |
+      floating_ip: "{{ item.0.ip }}"
+      hostname: "{{ item.0.server }}"
+      {% if item.1.tls_user is defined %}
+      tls_user: {{ item.1.tls_user }}
+      {% endif %}
+      {% if item.1.zookeeper_id is defined %}
+      zookeeper_id: {{ item.1.zookeeper_id }}
+      {% endif %}
+      {% if item.1.patroni_id is defined %}
+      patroni_id: {{ item.1.patroni_id }}
+      {% endif %}
+      {% if item.1.postgres_client is defined %}
+      postgres_client: {{ item.1.postgres_client }}
+      {% endif %}
+      {% if item.1.keepalived_state is defined %}
+      keepalived_state: {{ item.1.keepalived_state }}
+      {% endif %}
+      {% if item.1.keepalived_virtual_router_id is defined %}
+      keepalived_virtual_router_id: {{ item.1.keepalived_virtual_router_id }}
+      {% endif %}
+      {% if item.1.keepalived_priority is defined %}
+      keepalived_priority: {{ item.1.keepalived_priority }}
+      {% endif %}
+    dest: "{{ playbook_dir }}/group_vars/{{ item.0.server }}.yml"
+  with_together: 
+    - "{{ response_floating_ips.hcloud_floating_ip_info | sort(attribute='server') | rejectattr('name', 'eq', 'jupyterhub') }}"
+    - "{{ cloud_servers | sort(attribute='name') }}"
+  loop_control:
+    label: "{{ item.0.server }}"

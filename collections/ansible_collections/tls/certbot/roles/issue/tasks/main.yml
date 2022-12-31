@@ -33,7 +33,7 @@
       # for getting cert for HA frontend for both hub nodes use dns challenge:
       # certbot -d jupyterhub.{{ domain }} --manual --preferred-challenges dns certonly --email {{ my_email }}
 
-    - name: fetch certificate to ansible server for Backend server
+    - name: fetch certificate to ansible server
       synchronize:
         src: "/etc/letsencrypt/archive/{{ inventory_hostname }}"
         dest: "/opt/letsencrypt/"

@@ -1,15 +1,20 @@
 - name: get valid keytab for HDFS user
   shell: "kinit -k hdfs/{{ inventory_hostname }}@{{ realm }} -t {{ keytab_folder }}/hdfs.keytab"
 
-- name: check if HDFS namenodes are running
-  shell: "/opt/apache-hadoop/hadoop/bin/hdfs haadmin -getAllServiceState"
-  register: ha_namenodes
-
-- name: print message depending on hdfs haadmin -getAllServiceState output
-  assert:
-    that: "'active' in ha_namenodes.stdout"
-    fail_msg: "HDFS namenodes failed to start, check Logs for more information"
-    success_msg: "HDFS namenodes are running"
+- name: block for IDE HA setup
+  block:
+    - name: check if HDFS namenodes are running
+      shell: "/opt/apache-hadoop/hadoop/bin/hdfs haadmin -getAllServiceState"
+      register: ha_namenodes
+    
+    - name: print message depending on hdfs haadmin -getAllServiceState output
+      assert:
+        that: "'active' in ha_namenodes.stdout"
+        fail_msg: "HDFS namenodes failed to start, check Logs for more information"
+        success_msg: "HDFS namenodes are running"
+  when:
+    - ide_ha_setup is defined
+    - ide_ha_setup
 
 - name: check if HDFS Datanodes are running
   shell: "/opt/apache-hadoop/hadoop/bin/hdfs dfsadmin -report"

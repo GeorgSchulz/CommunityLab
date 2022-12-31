@@ -1,0 +1,70 @@
+- name: copy kerberos configuration files
+  template:
+    src: "{{ item.file }}"
+    dest: "{{ item.path }}/{{ item.file }}"
+  loop:
+    - file: "kdc.conf"
+      path: "/etc/krb5kdc"
+    - file: "kpropd.acl"
+      path: "/etc/krb5kdc"
+    - file: "kadm5.acl"
+      path: "/etc/krb5kdc"
+    - file: "krb5.conf"
+      path: "/etc"
+  loop_control:
+    label: "{{ item.file }}"
+
+- name: delete existing kerberos database
+  shell: "kdb5_util destroy -f"
+  failed_when: false
+
+- name: delete existing keytabs
+  file: 
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "/etc/krb5.keytab"
+    - "/tmp/krb5.keytab"
+
+- name: create database 
+  shell: "kdb5_util create -s -P {{ realm_password }}"
+
+- name: block for primary kdc
+  block:
+    - name: add principals for kerberos replication
+      shell: "kadmin.local -q \"addprinc -randkey host/{{item }}\""
+      loop: "{{ groups.securities }}"
+    
+    - name: create keytabs for primary and secondary kdc
+      shell: "kadmin.local -q \"ktadd -k {{ item.keytab_dest }} host/{{ item.kerberos_principal }}\""
+      loop:
+        - keytab_dest: "/etc/krb5.keytab"
+          kerberos_principal: "{{ groups['security1'][0] }}"
+        - keytab_dest: "/tmp/krb5.keytab"
+          kerberos_principal: "{{ groups['security2'][0] }}"
+      loop_control:
+        label: "{{ item.keytab_dest }}"
+    
+    - name: fetch keytab of secondary kdc
+      fetch:
+        src: "/tmp/krb5.keytab"
+        dest: "/tmp/krb5.keytab"
+        flat: yes
+  when: '"security1" in group_names'
+    
+- name: block for secondary kdc
+  block:
+    - name: copy keytab of secondary kdc to host
+      copy:
+        src: "/tmp/krb5.keytab"
+        dest: "/etc/krb5.keytab"
+    
+    - name: reboot server
+      reboot:
+        msg: "Reboot initiated by Ansible"
+        connect_timeout: 5
+        reboot_timeout: 600
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        test_command: whoami
+  when: '"security2" in group_names'

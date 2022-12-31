@@ -2,24 +2,29 @@
 
 _CommunityLab_ is an Open-Source ready to use configuration system like Amazon Elastic MapReduce and Azure Hadoop Insight.
 
-Build your own high available and scalable Open-Source IDE in the Hetzner Cloud. If you want to use a different Cloud provider or On-Premises machines you can specify a custom ansible inventory file (see step 5).
+Build your own high available and scalable Open-Source IDE in the Hetzner Cloud. If you want to use a different Cloud provider or On-Premises machines you can specify a custom ansible inventory file (see step 6).
 
 High-level design:
 
-![High-level desing](https://github.com/GeorgSchulz/CommunityLab/blob/master/images/HLD.jpg?raw=True)
+![High-level design](https://github.com/GeorgSchulz/CommunityLab/blob/master/images/HLD.bmp?raw=True)
 
+The IDE can be installed as high available system but also in Non-HA mode. As default Non-HA mode is used to save costs when installing and running the IDE in a Cloud environment. If you want to setup the IDE in HA mode see step 5.
 
-Low-level design:
+Low-level design (Non-HA setup):
 
-![Low-level desing](https://github.com/GeorgSchulz/CommunityLab/blob/master/images/LLD.png?raw=True)
+![Low-level design](https://github.com/GeorgSchulz/CommunityLab/blob/master/images/LLD_Non_HA.bmp?raw=True)
 
-If you are german speaking you may be interested in my academic work: [Thesis.pdf](Thesis.pdf) <br /> 
+Low-level design (HA setup):
+
+![Low-level design HA](https://github.com/GeorgSchulz/CommunityLab/blob/master/images/LLD_HA.bmp?raw=True)
+
+If you are german speaking you may be interested in my academic work: [Thesis.pdf](Thesis.pdf)
 
 ## 1. Prerequisites
 ## required
 - Ubuntu (was tested on Ubuntu 20.04.4 LTS)
-- Ansible (was testet on Ansible version 2.12.1)
-- Python (was testet on Python version 3.9.9)
+- Ansible (was tested on Ansible version 2.12.1)
+- Python (was tested on Python version 3.9.9)
 
 ## optional
 - A valid domain name
@@ -42,9 +47,20 @@ georg@notebook:~/git/CommunityLab$ vim group_vars/all.yml
 georg@notebook:~/git/CommunityLab$ ansible-playbook setup.yml
 ```
 
-## 5. Install and configure the IDE in different Cloud or On-Prem using custom inventory 
+## 5. Install and configure the IDE in HA mode
+### 5.1 Change default variable ide_ha_setup: false to ide_ha_setup: true
+```console
+georg@notebook:~/git/CommunityLab$ vim group_vars/all.yml
+```
+
+### 5.2 Install and configure the IDE in the Hetzner Cloud using HA setup
+```console
+georg@notebook:~/git/CommunityLab$ ansible-playbook setup.yml
+```
+
+## 6. Install and configure the IDE in different Cloud or On-Prem using custom inventory 
 ### (You can also specify custom TLS, Kerberos and LDAP configuration)
-### 5.1 You can specify following custom inventory in ini format
+### 6.1 You can specify following custom inventory in ini format
 ```console
 [ansible]
 localhost
@@ -52,12 +68,8 @@ localhost
 [hub1]
 hub1.example.com
 
-[hub2]
-hub2.example.com
-
 [hubs:children]
 hub1
-hub2
 
 [hubs:vars]
 # If Kerberos server is present you have to define following variables
@@ -66,16 +78,8 @@ keytab_user_jupyter={{ jupyterhub_user }}
 [master1]
 master1.example.com zookeeper_id=1
 
-[master2]
-master2.example.com zookeeper_id=2
-
-[master3]
-master3.example.com zookeeper_id=3
-
 [masters:children]
 master1
-master2
-master3
 
 [masters:vars]
 # If Kerberos server is present you have to define following variables
@@ -115,12 +119,8 @@ keytab_user_jupyter={{ jupyterhub_user }}
 [security1]
 security1.example.com 
 
-[security2]
-security2.example.com
-
 [securites:children]
 security1
-security2
 
 [all:children]
 ansible
@@ -153,7 +153,9 @@ kerberos_external=True
 keytab_folder=/etc/keytabs
 ```
 
-### 5.2 You can now install the IDE with your custom inventory file
+For custom inventory file when using HA setup see: [custom_inventory_ha.ini](examples/custom_inventory_ha.ini)
+
+### 6.2 You can now install the IDE with your custom inventory file
 ```console
 georg@notebook:~/git/CommunityLab$ ansible-playbook setup.yml
 ```

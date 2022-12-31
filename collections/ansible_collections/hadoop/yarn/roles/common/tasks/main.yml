@@ -17,4 +17,11 @@
     - "resource-profiles.xml"
     - "resource-types.xml"
     - "node-resources.xml"
-    - "yarn-site.xml"
+
+- name: template yarn-site.xml
+  template:
+    src: "{{ yarn_site_name }}"
+    dest: "/opt/apache-hadoop/hadoop/etc/hadoop/yarn-site.xml"
+    owner: "{{ yarn_user }}"
+    group: "{{ yarn_group }}"
+    mode: 0644

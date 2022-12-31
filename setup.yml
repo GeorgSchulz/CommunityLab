@@ -1,5 +1,5 @@
 ################################################################################################################
-##########         Check and define all mandatory variables for installation and configuration        ##########
+##########      Check and define all mandatory variables for installation and configuration           ##########
 ################################################################################################################
 
 - hosts: ansible
@@ -10,7 +10,7 @@
     - name: preflight.define.variables
 
 ################################################################################################################
-##########         Check and define all mandatory variables for installation and configuration        ##########
+##########      Check and define all mandatory variables for installation and configuration           ##########
 ################################################################################################################
 
 ################################################################################################################
@@ -183,6 +183,9 @@
     - name: hadoop.common.setup
     - name: hadoop.hdfs.common
     - name: hadoop.hdfs.journalnode
+      when:
+        - ide_ha_setup is defined
+        - ide_ha_setup
     - name: hadoop.hdfs.namenode
 
 - name: install and configure HDFS Datanodes
@@ -278,7 +281,9 @@
     - keepalived
   roles:
     - name: loadbalancing.keepalived.setup
-      when: jupyterhub_domain_ip is defined
+      when:
+        - groups.hubs | length == 2 
+        - jupyterhub_domain_ip is defined
 
 - name: install PostgreSQL HA cluster on Worker Nodes as Backend for JupyterHub
   hosts: workers

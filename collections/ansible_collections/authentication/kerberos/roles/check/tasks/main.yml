@@ -1,35 +1,28 @@
-- name: gather package facts
-  package_facts:
-    manager: auto
+- name: delete existing test kerberos propagation principal '{{ test_kerberos_propagation_principal }}@{{ realm }}'
+  shell: "kadmin.local -q \"delprinc -force {{ test_kerberos_propagation_principal }}\""
+  when: "'security1' in group_names"
 
-- name: only execute if kerberos server is already installed
+- name: block for Kerberos master KDC
   block:
-    - name: delete existing test kerberos propagation principal '{{ test_kerberos_propagation_principal }}@{{ realm }}'
-      shell: "kadmin.local -q \"delprinc -force {{ test_kerberos_propagation_principal }}\""
-      when: "'security1' in group_names"
+    - name: create test kerberos propagation principal '{{ test_kerberos_propagation_principal }}@{{ realm }}'
+      shell: "kadmin.local -q \"addprinc -randkey {{ test_kerberos_propagation_principal }}\""
+
+    - name: trigger kerberos database propagation
+      shell: "/etc/cron.hourly/kpropd"
+  when: "'security1' in group_names"
+
+- name: block for Kerberos slave KDC
+  block:
+    - name: get principals of Kerberos KDC slave
+      shell: "kadmin.local -q \"listprincs\""
+      register: kerberos_principals
     
-    - name: block for Kerberos master KDC
-      block:
-        - name: create test kerberos propagation principal '{{ test_kerberos_propagation_principal }}@{{ realm }}'
-          shell: "kadmin.local -q \"addprinc -randkey {{ test_kerberos_propagation_principal }}\""
-    
-        - name: trigger kerberos database propagation
-          shell: "/etc/cron.hourly/kpropd"
-      when: "'security1' in group_names"
-    
-    - name: block for Kerberos slave KDC
-      block:
-        - name: get principals of Kerberos KDC slave
-          shell: "kadmin.local -q \"listprincs\""
-          register: kerberos_principals
-        
-        - name: print message depending on listprincs output
-          assert:
-            that: "'{{ test_kerberos_propagation_principal }}@{{ realm }}' in kerberos_principals.stdout"
-            fail_msg: "Kerberos database propagation failed, see Logs for details"
-            success_msg: "Kerberos primary and secondary KDC running and Kerberos database propagation successfull"
-      when: "'security2' in group_names"
-    
-    - name: delete test kerberos propagation principal '{{ test_kerberos_propagation_principal }}/{{ realm }}'
-      shell: "kadmin.local -q \"delprinc -force {{ test_kerberos_propagation_principal }}\""
-  when: "'krb5-kdc' in ansible_facts.packages"
+    - name: print message depending on listprincs output
+      assert:
+        that: "'{{ test_kerberos_propagation_principal }}@{{ realm }}' in kerberos_principals.stdout"
+        fail_msg: "Kerberos database propagation failed, see Logs for details"
+        success_msg: "Kerberos primary and secondary KDC running and Kerberos database propagation successfull"
+  when: "'security2' in group_names"
+
+- name: delete test kerberos propagation principal '{{ test_kerberos_propagation_principal }}/{{ realm }}'
+  shell: "kadmin.local -q \"delprinc -force {{ test_kerberos_propagation_principal }}\""

@@ -1,0 +1,34 @@
+- name: install kerberos server
+  include_tasks: install-ha.yml
+
+- name: configure kerberos server
+  include_tasks: configure-ha.yml
+
+- name: stop krb5-kdc on secondary kdc
+  when: "'security2' in group_names"
+  systemd:
+    name: "krb5-kdc"
+    state: stopped
+    
+- name: block for primary kdc
+  when: "'security1' in group_names"
+  block:
+    - name: copy kerberos database propagation script to host
+      template:
+        src: "kpropd.sh"
+        dest: "/etc/cron.hourly/kpropd"
+        mode: 0755
+
+    - name: start krb5-kdc
+      systemd:
+        name: "krb5-kdc"
+        state: restarted
+    
+    - name: propagate kerberos database to secondary kdc
+      shell: "/etc/cron.hourly/kpropd"
+
+- name: start krb5-kdc on secondary kdc
+  when: "'security2' in group_names"
+  systemd:
+    name: "krb5-kdc"
+    state: started

@@ -1,15 +1,20 @@
 - name: get valid keytab for YARN user
   shell: "kinit -k yarn/{{ inventory_hostname }}@{{ realm }} -t {{ keytab_folder }}/yarn.keytab"
 
-- name: check if YARN resourcemanagers are running
-  shell: "/opt/apache-hadoop/hadoop/bin/yarn rmadmin -getAllServiceState"
-  register: ha_resourcemanagers
-
-- name: print message depending on yarn rmadmin -getAllServiceState output
-  assert:
-    that: "'active' in ha_resourcemanagers.stdout"
-    fail_msg: "YARN resourcemanagers failed to start, check Logs for more information"
-    success_msg: "YARN resourcemanagers are running"
+- name: block for IDE HA setup
+  block:
+    - name: check if YARN resourcemanagers are running
+      shell: "/opt/apache-hadoop/hadoop/bin/yarn rmadmin -getAllServiceState"
+      register: ha_resourcemanagers
+    
+    - name: print message depending on yarn rmadmin -getAllServiceState output
+      assert:
+        that: "'active' in ha_resourcemanagers.stdout"
+        fail_msg: "YARN resourcemanagers failed to start, check Logs for more information"
+        success_msg: "YARN resourcemanagers are running"
+  when:
+    - ide_ha_setup is defined
+    - ide_ha_setup
 
 - name: check if YARN nodemanagers are running
   shell: "/opt/apache-hadoop/hadoop/bin/yarn node -list"

@@ -1,9 +1,11 @@
 [Unit]
 Description=Hadoop Namenode Service
+{% if ide_ha_setup is defined and ide_ha_setup %}
 After=hdfs-zkfc.service
 Wants=hdfs-zkfc.service
 After=hdfs-journalnode.service
 Wants=hdfs-journalnode.service
+{% endif %}
 
 [Service]
 Type=forking

@@ -42,9 +42,15 @@
     owner: "{{ hdfs_user }}"
     group: "{{ hdfs_group }}"
   loop: 
-    - "core-site.xml"
     - "ssl-server.xml"
     - "ssl-client.xml"
+
+- name: template core-site.xml
+  template:
+    src: "{{ core_site_name }}"
+    dest: "/opt/apache-hadoop/hadoop/etc/hadoop/core-site.xml"
+    owner: "{{ hdfs_user }}"
+    group: "{{ hdfs_group }}"
 
 - name: copy hadoop-env.sh
   template:

@@ -21,7 +21,57 @@
   become: no
   run_once: yes
   block:
-    - name: overwrite inventory with DNS of hosts
+    - name: overwrite inventory with DNS of hosts - Non-HA setup
+      become: no
+      copy: 
+        content: |
+          all:
+            children:
+              ansible:
+                hosts:
+                  localhost
+          {% for host in groups.all | difference(groups.ansible) %}
+              {{ hostvars[host].hostname }}:
+                hosts: {{ hostvars[host].hostname }}.{{ domain }}
+          {% endfor %}
+              hubs:
+                children:
+                  hub1:
+                vars:
+                  keytab_user_hdfs: "{{ hdfs_user }}"
+                  keytab_user_yarn: "{{ yarn_user }}"
+                  keytab_user_journalnode: "{{ journalnode_user }}"
+                  keytab_user_jupyter: "{{ jupyterhub_user }}"
+                  keytab_user_http: "HTTP"
+              masters:
+                children:
+                  master1:
+                vars:
+                  keytab_user_hdfs: "{{ hdfs_user }}"
+                  keytab_user_yarn: "{{ yarn_user }}"
+                  keytab_user_journalnode: "{{ journalnode_user }}"
+                  keytab_user_http: "HTTP"
+                  keytab_user_jupyter: "{{ jupyterhub_user }}"
+              workers:
+                children:
+                  worker1:
+                  worker2:
+                  worker3:
+                vars:
+                  keytab_user_hdfs: "{{ hdfs_user }}"
+                  keytab_user_yarn: "{{ yarn_user }}"
+                  keytab_user_journalnode: "{{ journalnode_user }}"
+                  keytab_user_http: "HTTP"
+                  keytab_user_jupyter: "{{ jupyterhub_user }}"
+              securities:
+                children:
+                  security1:
+        dest: "{{ playbook_dir }}/inventory"
+      when:
+        - ide_ha_setup is defined
+        - ide_ha_setup == false
+
+    - name: overwrite inventory with DNS of hosts - HA setup
       become: no
       copy: 
         content: |
@@ -71,6 +121,9 @@
                   security1:
                   security2:
         dest: "{{ playbook_dir }}/inventory"
+      when:
+        - ide_ha_setup is defined
+        - ide_ha_setup
     
     - name: check if hosts are reachable using DNS
       shell: "ansible all -m ping"
@@ -78,7 +131,7 @@
       until: "ping_cloud_servers is not failed"
       retries: 10
       delay: 4
-      ignore_errors: yes
+      failed_when: false
     
     - name: print message depending on ansible ping command
       assert:

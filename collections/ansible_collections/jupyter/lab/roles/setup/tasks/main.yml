@@ -78,3 +78,4 @@
   run_once: yes
   delegate_to: "{{ groups.security1[0] }}"
   shell: "/etc/cron.hourly/kpropd"
+  when: groups.securities | length == 2
