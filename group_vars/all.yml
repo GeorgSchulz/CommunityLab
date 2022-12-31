@@ -1,12 +1,14 @@
 # Hetzner Cloud data center, available are: Helsinki (hel1), Falkenstein (fsn1) and Nürnberg (nbg1)
 hetzner_data_center: ""
 
+hetzner_server_image: "ubuntu-20.04"
+
 # Hetzner Cloud server definition - variable will not be used if custom inventory file is defined
 # To scale IDE use option server_type
 cloud_servers:
   - name: "hub1"
     server_type: "cpx31"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "hub1"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ jupyterhub_user }}"
@@ -16,7 +18,7 @@ cloud_servers:
     keepalived_priority: 100
   - name: "hub2"
     server_type: "cpx31"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "hub2"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ jupyterhub_user }}"
@@ -26,55 +28,55 @@ cloud_servers:
     keepalived_priority: 99
   - name: "master1"
     server_type: "cpx41"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "master1"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ hdfs_user }}"
     zookeeper_id: 1
   - name: "master2"
     server_type: "cpx41"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "master2"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ hdfs_user }}"
     zookeeper_id: 2
   - name: "master3"
     server_type: "cpx41"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "master3"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ hdfs_user }}"
     zookeeper_id: 3
   - name: "worker1"
     server_type: "cpx51"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "worker1"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ hdfs_user }}"
     patroni_id: 1
   - name: "worker2"
     server_type: "cpx51"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "worker2"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ hdfs_user }}"
     patroni_id: 2
   - name: "worker3"
     server_type: "cpx51"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "worker3"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ hdfs_user }}"
     patroni_id: 3
   - name: "security1"
     server_type: "cpx11"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "security1"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ ldap_user }}"
   - name: "security2"
     server_type: "cpx11"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "security2"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ ldap_user }}"
@@ -82,10 +84,8 @@ cloud_servers:
 # Hetzner Cloud API Token (read/write)
 hetzner_api_token:
 
-# SSH Keys for Ansible to connect to remote machines
-ansible_private_key: ""
-
-ansible_public_key: ""
+# SSH Public Key for Ansible to connect to remote machines - use absolute path
+ssh_public_key_path: ""
 
 # Domain
 domain: ""
