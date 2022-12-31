@@ -1,14 +1,3 @@
-- name: check that SSH private key exists
-  stat:
-    path: "{{ ssh_private_key_path }}"
-  register: private_key_path
-
-- name: print message depending SSH private key check
-  assert:
-    that: "private_key_path.stat.exists"
-    fail_msg: "Specified SSH private key is not present using defined absolute path, is the provided path correct?"
-    success_msg: "Specified SSH private key is present."
-
 - name: check that SSH public key exists
   stat:
     path: "{{ ssh_public_key_path }}"
@@ -20,17 +9,9 @@
     fail_msg: "Specified SSH public key is not present using defined absolute path, is the provided path correct?"
     success_msg: "Specified SSH public key is present."
 
-- name: get input for variable ansible_ssh_private_key
-  shell: "sed \":a;N;$!ba;s/\\n/\\\n/g\" {{ ssh_private_key_path }}"
-  register: ansible_ssh_private_key
-
 - name: get input for variable ansible_ssh_public_key
-  shell: "sed \":a;N;$!ba;s/\\n/\\\n/g\" {{ ssh_public_key_path }}"
+  shell: "cat {{ ssh_public_key_path }}"
   register: ansible_ssh_public_key
-
-- name: show input of variable ansible_ssh_private_key
-  debug:
-    var: ansible_ssh_private_key.stdout
 
 - name: show input of variable ansible_ssh_public_key
   debug:

@@ -34,9 +34,20 @@
     owner: "{{ hadoop_client_user }}"
     group: "{{ hadoop_client_group }}"
   loop: 
-    - "{{ core_site_name }}"
-    - "{{ hdfs_site_name }}"
     - "ssl-server.xml"
     - "ssl-client.xml"
     - "hadoop-env.sh"
-    - "{{ yarn_site_name }}"
+
+- name: template core-site.xml, hdfs-site.xml and yarn-site.xml
+  template:
+    src: "{{ item.src }}"
+    dest: "/opt/apache-hadoop/hadoop/etc/hadoop/{{ item.dest }}"
+    owner: "{{ hadoop_client_user }}"
+    group: "{{ hadoop_client_group }}"
+  loop: 
+    - src: "{{ core_site_name }}"
+      dest: "core-site.xml"
+    - src: "{{ hdfs_site_name }}"
+      dest: "hdfs-site.xml"
+    - src: "{{ yarn_site_name }}"
+      dest: "yarn-site.xml"

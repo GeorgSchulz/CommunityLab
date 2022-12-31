@@ -15,7 +15,6 @@
     fail_msg: "Variable {{ item }} is not defined in group_vars/all.yml, please define it for IDE setup."
     success_msg: "Variable {{ item }} is defined."
   loop:
-    - ssh_private_key_path
     - ssh_public_key_path
     - domain
     - realm

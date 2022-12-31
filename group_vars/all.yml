@@ -1,47 +1,49 @@
 # Hetzner Cloud data center, available are: Helsinki (hel1), Falkenstein (fsn1) and Nürnberg (nbg1)
 hetzner_data_center: "hel1"
 
+hetzner_server_image: "ubuntu-20.04"
+
 # Hetzner Cloud server definition - variable will not be used if custom inventory file is defined
 # To scale IDE use option server_type
 cloud_servers_non_ha:
   - name: "hub1"
     server_type: "cpx31"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "hub1"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ jupyterhub_user }}"
     postgres_client: true
   - name: "master1"
     server_type: "cpx41"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "master1"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ hdfs_user }}"
     zookeeper_id: 1
   - name: "worker1"
     server_type: "cpx51"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "worker1"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ hdfs_user }}"
     patroni_id: 1
   - name: "worker2"
     server_type: "cpx51"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "worker2"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ hdfs_user }}"
     patroni_id: 2
   - name: "worker3"
     server_type: "cpx51"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "worker3"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ hdfs_user }}"
     patroni_id: 3
   - name: "security1"
     server_type: "cpx11"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "security1"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ ldap_user }}"
@@ -49,7 +51,7 @@ cloud_servers_non_ha:
 cloud_servers_ha:
   - name: "hub1"
     server_type: "cpx31"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "hub1"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ jupyterhub_user }}"
@@ -59,7 +61,7 @@ cloud_servers_ha:
     keepalived_priority: 100
   - name: "hub2"
     server_type: "cpx31"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "hub2"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ jupyterhub_user }}"
@@ -69,77 +71,76 @@ cloud_servers_ha:
     keepalived_priority: 99
   - name: "master1"
     server_type: "cpx41"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "master1"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ hdfs_user }}"
     zookeeper_id: 1
   - name: "master2"
     server_type: "cpx41"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "master2"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ hdfs_user }}"
     zookeeper_id: 2
   - name: "master3"
     server_type: "cpx41"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "master3"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ hdfs_user }}"
     zookeeper_id: 3
   - name: "worker1"
     server_type: "cpx51"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "worker1"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ hdfs_user }}"
     patroni_id: 1
   - name: "worker2"
     server_type: "cpx51"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "worker2"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ hdfs_user }}"
     patroni_id: 2
   - name: "worker3"
     server_type: "cpx51"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "worker3"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ hdfs_user }}"
     patroni_id: 3
   - name: "security1"
     server_type: "cpx11"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "security1"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ ldap_user }}"
   - name: "security2"
     server_type: "cpx11"
-    server_image: "ubuntu-20.04"
+    server_image: "{{ hetzner_server_image }}"
     floating_ip: "security2"
     data_center: "{{ hetzner_data_center }}"
     tls_user: "{{ ldap_user }}"
 
-# Variable for installing IDE in HA mode
+# Variable for installing IDE in HA mode - set to true if HA setup is preferred
 ide_ha_setup: false
-cloud_servers: "{{ cloudservers_ha if (ide_ha_setup is defined and ide_ha_setup) else cloud_servers_non_ha }}"
+cloud_servers: "{{ cloud_servers_ha if (ide_ha_setup is defined and ide_ha_setup) else cloud_servers_non_ha }}"
 
 # Hetzner Cloud API Token (read/write)
-hetzner_api_token: "yyySOdPrsbwRzpFInjlEJ9LCWnGOIiRSwAvPFP1HOiDRRGXFYWCtGyIpZon7Mlqy"
+hetzner_api_token: ""
 
-# SSH Keys for Ansible to connect to remote machines - use absolute path
-ssh_private_key_path: "~/.ssh/kolloquium"
-
-ssh_public_key_path: "~/.ssh/kolloquium.pub"
+# SSH Public Key for Ansible to connect to remote machines - use absolute path
+# e.g. ssh_public_key_path: "~/.ssh/kolloquium.pub"
+ssh_public_key_path: ""
 
 # Domain
-domain: "click-your-it.de"
+domain: ""
 
 # optional:
 # For using shared address for both hub nodes you have to additionally define an IP for the used subdomain. This IP will be used by the keepalived service.
-#jupyterhub_domain_ip: "95.217.246.13"
+# e.g. jupyterhub_domain_ip: "95.216.246.12"
 
 # Technical groups of IDE
 ide_services_group: "ide_services"
@@ -192,11 +193,11 @@ technical_users:
     gid: "{{ ide_services_gid }}"
 
 # E-mail address that will be used by Certbot for issuing all Let's Encrypt certificates
-my_email: "schulz.georg.1992@web.de"
+my_email: ""
 
 # Credentials for Java
-truststore_password: "changeit"
-keystore_password: "Uk83znEQENXJi6g1"
+truststore_password: ""
+keystore_password: ""
 
 # Location of issued Let's Encrypt certificates on localhost
 certs_source: 
@@ -226,7 +227,7 @@ certs_dest_postgres:
 # e.g.:
 # ldap_organization: "dc=click-your-it,dc=de"
 # ldap_organization_upper: "DC=click-your-it,DC=de"
-ldap_password: "3Cu2696fhEGSM41G"
+ldap_password: ""
 ldap_organization: "dc=click-your-it,dc=de"
 ldap_organization_upper: "DC=click-your-it,DC=de"
 
@@ -238,32 +239,34 @@ ide_users_gid: "5001"
 
 # LDAP users to create for IDE usage
 # e.g.
-ldap_users: 
-  - name: "teppler"
-    uid_number: 6000
-    gid_number: "{{ ide_users_gid }}"
-    password: albstadt
-  - name: "anolle"
-    uid_number: 6001
-    gid_number: "{{ ide_users_gid }}"
-    password: sigmaringen
-  - name: "gschulz"
-    uid_number: 6002
-    gid_number: "{{ ide_users_gid }}"
-    password: datascience
+#ldap_users: 
+#  - name: "teppler"
+#    uid_number: 6000
+#    gid_number: "{{ ide_users_gid }}"
+#    password: albstadt
+#  - name: "anolle"
+#    uid_number: 6001
+#    gid_number: "{{ ide_users_gid }}"
+#    password: sigmaringen
+#  - name: "gschulz"
+#    uid_number: 6002
+#    gid_number: "{{ ide_users_gid }}"
+#    password: datascience
+
+ldap_users:
 
 # Kerberos
 realm: "COMMUNITY.LAB"
-realm_password: "jGuUp65R1ubM2Rg4"
+realm_password: ""
 keytab_folder: "/etc/keytabs"
 
 # Hadoop
 hadoop_nameservice: "communitylab"
 
 # PostgreSQL
-jupyterhub_user_password: "ct52H4CrZMvhjcCU"
-postgres_user_password: "65b2PK7PpMjPEb4K"
-repl_user_password: "X7Byy1pGLrv41798"
+jupyterhub_user_password: ""
+postgres_user_password: ""
+repl_user_password: ""
 
 postgres_host: "{% if jupyterhub_domain_ip is defined %}jupyterhub.{{ domain }}{% else %}{{ groups.hub1[0] }}{% endif %}"
 postgres:
@@ -280,4 +283,4 @@ postgres:
     scheme: "jupyterhub"
 
 # HAProxy
-haproxy_admin_password: "sfiiR9jHtLzYGQXf"
+haproxy_admin_password: ""

@@ -1,11 +1,7 @@
-- name: gather package facts
-  package_facts:
-    manager: auto
-
 - name: installation for only one kerberos server
   include_tasks: setup-kerberos-server.yml
-  when: "{{ (groups.securities | length) == 1 }}"
+  when: groups.securities | length == 1
 
 - name: installation for two kerberos server
   include_tasks: setup-kerberos-server-ha.yml
-  when: "{{ (groups.securities | length) == 2 }}"
+  when: groups.securities | length == 2
