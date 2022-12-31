@@ -1,0 +1,21 @@
+- name: check that SSH public key exists
+  stat:
+    path: "{{ ssh_public_key_path }}"
+  register: public_key_path
+
+- name: print message depending SSH public key check
+  assert:
+    that: "public_key_path.stat.exists"
+    fail_msg: "Specified SSH public key is not present using defined absolute path, is the provided path correct?"
+    success_msg: "Specified SSH public key is present."
+
+- name: get input for variable ansible_ssh_public_key
+  shell: "cat {{ ssh_public_key_path }}"
+  register: ansible_ssh_public_key
+
+- name: show input of variable ansible_ssh_public_key
+  debug:
+    var: ansible_ssh_public_key.stdout
+
+- set_fact:
+    ansible_ssh_public_key: "{{ ansible_ssh_public_key.stdout }}"
