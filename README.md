@@ -141,7 +141,7 @@ ldap_group_search_base=ou=groups,{{ ldap_organization }}
 
 For other custom inventory examples see: 
 
-| Kerberos and LDAP server already present                                  | Kerberos and LDAP server not present                                              |
+| Kerberos and LDAP server not present                                      | Kerberos and LDAP server already present                                          |
 |---------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
 | Non-HA setup: [inventory](examples/custom_inventory_non_ha.ini)           | Non-HA setup: [inventory](examples/custom_inventory_non_ha_external_security.ini) |
 | HA setup: [inventory](examples/custom_inventory_ha.ini)                   | HA setup: [inventory](examples/custom_inventory_ha_external_security.ini)         |
