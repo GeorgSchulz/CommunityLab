@@ -48,7 +48,7 @@ georg@notebook:~/git/CommunityLab$ ansible-playbook setup.yml
 ```
 
 ## 5. Install and configure the IDE in HA mode
-### 5.1 Change default variable ***ide\_ha\_setup:*** false*** to ***ide\_ha\_setup: true***
+### 5.1 Change default variable ***ide\_ha\_setup: false** to ***ide\_ha\_setup: true***
 ```console
 georg@notebook:~/git/CommunityLab$ vim group_vars/all.yml
 ```
@@ -141,10 +141,10 @@ ldap_group_search_base=ou=groups,{{ ldap_organization }}
 
 For other custom inventory examples see: 
 
-| Kerberos and LDAP server already present                         | Kerberos and LDAP server not present                                     |
-|------------------------------------------------------------------|--------------------------------------------------------------------------|
-| Non-HA setup: [inventory](examples/custom_inventory_non_ha.ini)  | Non-HA setup: [inventory](custom_inventory_non_ha_external_security.ini) |
-| HA setup: [inventory](custom_inventory_ha.ini)                   | HA setup: [inventory](custom_inventory_ha_external_security.ini)         |
+| Kerberos and LDAP server already present                                  | Kerberos and LDAP server not present                                              |
+|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| Non-HA setup: [inventory](examples/custom_inventory_non_ha.ini)           | Non-HA setup: [inventory](examples/custom_inventory_non_ha_external_security.ini) |
+| HA setup: [inventory](examples/custom_inventory_ha.ini)                   | HA setup: [inventory](examples/custom_inventory_ha_external_security.ini)         |
 
 ### 6.2 You can now install the IDE with your custom inventory file
 ```console
