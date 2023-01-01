@@ -86,7 +86,7 @@
     - "{{ certs_mode }}"
   loop_control:
     label: "{{ item.1 }}"
-  when: custom_inventory_file is not defined
+  when: (custom_inventory_file is not defined) or (tls_external is not defined)
 
 - name: change ownership and mode if external TLS is provided
   file:
@@ -99,7 +99,11 @@
     - "{{ ssl_mode }}"
   loop_control:
     label: "{{ item.0 }}"
-  when: custom_inventory_file is defined
+  when: 
+    - custom_inventory_file is defined
+    - custom_inventory_file
+    - tls_external is defined
+    - tls_external
 
 - name: add softdog module
   modprobe:

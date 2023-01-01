@@ -48,7 +48,7 @@ georg@notebook:~/git/CommunityLab$ ansible-playbook setup.yml
 ```
 
 ## 5. Install and configure the IDE in HA mode
-### 5.1 Change default variable ide_ha_setup: false to ide_ha_setup: true
+### 5.1 Change value for variable ***ide_ha_setup*** to true
 ```console
 georg@notebook:~/git/CommunityLab$ vim group_vars/all.yml
 ```
@@ -66,14 +66,14 @@ georg@notebook:~/git/CommunityLab$ ansible-playbook setup.yml
 localhost
 
 [hub1]
-hub1.example.com
+hub1.example.com 
 
 [hubs:children]
 hub1
 
 [hubs:vars]
-# If Kerberos server is present you have to define following variables
-keytab_user_jupyter={{ jupyterhub_user }}
+tls_user={{ jupyterhub_user }}
+postgres_client=True
 
 [master1]
 master1.example.com zookeeper_id=1
@@ -82,21 +82,16 @@ master1.example.com zookeeper_id=1
 master1
 
 [masters:vars]
-# If Kerberos server is present you have to define following variables
-keytab_user_hdfs={{ hdfs_user }}
-keytab_user_yarn={{ yarn_user }}
-keytab_user_journalnode={{ journalnode_user }}
-keytab_user_http=HTTP
-keytab_user_jupyter={{ jupyterhub_user }}
+tls_user={{ hdfs_user }}
 
 [worker1]
-worker1.example.com
+worker1.example.com patroni_id=1
 
 [worker2]
-worker2.example.com
+worker2.example.com patroni_id=2
 
 [worker3]
-worker3.example.com
+worker3.example.com patroni_id=3
 
 [workers:children]
 worker1
@@ -104,33 +99,28 @@ worker2
 worker3
 
 [workers:vars]
+tls_user={{ hdfs_user }}
+
 # If using your own certs and Java Keystore/Truststores you have to define following variables
 cert_file_postgres=/etc/ssl/private/cert_postgres.pem
 key_file_postgres=/etc/ssl/private/key_postgres.pem
-chain_file_postgres=/etc/ssl/private/key_postgres.pem
-
-# If Kerberos server is present you have to define following variables
-keytab_user_hdfs={{ hdfs_user }}
-keytab_user_yarn={{ yarn_user }}
-keytab_user_journalnode={{ journalnode_user }}
-keytab_user_http=HTTP
-keytab_user_jupyter={{ jupyterhub_user }}
-
-[security1]
-security1.example.com 
-
-[securites:children]
-security1
+chain_file_postgres=/etc/ssl/private/chain_postgres.pem
 
 [all:children]
 ansible
 hubs
 masters
 workers
-securities
 
 [all:vars]
 custom_inventory_file=True
+keytab_user_hdfs={{ hdfs_user }}
+keytab_user_yarn={{ yarn_user }}
+keytab_user_http=HTTP
+keytab_user_jupyter={{ jupyterhub_user }}
+
+# If Kerberos server is present you have to define following variables
+kerberos_external=True
 
 # If using your own certs and Java Keystore/Truststores you have to define following variables
 tls_external=True
@@ -147,13 +137,14 @@ ldap_bind_user=cn=admin,{{ ldap_organization }}
 ldap_bind_dn_template=UID={username},OU=people,{{ ldap_organization_upper }}
 ldap_user_search_base=OU=people,{{ ldap_organization_upper }}
 ldap_group_search_base=ou=groups,{{ ldap_organization }}
-
-# If Kerberos server is present you have to define following variables
-kerberos_external=True
-keytab_folder=/etc/keytabs
 ```
 
-For custom inventory file when using HA setup see: [custom_inventory_ha.ini](examples/custom_inventory_ha.ini)
+For other custom inventory examples see: 
+
+| Kerberos and LDAP server already present                                  | Kerberos and LDAP server not present                                              |
+|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| Non-HA setup: [inventory](examples/custom_inventory_non_ha.ini)           | Non-HA setup: [inventory](examples/custom_inventory_non_ha_external_security.ini) |
+| HA setup: [inventory](examples/custom_inventory_ha.ini)                   | HA setup: [inventory](examples/custom_inventory_ha_external_security.ini)         |
 
 ### 6.2 You can now install the IDE with your custom inventory file
 ```console

@@ -74,8 +74,11 @@
     - name: set ACL 'group:{{ ide_users_group }}:rwx,default:group:{{ ide_users_group }}:rwx' in /share folder of HDFS
       shell: "/opt/apache-hadoop/hadoop/bin/hdfs dfs -setfacl -m \"group:{{ ide_users_group }}:rwx,default:group:{{ ide_users_group }}:rwx\" /share"
 
-- name: trigger kerberos propagation to replicate all kerberos principals without cronjob
-  run_once: yes
-  delegate_to: "{{ groups.security1[0] }}"
-  shell: "/etc/cron.hourly/kpropd"
-  when: groups.securities | length == 2
+- name: block for ansible group securities
+  block:
+    - name: trigger kerberos propagation to replicate all kerberos principals without cronjob
+      run_once: yes
+      delegate_to: "{{ groups.security1[0] }}"
+      shell: "/etc/cron.hourly/kpropd"
+      when: groups.securities | length == 2
+  when: groups.securities is defined

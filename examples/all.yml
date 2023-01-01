@@ -268,7 +268,7 @@ jupyterhub_user_password: ""
 postgres_user_password: ""
 repl_user_password: ""
 
-postgres_host: "{% if jupyterhub_domain_ip is defined %}jupyterhub.{{ domain }}{% else %}{{ groups.hub1[0] }}{% endif %}"
+postgres_host: "{{ 'jupyterhub.{{ domain }}' if jupyterhub_domain_ip is defined else groups.hub1[0] }}"
 postgres:
   - username: "postgres"
     database: "postgres"

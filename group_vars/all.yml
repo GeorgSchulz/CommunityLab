@@ -228,14 +228,14 @@ certs_dest_postgres:
 # ldap_organization: "dc=click-your-it,dc=de"
 # ldap_organization_upper: "DC=click-your-it,DC=de"
 ldap_password: ""
-ldap_organization: "dc=click-your-it,dc=de"
-ldap_organization_upper: "DC=click-your-it,DC=de"
+ldap_organization: ""
+ldap_organization_upper: ""
 
 # LDAP group used for IDE access
 # e.g. ide_users_group: "ide_users"
 # ide_users_gid: "5001"
-ide_users_group: "ide_users"
-ide_users_gid: "5001"
+ide_users_group: ""
+ide_users_gid: ""
 
 # LDAP users to create for IDE usage
 # e.g.
@@ -268,7 +268,7 @@ jupyterhub_user_password: ""
 postgres_user_password: ""
 repl_user_password: ""
 
-postgres_host: "{% if jupyterhub_domain_ip is defined %}jupyterhub.{{ domain }}{% else %}{{ groups.hub1[0] }}{% endif %}"
+postgres_host: "{{ 'jupyterhub.{{ domain }}' if jupyterhub_domain_ip is defined else groups.hub1[0] }}"
 postgres:
   - username: "postgres"
     database: "postgres"

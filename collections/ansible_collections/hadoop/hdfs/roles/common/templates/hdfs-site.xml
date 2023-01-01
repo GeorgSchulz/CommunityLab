@@ -74,14 +74,6 @@
 	<value>{{ keytab_user_http }}/_HOST@{{ realm }}</value>
     </property>
     <property>
-        <name>dfs.journalnode.keytab.file</name>
-	<value>{{ keytab_folder }}/{{ keytab_user_journalnode }}.keytab</value>
-    </property>
-    <property>
-        <name>dfs.journalnode.kerberos.internal.spnego.principal</name>
-	<value>{{ keytab_user_http }}/_HOST@{{ realm }}</value>
-    </property>
-    <property>
         <name>dfs.datanode.data.dir</name>
 	<value>{{ hdfs_data_dir }}</value>
     </property>
