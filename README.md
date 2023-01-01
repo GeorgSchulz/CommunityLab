@@ -48,7 +48,7 @@ georg@notebook:~/git/CommunityLab$ ansible-playbook setup.yml
 ```
 
 ## 5. Install and configure the IDE in HA mode
-### 5.1 Change default variable ***ide\_ha\_setup: false** to ***ide\_ha\_setup: true***
+### 5.1 Change value for variable ***ide_ha_setup*** to true
 ```console
 georg@notebook:~/git/CommunityLab$ vim group_vars/all.yml
 ```
