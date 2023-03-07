@@ -18,14 +18,16 @@ Low-level design (HA setup):
 
 ![Low-level design HA](https://github.com/GeorgSchulz/CommunityLab/blob/master/images/LLD_HA.bmp?raw=True)
 
-Following versions are used:
+Following components are used:
 
-- JupyterHub 3.1.1
-- JupyterLab 3.4.7
-- Apache Hadoop 3.3.3
-- Apache Spark 3.1.2
-- Apache Zookeeper 3.8.0
-- PostgreSQL 14
+| Component        | Version |
+|------------------|---------|
+| JupyterHub       | 3.1.1   |
+| JupyterLab       | 3.4.7   |
+| Apache Hadoop    | 3.3.3   |
+| Apache Spark     | 3.1.2   |
+| Apache Zookeeper | 3.8.0   |
+| PostgreSQL       | 14      |
 
 If you are german speaking you may be interested in my academic work: [Thesis.pdf](Thesis.pdf)
 
