@@ -1,4 +1,0 @@
-floating_ip: "95.217.244.83"
-hostname: "master1"
-tls_user: hdfs
-zookeeper_id: 1

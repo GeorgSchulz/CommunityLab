@@ -1,7 +1,0 @@
-floating_ip: "95.217.244.23"
-hostname: "hub1"
-tls_user: jupyterhub
-postgres_client: True
-keepalived_state: MASTER
-keepalived_virtual_router_id: 80
-keepalived_priority: 100
