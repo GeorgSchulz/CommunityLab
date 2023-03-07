@@ -1,0 +1,3 @@
+floating_ip: "95.217.245.177"
+hostname: "security1"
+tls_user: openldap

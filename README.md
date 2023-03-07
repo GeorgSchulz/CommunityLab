@@ -18,11 +18,20 @@ Low-level design (HA setup):
 
 ![Low-level design HA](https://github.com/GeorgSchulz/CommunityLab/blob/master/images/LLD_HA.bmp?raw=True)
 
+Following versions are used:
+
+- JupyterHub 3.1.1
+- JupyterLab 3.4.7
+- Apache Hadoop 3.3.3
+- Apache Spark 3.1.2
+- Apache Zookeeper 3.8.0
+- PostgreSQL 14
+
 If you are german speaking you may be interested in my academic work: [Thesis.pdf](Thesis.pdf)
 
 ## 1. Prerequisites
 ## required
-- Ubuntu (was tested on Ubuntu 20.04.4 LTS)
+- Ubuntu (was tested on Ubuntu 22.04.4 LTS)
 - Ansible (was tested on Ansible version 2.12.1)
 - Python (was tested on Python version 3.9.9)
 
@@ -30,7 +39,7 @@ If you are german speaking you may be interested in my academic work: [Thesis.pd
 - A valid domain name
 - Hetzner Account and Hetzner API Token (Read/Write)
 
-The installation process was tested on Ubuntu 20.04.4 LTS and Windows Ubuntu Subsystem.
+The installation process was tested on Ubuntu 22.04.4 LTS and Windows Ubuntu Subsystem.
 
 ## 2. Install Ansible on your local machine if not present
 ```console

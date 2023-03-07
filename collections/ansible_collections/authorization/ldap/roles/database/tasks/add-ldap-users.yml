@@ -15,8 +15,3 @@
 
 - name: set password for IDE user '{{ item.name }},ou=people,{{ ldap_organization }}'
   shell: "ldappasswd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -s {{ item.password }} uid={{ item.name }},ou=people,{{ ldap_organization }}"
-
-- name: add IDE user '{{ item.name }},ou=people,{{ ldap_organization }}' to IDE group 'cn={{ ide_users_group }},ou=groups,{{ ldap_organization }}'
-  failed_when: ldapadd.rc not in [0,20]
-  shell: "ldapadd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/add-to-group.ldif"
-  register: ldapadd

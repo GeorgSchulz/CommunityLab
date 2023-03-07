@@ -1,0 +1,4 @@
+floating_ip: "95.217.245.232"
+hostname: "master2"
+tls_user: hdfs
+zookeeper_id: 2

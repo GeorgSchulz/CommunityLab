@@ -1,0 +1,4 @@
+floating_ip: "95.217.245.122"
+hostname: "worker1"
+tls_user: hdfs
+patroni_id: 1

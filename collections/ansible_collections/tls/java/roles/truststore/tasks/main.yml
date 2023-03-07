@@ -34,5 +34,6 @@
     
     - name: delete all certs in /var/tmp
       file: 
-        path: "/var/tmp/{{ inventory_hostname }}_cert.pem"
+        path: "/var/tmp/{{ item }}_cert.pem"
         state: absent
+      loop: "{{ groups.all | difference(groups.ansible) }}"
