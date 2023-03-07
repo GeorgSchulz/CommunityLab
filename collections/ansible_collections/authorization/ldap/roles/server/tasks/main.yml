@@ -33,6 +33,11 @@
     src: "ssl.ldif"
     dest: "/tmp/ssl.ldif"
 
+- name: restart slapd
+  service:
+    name: "slapd"
+    state: restarted
+
 - name: configure ldap server for TLS
   shell: "ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/ssl.ldif"
   register: ldapmodify

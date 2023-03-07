@@ -2,10 +2,10 @@ miniforge_base_path: "/opt/miniforge/miniforge"
 environment_python_version: "3.9.0"
 
 jupyterhub_conda_packages: 
-  - "jupyterhub=1.4.0"
-  - "nodejs=17.9.0"
-  - "configurable-http-proxy=4.5.1"
+  - "jupyterhub=3.1.1"
+  - "nodejs=18.12.1"
+  - "configurable-http-proxy=4.5.4"
 jupyterhub_pip_packages:
   - "git+https://github.com/jupyterhub/yarnspawner.git"
   - "git+https://github.com/jupyterhub/ldapauthenticator.git"
-  - "psycopg2-binary==2.9.3"
+  - "psycopg2-binary==2.9.5"

@@ -1,7 +1,7 @@
 # Hetzner Cloud data center, available are: Helsinki (hel1), Falkenstein (fsn1) and Nürnberg (nbg1)
 hetzner_data_center: "hel1"
 
-hetzner_server_image: "ubuntu-20.04"
+hetzner_server_image: "ubuntu-22.04"
 
 # Hetzner Cloud server definition - variable will not be used if custom inventory file is defined
 # To scale IDE use option server_type
@@ -228,14 +228,14 @@ certs_dest_postgres:
 # ldap_organization: "dc=click-your-it,dc=de"
 # ldap_organization_upper: "DC=click-your-it,DC=de"
 ldap_password: ""
-ldap_organization: ""
-ldap_organization_upper: ""
+ldap_organization: "dc=click-your-it,dc=de"
+ldap_organization_upper: "DC=click-your-it,DC=de"
 
 # LDAP group used for IDE access
 # e.g. ide_users_group: "ide_users"
 # ide_users_gid: "5001"
-ide_users_group: ""
-ide_users_gid: ""
+ide_users_group: "ide_users"
+ide_users_gid: "5001"
 
 # LDAP users to create for IDE usage
 # e.g.

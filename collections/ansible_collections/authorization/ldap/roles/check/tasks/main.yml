@@ -12,7 +12,7 @@
     - name: only execute check if ldap service is active
       block:
         - name: check if IDE users are added to 'cn={{ ide_users_group }},ou=groups,{{ ldap_organization }}'
-          shell: "ldapsearch -H ldapi:/// -Y EXTERNAL -LLL -b \"{{ ldap_organization }}\" filter memberOf | grep memberOf:"
+          shell: "ldapsearch -H ldapi:/// -Y EXTERNAL -LLL -b \"{{ ldap_organization }}\" filter uid | grep uid:"
           register: ldap_search
         
         - name: print message depending on ldap check

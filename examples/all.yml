@@ -1,7 +1,7 @@
 # Hetzner Cloud data center, available are: Helsinki (hel1), Falkenstein (fsn1) and Nürnberg (nbg1)
 hetzner_data_center: "hel1"
 
-hetzner_server_image: "ubuntu-20.04"
+hetzner_server_image: "ubuntu-22.04"
 
 # Hetzner Cloud server definition - variable will not be used if custom inventory file is defined
 # To scale IDE use option server_type
