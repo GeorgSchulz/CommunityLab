@@ -1,14 +1,14 @@
 # CommunityLab
 
-_CommunityLab_ is an Open-Source ready to use configuration system like Amazon Elastic MapReduce and Azure Hadoop Insight.
+_CommunityLab_ is an Open-Source ready to use configuration system like Amazon Elastic MapReduce (EMR) and Azure Hadoop Insight (HDInsight).
 
-Build your own high available and scalable Open-Source IDE in the Hetzner Cloud. If you want to use a different Cloud provider or On-Premises machines you can specify a custom ansible inventory file (see step 6).
+Build your own high available and scalable Open-Source IDE in the Hetzner Cloud. If you want to use a different Cloud provider or On-Premises machines you can specify a custom Ansible inventory file (see step 3).
 
 High-level design:
 
 ![High-level design](https://github.com/GeorgSchulz/CommunityLab/blob/master/images/HLD.bmp?raw=True)
 
-The IDE can be installed as high available system but also in Non-HA mode. As default Non-HA mode is used to save costs when installing and running the IDE in a Cloud environment. If you want to setup the IDE in HA mode see step 5.
+The IDE can be installed as high available system but also in Non-HA mode. As default Non-HA mode is used to save costs when installing and running the IDE in a Cloud environment. If you want to setup the IDE in HA mode change the relevant Terraform variable in Hetzner Cloud (see step 2.2.1) or define 3 master nodes in your custom Ansible inventory file when using On-Premise machines or different Cloud provider.
 
 Low-level design (Non-HA setup):
 
@@ -29,49 +29,88 @@ Following components are used:
 | Apache Zookeeper | 3.8.0   |
 | PostgreSQL       | 14      |
 
-If you are german speaking you may be interested in my academic work: [Thesis.pdf](Thesis.pdf)
+When using Hetzner Cloud following costs have to be considered (Non-HA):
+
+| Server Name  | Server Type | CPU | RAM | Costs (day) | Costs (month) |
+|--------------|-------------|-----|-----|-------------|---------------|
+| hub1         | CPX31       | 4   | 8   | 0,60 €      | 15,59 €       |
+| master1      | CPX41       | 8   | 16  | 1,18 €      | 29,39 €       |
+| worker1      | CPX51       | 16  | 32  | 2,50 €      | 64,74 €       |
+| worker2      | CPX51       | 16  | 32  | 2,50 €      | 64,74 €       |
+| worker3      | CPX51       | 16  | 32  | 2,50 €      | 64,74 €       |
+| security1    | CPX11       | 2   | 2   | 0,17 €      |  4,58 €       |
+|              |             |     |     |             |               |
+| CommunityLab |             | 30  | 60  | 9,45 €      | 243,78 €      |
+
+If you are german speaking you may be interested in my related academic work: [Thesis.pdf](Thesis.pdf)
 
 ## 1. Prerequisites
-## required
-- Ubuntu (was tested on Ubuntu 22.04.4 LTS)
-- Ansible (was tested on Ansible version 2.12.1)
-- Python (was tested on Python version 3.9.9)
+### required
+- Ubuntu (was tested on Ubuntu 22.04.2 LTS)
+- Ansible (was tested on Ansible version 2.14.3)
+- Python (was tested on Python version 3.9.16)
 
-## optional
+### optional
+- Terraform (was tested on Terraform v1.4.2)
 - A valid domain name
-- Hetzner Account and Hetzner API Token (Read/Write)
+- Hetzner Account, Hetzner Cloud API Token (Read/Write) and Hetzner DNS Token
 
-The installation process was tested on Ubuntu 22.04.4 LTS and Windows Ubuntu Subsystem.
+The installation process was tested on Ubuntu 22.04.2 LTS and Windows Ubuntu Subsystem.
 
-## 2. Install Ansible on your local machine if not present
+## 2. Use Hetzner Cloud
+### 2.1 Install Terraform and Ansible on your local machine if not present
 ```console
 georg@notebook:~/git/CommunityLab$ bash requirements.sh 
 ```
 
-## 3. Setup repository for your custom environment by editing group_vars/all.yml
+### 2.2 Setup infrastructur in Hetzner Cloud using Terraform
+#### 2.2.1 Define variables for your custom infrastructure (mandatory: hetzner_token, hetznerdns_token, ssh_key_file, user, domain, optional: ide_ha_setup, set to true for IDE in HA mode)
+```console
+georg@notebook:~/git/CommunityLab$ cd terraform
+georg@notebook:~/git/CommunityLab/terraform$ vim variables.tf
+```
+
+#### 2.2.2 Initialize Terraform
+```console
+georg@notebook:~/git/CommunityLab/terraform$ terraform init
+```
+
+#### 2.2.3 Create local files for Terraform resources and Ansible inventory
+```console
+georg@notebook:~/git/CommunityLab/terraform$ terraform apply
+```
+
+#### 2.2.4 Now use created Terraform resources to create infrastructure in Hetzner Cloud
+```console
+georg@notebook:~/git/CommunityLab/terraform$ terraform apply
+```
+
+#### 2.2.5 Verify infrastructure is successfully configured using Ansible
+```console
+georg@notebook:~/git/CommunityLab/terraform$ cd ../
+georg@notebook:~/git/CommunityLab$ ansible all -m ping
+```
+
+### 2.3 Install and configure the IDE in Hetzner Cloud using Ansible
+#### 2.3.1 Define variables for your custom environment
 ```console
 georg@notebook:~/git/CommunityLab$ vim group_vars/all.yml
 ```
 
-## 4. Install and configure the IDE in the Hetzner Cloud
+#### 2.3.2 Install and configure the IDE
 ```console
 georg@notebook:~/git/CommunityLab$ ansible-playbook setup.yml
 ```
 
-## 5. Install and configure the IDE in HA mode
-### 5.1 Change value for variable ***ide_ha_setup*** to true
+### 2.4 Delete infrastructure in Hetzner Cloud using Terraform
 ```console
-georg@notebook:~/git/CommunityLab$ vim group_vars/all.yml
+georg@notebook:~/git/CommunityLab$ cd terraform
+georg@notebook:~/git/CommunityLab/terraform$ terraform destroy
 ```
 
-### 5.2 Install and configure the IDE in the Hetzner Cloud using HA setup
-```console
-georg@notebook:~/git/CommunityLab$ ansible-playbook setup.yml
-```
-
-## 6. Install and configure the IDE in different Cloud or On-Prem using custom inventory 
+## 3. Install and configure the IDE in different Cloud or On-Prem using custom Ansible inventory file
 ### (You can also specify custom TLS, Kerberos and LDAP configuration)
-### 6.1 You can specify following custom inventory in ini format
+### 3.1 You can specify following custom inventory in ini format
 ```console
 [ansible]
 localhost
@@ -157,7 +196,7 @@ For other custom inventory examples see:
 | Non-HA setup: [inventory](examples/custom_inventory_non_ha.ini)           | Non-HA setup: [inventory](examples/custom_inventory_non_ha_external_security.ini) |
 | HA setup: [inventory](examples/custom_inventory_ha.ini)                   | HA setup: [inventory](examples/custom_inventory_ha_external_security.ini)         |
 
-### 6.2 You can now install the IDE with your custom inventory file
+### 3.2 You can now install the IDE with your custom inventory file
 ```console
 georg@notebook:~/git/CommunityLab$ ansible-playbook setup.yml
 ```

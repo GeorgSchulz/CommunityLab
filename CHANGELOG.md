@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- communitylab#13: Setup VMs in Hetzner Cloud using Terraform
 - communitylab#8: Upgrading to Ubuntu 22.04
 
 ## [v1.0.0] - 2023-01-01
