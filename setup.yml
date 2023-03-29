@@ -1,5 +1,5 @@
 ################################################################################################################
-##########      Check and define all mandatory variables for installation and configuration           ##########
+##########                Check mandatory variables for installation and configuration                ##########
 ################################################################################################################
 
 - hosts: ansible
@@ -7,58 +7,19 @@
     - preflight
   roles:
     - name: preflight.check.run
-    - name: preflight.define.variables
 
 ################################################################################################################
-##########      Check and define all mandatory variables for installation and configuration           ##########
+##########                Check mandatory variables for installation and configuration                ##########
 ################################################################################################################
 
-################################################################################################################
-########## Setup of Cloud server and DNS configuration, Cloud server definition in group_vars/all.yml ##########
-################################################################################################################
-
-- hosts: ansible
-  tags:
-    - hetzner
-  roles:
-    - name: hetzner.cloud.servers_and_ips
-      when: custom_inventory_file is not defined
-  post_tasks:
-    - name: refresh dynamic changed inventory
-      meta: refresh_inventory
+#################################################################################################################
+###########                    Set hostnames for all hosts in Hetzner Cloud                            ##########
+#################################################################################################################
 
 - hosts: all,!ansible
   become: yes
   tags:
-    - dns
-  roles:
-    - name: hetzner.cloud.dns
-      when: custom_inventory_file is not defined
-
-- hosts: all,!ansible
-  become: yes
-  tags:
-    - dns
-  tasks:
-    - name: refresh dynamic changed inventory
-      delegate_to: localhost
-      become: no
-      run_once: yes
-      meta: refresh_inventory
-
-- hosts: all,!ansible
-  become: yes
-  tags:
-    - dns
-    - reverse_dns
-  roles:
-    - name: hetzner.cloud.reverse_dns
-      when: custom_inventory_file is not defined
-
-- hosts: all,!ansible
-  become: yes
-  tags:
-    - dns
+    - hostname
   tasks:
     - name: set hostnames and fqdn for all hosts on global level
       shell: "hostnamectl set-hostname {{ inventory_hostname }}"
@@ -74,9 +35,9 @@
         test_command: whoami
       when: custom_inventory_file is not defined
 
-################################################################################################################
-########## Setup of Cloud server and DNS configuration, Cloud server definition in group_vars/all.yml ##########
-################################################################################################################
+#################################################################################################################
+###########                    Set hostnames for all hosts in Hetzner Cloud                            ##########
+#################################################################################################################
 
 ################################################################################################################
 ##########                              Setup environment of hosts                                    ##########
@@ -316,20 +277,4 @@
 
 ################################################################################################################
 ##########                     Install and configure JupyterHub and JupyterLab                        ##########
-################################################################################################################
-
-################################################################################################################
-##########                  Delete all Cloud servers using Ansible Tag delete                         ##########
-################################################################################################################
-      
-- hosts: ansible
-  tags:
-    - never
-    - delete
-  roles:
-    - name: hetzner.delete.servers_and_ips
-      when: custom_inventory_file is not defined
-
-################################################################################################################
-##########                  Delete all Cloud servers using Ansible Tag delete                         ##########
 ################################################################################################################

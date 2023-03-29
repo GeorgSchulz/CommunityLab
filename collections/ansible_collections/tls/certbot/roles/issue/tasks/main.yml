@@ -1,6 +1,7 @@
-- name: set fact for no root user
-  set_fact:
-    no_root_user: "{{ ansible_user_id }}"
+- name: set fact for no root user - use shell to avoid ansible_fact_caching for root user
+  become: no
+  shell: "whoami" 
+  register: no_root_user
 
 - name: create folder for certs and keystores
   delegate_to: localhost
@@ -9,7 +10,7 @@
   file:
     path: "/opt/letsencrypt"
     state: directory
-    owner: "{{ no_root_user }}"
+    owner: "{{ no_root_user.stdout }}"
 
 - name: check if certificate is already present on ansible server
   delegate_to: localhost

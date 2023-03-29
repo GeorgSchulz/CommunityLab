@@ -18,14 +18,7 @@
     name: "keepalived.service"
     state: stopped
 
-- name: start keepalived service on first hub
+- name: start keepalived service
   systemd:
     name: "keepalived.service"
     state: started
-  when: "'hub1' in group_names"
-
-- name: start keepalived service on second hub
-  systemd:
-    name: "keepalived.service"
-    state: started
-  when: "'hub2' in group_names"
