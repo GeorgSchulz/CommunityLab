@@ -40,7 +40,7 @@ When using Hetzner Cloud following costs have to be considered (Non-HA):
 | worker3      | CPX51       | 16  | 32  | 2,50 €      | 64,74 €       |
 | security1    | CPX11       | 2   | 2   | 0,17 €      |  4,58 €       |
 |              |             |     |     |             |               |
-| CommunityLab |             | 30  | 60  | 9,45 €      | 243,78 €      |
+| CommunityLab |             | 62  | 122 | 9,45 €      | 243,78 €      |
 
 If you are german speaking you may be interested in my related academic work: [Thesis.pdf](Thesis.pdf)
 
