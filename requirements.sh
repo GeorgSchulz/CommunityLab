@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Define used variables
 miniforge_script=Miniforge3-Linux-x86_64.sh
 miniforge_url=https://github.com/conda-forge/miniforge/releases/latest/download/$miniforge_script

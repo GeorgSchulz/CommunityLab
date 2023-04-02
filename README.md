@@ -24,7 +24,7 @@ Following components are used:
 |------------------|---------|
 | JupyterHub       | 3.1.1   |
 | JupyterLab       | 3.4.7   |
-| Apache Hadoop    | 3.3.3   |
+| Apache Hadoop    | 3.3.4   |
 | Apache Spark     | 3.1.2   |
 | Apache Zookeeper | 3.8.0   |
 | PostgreSQL       | 14      |
@@ -64,7 +64,7 @@ georg@notebook:~/git/CommunityLab$ bash requirements.sh
 ```
 
 ### 2.2 Setup infrastructur in Hetzner Cloud using Terraform
-#### 2.2.1 Define variables for your custom infrastructure (mandatory: hetzner_token, hetznerdns_token, ssh_key_file, user, domain, optional: ide_ha_setup, set to true for IDE in HA mode)
+#### 2.2.1 Define variables for your custom infrastructure (mandatory: hetzner_token, hetznerdns_token, ssh_key_file, user, domain; optional: ide_ha_setup, set to true for IDE in HA mode)
 ```console
 georg@notebook:~/git/CommunityLab$ cd terraform
 georg@notebook:~/git/CommunityLab/terraform$ vim variables.tf

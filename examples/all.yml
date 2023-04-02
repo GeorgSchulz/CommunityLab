@@ -90,12 +90,9 @@ certs_dest_postgres:
   - "key_postgres.pem"
 
 # Parameters when connecting to LDAP server
-# e.g.:
-# ldap_organization: "dc=click-your-it,dc=de"
-# ldap_organization_upper: "DC=click-your-it,DC=de"
 ldap_password: "changeit"
-ldap_organization: ""
-ldap_organization_upper: ""
+ldap_organization: "dc=example,dc=com"
+ldap_organization_upper: "DC=example,DC=com"
 
 # LDAP group used for IDE access
 ide_users_group: "ide_users"
