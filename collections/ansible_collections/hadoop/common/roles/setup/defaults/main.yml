@@ -1,4 +1,4 @@
-hadoop_version: "3.3.3"
+hadoop_version: "3.3.4"
 hdfs_user: "{{ hdfs_user | default('hdfs') }}"
 hdfs_group: "{{ hdfs_group | default('hdfs') }}"
 hadoop_conf_dir: "/opt/apache-hadoop"

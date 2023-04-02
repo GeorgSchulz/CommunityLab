@@ -4,10 +4,6 @@
     state: latest
     update_cache: yes
 
-- name: configure keepalived for Hetzner Cloud
-  include_tasks: configure-keepalived-hetzner.yml
-  when: custom_inventory_file is not defined
-
 - name: configure keepalived
   template:
     src: "keepalived.conf"
