@@ -19,7 +19,6 @@
   register: cert_dir
 
 - name: issue and fetch certificates only if not present on ansible server
-  when: not cert_dir.stat.exists
   become: yes
   block:
     - name: install certbot
@@ -28,14 +27,42 @@
         state: present
         update_cache: yes
 
-    - name: issue certificate using certbot
+    - name: issue certificate using certbot when shared IP address for JupyterHub frontend is undefined
       shell: "certbot certonly --standalone --preferred-challenges http --agree-tos --email {{ my_email }} -d {{ inventory_hostname }}"
-      
-      # for getting cert for HA frontend for both hub nodes use dns challenge:
-      # certbot -d jupyterhub.{{ domain }} --manual --preferred-challenges dns certonly --email {{ my_email }}
+      when: jupyterhub_domain_ip is not defined
+    
+    - name: issue certificate using certbot when shared IP address for JupyterHub frontend is defined
+      block:
+        - name: install jq
+          apt:
+            name: "jq"
+            state: present
 
+        - name: download scripts for Hetzner DNS challenge
+          get_url:
+            url: "{{ item.src }}"
+            dest: "{{ item.dest }}"
+            mode: "0550"
+          loop:
+            - src: "https://raw.githubusercontent.com/dschoeffm/hetzner-dns-certbot/master/certbot-hetzner-auth.sh"
+              dest: "/usr/local/bin/certbot-hetzner-auth.sh"
+            - src: "https://raw.githubusercontent.com/dschoeffm/hetzner-dns-certbot/master/certbot-hetzner-cleanup.sh"
+              dest: "/usr/local/bin/certbot-hetzner-cleanup.sh"
+
+        - name: copy Hetzner DNS API token to hub servers
+          copy:
+            content: "{{ hetznerdns_token }}"
+            dest: "/etc/hetzner-dns-token"
+
+        - name: issue certificates using DNS challenge on hub servers
+          shell: "yes | certbot certonly --manual --preferred-challenges=dns --agree-tos --email {{ my_email }} --manual-auth-hook /usr/local/bin/certbot-hetzner-auth.sh --manual-cleanup-hook /usr/local/bin/certbot-hetzner-cleanup.sh -d {{ inventory_hostname }} -d jupyterhub.{{ domain }}"
+      when: 
+        - jupyterhub_domain_ip is defined
+        - "'hubs' in group_names"
+          
     - name: fetch certificate to ansible server
       synchronize:
         src: "/etc/letsencrypt/archive/{{ inventory_hostname }}"
         dest: "/opt/letsencrypt/"
         mode: pull
+  when: not cert_dir.stat.exists

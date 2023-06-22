@@ -49,6 +49,9 @@ all:
       vars:
         tls_user: "{{ jupyterhub_user }}"
         postgres_client: true
+        jupyterhub_domain_ip: true
+        hetzner_token: "${hetzner_token}"
+        hetznerdns_token: "${hetznerdns_token}"
     masters:
       children:
         master1:

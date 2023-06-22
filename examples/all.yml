@@ -4,10 +4,6 @@ ide_ha_setup: "{{ true if (groups.masters | length == 3) else false }}"
 # Used Domain
 domain: "example.com"
 
-# optional:
-# For using shared address for both hub nodes you have to additionally define an IP for the used subdomain. This IP will be used by the keepalived service.
-# e.g. jupyterhub_domain_ip: "95.216.246.12"
-
 # Technical groups of IDE
 ide_services_group: "ide_services"
 ide_services_gid: "4001"
@@ -65,7 +61,7 @@ my_email: "communitylab@example.com"
 truststore_password: "changeit"
 keystore_password: "changeit"
 
-# Location of issued Let's Encrypt certificates on localhost
+# Location of issued Let's Encrypt certificates on localhost - available after Ansible Role tls.certbot.issue
 certs_source: 
   - "/opt/letsencrypt/{{ inventory_hostname }}/cert1.pem"
   - "/opt/letsencrypt/{{ inventory_hostname }}/chain1.pem"

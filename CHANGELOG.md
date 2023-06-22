@@ -6,7 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- communitylab#16: Using Terraform for creating TXT DNS records for shared IP address
+- communitylab#20: Use SSSD for all LDAP clients
+- communitylab#19: IDE HA setup: Configure OpenLDAP as backend for Kerberos server
+- communitylab#18: IDE HA setup: Configure replication for both independent LDAP servers
+
+### Added
+
+- communitylab#16: IDE HA setup: Automate all steps for HA failover IP in Hetzner Cloud
 
 ## [v1.1.0] - 2023-04-02
 

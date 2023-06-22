@@ -1,9 +1,0 @@
-- name: get HDFS status
-  become_user: "{{ hdfs_user }}"
-  block:
-    - name: get valid keytab for HDFS user
-      shell: "kinit -k {{ inventory_hostname }}@{{ realm }} -t {{ keytab_folder }}/hdfs.keytab"
-    
-    - name: get HDFS report
-      shell: "/opt/apache-hadoop/hadoop/bin/hdfs dfsadmin -report"
-      register: hdfs_report
