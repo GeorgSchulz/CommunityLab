@@ -4,6 +4,25 @@
     state: latest
     update_cache: yes
 
+- name: get ip address of remote host - use bash to avoid dns python conflict for dig lookup
+  shell: "dig +short jupyterhub.{{ domain }}"
+  register: jupyterhub_domain_ip_address
+
+- name: configure keepalived for Hetzner Cloud
+  block:
+    - name: install hcloud-cli
+      apt:
+        name: "hcloud-cli"
+        state: latest
+        update_cache: yes
+    
+    - name: copy failover.sh to /etc/keepalived
+      template:
+        src: "failover.sh"
+        dest: "/etc/keepalived/failover.sh"
+        mode: "0755"
+  when: hetzner_token is defined
+
 - name: configure keepalived
   template:
     src: "keepalived.conf"

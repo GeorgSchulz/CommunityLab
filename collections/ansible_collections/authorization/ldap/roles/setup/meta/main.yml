@@ -3,6 +3,8 @@ dependencies:
   - name: authorization.ldap.server
     when: "'slapd' not in ansible_facts.packages"
   - name: authorization.ldap.database
+    tags:
+     - ldap_user
   - name: authorization.ldap.check
     tags:
       - check

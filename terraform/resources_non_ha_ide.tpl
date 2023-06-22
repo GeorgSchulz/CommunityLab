@@ -4,6 +4,7 @@ resource "hcloud_server" "hub1" {
   name        = "hub1"
   image       = "${var.os_type}"
   server_type = "${var.server_type_hub}"
+  location    = "${var.location}"
   ssh_keys    = [hcloud_ssh_key.communitylab_ssh_key.id]
   user_data   = "${file("user_data.yml")}"
 }
@@ -12,6 +13,7 @@ resource "hcloud_server" "master1" {
   name        = "master1"
   image       = "${var.os_type}"
   server_type = "${var.server_type_master}"
+  location    = "${var.location}"
   ssh_keys    = [hcloud_ssh_key.communitylab_ssh_key.id]
   user_data   = "${file("user_data.yml")}"
 }
@@ -20,6 +22,7 @@ resource "hcloud_server" "worker1" {
   name        = "worker1"
   image       = "${var.os_type}"
   server_type = "${var.server_type_worker}"
+  location    = "${var.location}"
   ssh_keys    = [hcloud_ssh_key.communitylab_ssh_key.id]
   user_data   = "${file("user_data.yml")}"
 }
@@ -28,6 +31,7 @@ resource "hcloud_server" "worker2" {
   name        = "worker2"
   image       = "${var.os_type}"
   server_type = "${var.server_type_worker}"
+  location    = "${var.location}"
   ssh_keys    = [hcloud_ssh_key.communitylab_ssh_key.id]
   user_data   = "${file("user_data.yml")}"
 }
@@ -36,6 +40,7 @@ resource "hcloud_server" "worker3" {
   name        = "worker3"
   image       = "${var.os_type}"
   server_type = "${var.server_type_worker}"
+  location    = "${var.location}"
   ssh_keys    = [hcloud_ssh_key.communitylab_ssh_key.id]
   user_data   = "${file("user_data.yml")}"
 }
@@ -44,15 +49,12 @@ resource "hcloud_server" "security1" {
   name        = "security1"
   image       = "${var.os_type}"
   server_type = "${var.server_type_security}"
+  location    = "${var.location}"
   ssh_keys    = [hcloud_ssh_key.communitylab_ssh_key.id]
   user_data   = "${file("user_data.yml")}"
 }
 
-# Create Zone and A-Records in Hetzner Cloud
-
-data "hetznerdns_zone" "communitylab_zone" {
-  name = "${var.domain}"
-}
+# Create A-Records in Hetzner Cloud
 
 resource "hetznerdns_record" "hub1_record" {
   zone_id = data.hetznerdns_zone.communitylab_zone.id

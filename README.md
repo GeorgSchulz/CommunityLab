@@ -8,11 +8,13 @@ High-level design:
 
 ![High-level design](https://github.com/GeorgSchulz/CommunityLab/blob/master/images/HLD.bmp?raw=True)
 
-The IDE can be installed as high available system but also in Non-HA mode. As default Non-HA mode is used to save costs when installing and running the IDE in a Cloud environment. If you want to setup the IDE in HA mode change the relevant Terraform variable in Hetzner Cloud (see step 2.2.1) or define 3 master nodes in your custom Ansible inventory file when using On-Premise machines or different Cloud provider.
+The IDE can be installed as high available system but also in Non-HA mode. As default Non-HA mode is used to save costs when installing and running the IDE in a Cloud environment. 
 
 Low-level design (Non-HA setup):
 
 ![Low-level design](https://github.com/GeorgSchulz/CommunityLab/blob/master/images/LLD_Non_HA.bmp?raw=True)
+
+If you want to setup the IDE in HA mode change the relevant Terraform variable in Hetzner Cloud (see step 2.2.1) or define 3 master nodes in your custom Ansible inventory file when using On-Premise machines or different Cloud provider.
 
 Low-level design (HA setup):
 
@@ -28,6 +30,10 @@ Following components are used:
 | Apache Spark     | 3.1.2   |
 | Apache Zookeeper | 3.8.0   |
 | PostgreSQL       | 14      |
+
+The conda environments used for JupyterHub and JupyterLab contain following packages:
+- [JupyterHub](collections/ansible_collections/jupyter/hub/roles/install/files/jupyterhubenvironment.txt)
+- [JupyterLab](collections/ansible_collections/jupyter/lab/roles/setup/files/jupyterlabenvironment.txt)
 
 When using Hetzner Cloud following costs have to be considered (Non-HA):
 
@@ -63,7 +69,7 @@ The installation process was tested on Ubuntu 22.04.2 LTS and Windows Ubuntu Sub
 georg@notebook:~/git/CommunityLab$ bash requirements.sh 
 ```
 
-### 2.2 Setup infrastructur in Hetzner Cloud using Terraform
+### 2.2 Setup infrastructure in Hetzner Cloud using Terraform
 #### 2.2.1 Define variables for your custom infrastructure (mandatory: hetzner_token, hetznerdns_token, ssh_key_file, user, domain; optional: ide_ha_setup, set to true for IDE in HA mode)
 ```console
 georg@notebook:~/git/CommunityLab$ cd terraform
@@ -102,7 +108,14 @@ georg@notebook:~/git/CommunityLab$ vim group_vars/all.yml
 georg@notebook:~/git/CommunityLab$ ansible-playbook setup.yml
 ```
 
-### 2.4 Delete infrastructure in Hetzner Cloud using Terraform
+### 2.4 Access IDE via JupyterHub (e.g. using domain: example.com)
+#### 2.4.1 Non-HA IDE
+Use credentials of variable ldap_users in group_vars/all.yml and login here: https://hub1.example.com
+
+#### 2.4.2 HA IDE
+Use credentials of variable ldap_users in group_vars/all.yml and login here: https://jupyterhub.example.com
+
+### 2.5 Delete infrastructure in Hetzner Cloud using Terraform
 ```console
 georg@notebook:~/git/CommunityLab$ cd terraform
 georg@notebook:~/git/CommunityLab/terraform$ terraform destroy
@@ -110,7 +123,7 @@ georg@notebook:~/git/CommunityLab/terraform$ terraform destroy
 
 ## 3. Install and configure the IDE in different Cloud or On-Prem using custom Ansible inventory file
 ### (You can also specify custom TLS, Kerberos and LDAP configuration)
-### 3.1 You can specify following custom inventory in ini format
+### 3.1 You can specify following custom inventory in INI format
 ```console
 [ansible]
 localhost

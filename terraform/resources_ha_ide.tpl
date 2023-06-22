@@ -1,25 +1,67 @@
+# Create network and floating IP for JupyterHub HA failover in Hetzner Cloud
+
+resource "hcloud_network" "network" {
+  name     = "HA-Sync"
+  ip_range = "10.0.0.0/16"
+}
+
+resource "hcloud_network_subnet" "network-subnet" {
+  type         = "cloud"
+  network_id   = hcloud_network.network.id
+  network_zone = "${local.network_zone}"
+  ip_range     = "10.0.1.0/24"
+}
+
+resource "hcloud_floating_ip" "jupyterhub" {
+  type          = "ipv4"
+  home_location = "${var.location}"
+}
+
+resource "hetznerdns_record" "jupyterhub_record" {
+  zone_id = data.hetznerdns_zone.communitylab_zone.id
+  name    = "jupyterhub"
+  value   = hcloud_floating_ip.jupyterhub.ip_address
+  type    = "A"
+}
+
+resource "hcloud_floating_ip_assignment" "main" {
+  floating_ip_id = hcloud_floating_ip.jupyterhub.id
+  server_id      = hcloud_server.hub1.id
+}
+
 # Create VMs in Hetzner Cloud
 
 resource "hcloud_server" "hub1" {
   name        = "hub1"
   image       = "${var.os_type}"
   server_type = "${var.server_type_hub}"
+  location    = "${var.location}"
   ssh_keys    = [hcloud_ssh_key.communitylab_ssh_key.id]
   user_data   = "${file("user_data.yml")}"
+  network {
+    network_id = hcloud_network.network.id
+    ip         = hcloud_floating_ip.jupyterhub.id
+  }
 }
 
 resource "hcloud_server" "hub2" {
   name        = "hub2"
   image       = "${var.os_type}"
   server_type = "${var.server_type_hub}"
+  location    = "${var.location}"
   ssh_keys    = [hcloud_ssh_key.communitylab_ssh_key.id]
   user_data   = "${file("user_data.yml")}"
+  network {
+    network_id = hcloud_network.network.id
+    ip         = hcloud_floating_ip.jupyterhub.id
+  }
 }
 
 resource "hcloud_server" "master1" {
   name        = "master1"
   image       = "${var.os_type}"
   server_type = "${var.server_type_master}"
+  location    = "${var.location}"
   ssh_keys    = [hcloud_ssh_key.communitylab_ssh_key.id]
   user_data   = "${file("user_data.yml")}"
 }
@@ -28,6 +70,7 @@ resource "hcloud_server" "master2" {
   name        = "master2"
   image       = "${var.os_type}"
   server_type = "${var.server_type_master}"
+  location    = "${var.location}"
   ssh_keys    = [hcloud_ssh_key.communitylab_ssh_key.id]
   user_data   = "${file("user_data.yml")}"
 }
@@ -36,6 +79,7 @@ resource "hcloud_server" "master3" {
   name        = "master3"
   image       = "${var.os_type}"
   server_type = "${var.server_type_master}"
+  location    = "${var.location}"
   ssh_keys    = [hcloud_ssh_key.communitylab_ssh_key.id]
   user_data   = "${file("user_data.yml")}"
 }
@@ -44,6 +88,7 @@ resource "hcloud_server" "worker1" {
   name        = "worker1"
   image       = "${var.os_type}"
   server_type = "${var.server_type_worker}"
+  location    = "${var.location}"
   ssh_keys    = [hcloud_ssh_key.communitylab_ssh_key.id]
   user_data   = "${file("user_data.yml")}"
 }
@@ -52,6 +97,7 @@ resource "hcloud_server" "worker2" {
   name        = "worker2"
   image       = "${var.os_type}"
   server_type = "${var.server_type_worker}"
+  location    = "${var.location}"
   ssh_keys    = [hcloud_ssh_key.communitylab_ssh_key.id]
   user_data   = "${file("user_data.yml")}"
 }
@@ -60,6 +106,7 @@ resource "hcloud_server" "worker3" {
   name        = "worker3"
   image       = "${var.os_type}"
   server_type = "${var.server_type_worker}"
+  location    = "${var.location}"
   ssh_keys    = [hcloud_ssh_key.communitylab_ssh_key.id]
   user_data   = "${file("user_data.yml")}"
 }
@@ -68,6 +115,7 @@ resource "hcloud_server" "security1" {
   name        = "security1"
   image       = "${var.os_type}"
   server_type = "${var.server_type_security}"
+  location    = "${var.location}"
   ssh_keys    = [hcloud_ssh_key.communitylab_ssh_key.id]
   user_data   = "${file("user_data.yml")}"
 }
@@ -76,15 +124,12 @@ resource "hcloud_server" "security2" {
   name        = "security2"
   image       = "${var.os_type}"
   server_type = "${var.server_type_security}"
+  location    = "${var.location}"
   ssh_keys    = [hcloud_ssh_key.communitylab_ssh_key.id]
   user_data   = "${file("user_data.yml")}"
 }
 
-# Create Zone and A-Records in Hetzner Cloud
-
-data "hetznerdns_zone" "communitylab_zone" {
-  name = "${var.domain}"
-}
+# Create A-Records in Hetzner Cloud
 
 resource "hetznerdns_record" "hub1_record" {
   zone_id = data.hetznerdns_zone.communitylab_zone.id
