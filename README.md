@@ -108,7 +108,8 @@ georg@notebook:~/git/CommunityLab$ vim group_vars/all.yml
 georg@notebook:~/git/CommunityLab$ ansible-playbook setup.yml
 ```
 
-### 2.4 Access IDE via JupyterHub (e.g. using domain: example.com)
+### 2.4 Access IDE via JupyterHub
+#### (e.g. using domain: example.com)
 #### 2.4.1 Non-HA IDE
 Use credentials of variable ldap_users in group_vars/all.yml and login here: https://hub1.example.com
 
