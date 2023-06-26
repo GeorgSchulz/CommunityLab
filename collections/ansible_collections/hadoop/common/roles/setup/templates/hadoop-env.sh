@@ -287,9 +287,9 @@ export HADOOP_ROOT_LOGGER=INFO,console
 # export HDFS_NAMENODE_OPTS="-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -Xloggc:${HADOOP_LOG_DIR}/gc-rm.log-$(date +'%Y%m%d%H%M')"
 
 # this is the default:
-export HDFS_NAMENODE_OPTS="-Dhadoop.security.logger=INFO,RFAS -Dzookeeper.jdk.tls.rejectClientInitiatedRenegotiation=true -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.ssl.keyStore.location={% if keystore_file is defined %}{{ keystore_file }}{% else %}/etc/ssl/private/{{ inventory_hostname }}.jks{% endif %} -Dzookeeper.ssl.keyStore.password={{ keystore_password }} -Dzookeeper.ssl.trustStore.location={% if truststore_file is defined %}{{ truststore_file }}{% else %}/etc/ssl/certs/truststore.jks{% endif %} -Dzookeeper.ssl.trustStore.password={{ truststore_password }} -Dzookeeper.client.secure=true"
+export HDFS_NAMENODE_OPTS="-Dhadoop.security.logger=INFO,RFAS -Dzookeeper.jdk.tls.rejectClientInitiatedRenegotiation=true -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.ssl.keyStore.location={{ keystore_file }} -Dzookeeper.ssl.keyStore.password={{ keystore_password }} -Dzookeeper.ssl.trustStore.location={{ truststore_file }} -Dzookeeper.ssl.trustStore.password={{ truststore_password }} -Dzookeeper.client.secure=true"
 
-export HADOOP_OPTS="-Dhadoop.security.logger=INFO,RFAS -Dzookeeper.jdk.tls.rejectClientInitiatedRenegotiation=true -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.ssl.keyStore.location={% if keystore_file is defined %}{{ keystore_file }}{% else %}/etc/ssl/private/{{ inventory_hostname }}.jks{% endif %} -Dzookeeper.ssl.keyStore.password={{ keystore_password }} -Dzookeeper.ssl.trustStore.location={% if truststore_file is defined %}{{ truststore_file }}{% else %}/etc/ssl/certs/truststore.jks{% endif %} -Dzookeeper.ssl.trustStore.password={{ truststore_password }} -Dzookeeper.client.secure=true"
+export HADOOP_OPTS="-Dhadoop.security.logger=INFO,RFAS -Dzookeeper.jdk.tls.rejectClientInitiatedRenegotiation=true -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.ssl.keyStore.location={{ keystore_file }} -Dzookeeper.ssl.keyStore.password={{ keystore_password }} -Dzookeeper.ssl.trustStore.location={{ truststore_file }} -Dzookeeper.ssl.trustStore.password={{ truststore_password }} -Dzookeeper.client.secure=true"
 
 ###
 # SecondaryNameNode specific parameters
@@ -355,7 +355,7 @@ export HADOOP_OPTS="-Dhadoop.security.logger=INFO,RFAS -Dzookeeper.jdk.tls.rejec
 # These options will be appended to the options specified as HADOOP_OPTS
 # and therefore may override any similar flags set in HADOOP_OPTS
 #
-export HDFS_ZKFC_OPTS="-Dzookeeper.jdk.tls.rejectClientInitiatedRenegotiation=true -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.ssl.keyStore.location={% if keystore_file is defined %}{{ keystore_file }}{% else %}/etc/ssl/private/{{ inventory_hostname }}.jks{% endif %} -Dzookeeper.ssl.keyStore.password={{ keystore_password }} -Dzookeeper.ssl.trustStore.location={% if truststore_file is defined %}{{ truststore_file }}{% else %}/etc/ssl/certs/truststore.jks{% endif %} -Dzookeeper.ssl.trustStore.password={{ truststore_password }} -Dzookeeper.client.secure=true"
+export HDFS_ZKFC_OPTS="-Dzookeeper.jdk.tls.rejectClientInitiatedRenegotiation=true -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.ssl.keyStore.location={{ keystore_file }} -Dzookeeper.ssl.keyStore.password={{ keystore_password }} -Dzookeeper.ssl.trustStore.location={{ truststore_file }} -Dzookeeper.ssl.trustStore.password={{ truststore_password }} -Dzookeeper.client.secure=true"
 
 ###
 # QuorumJournalNode specific parameters

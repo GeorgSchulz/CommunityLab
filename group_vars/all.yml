@@ -54,12 +54,8 @@ technical_users:
     group: "{{ journalnode_group }}"
     gid: "{{ ide_services_gid }}"
 
-# E-mail address that will be used by Certbot for issuing all Let's Encrypt certificates
+# E-mail address that will be used by Certbot for issuing all Let's Encrypt certificates, this is just an example must be a valid address in order for Certbot to issue certificates successfully
 my_email: "communitylab@example.com"
-
-# Credentials for Java
-truststore_password: "changeit"
-keystore_password: "changeit"
 
 # Location of issued Let's Encrypt certificates on localhost - available after Ansible Role tls.certbot.issue
 certs_source: 
@@ -67,28 +63,44 @@ certs_source:
   - "/opt/letsencrypt/{{ inventory_hostname }}/chain1.pem"
   - "/opt/letsencrypt/{{ inventory_hostname }}/privkey1.pem"
 
-# Names of issued Let's Encrypt certificates on remote hosts
+# Names of issued Let's Encrypt certificates on remote hosts - used for Ansible Role tls.certbot.distribute
 certs_dest:
   - "cert.pem"
   - "chain.pem"
   - "key.pem"
 
-# Mode of issued Let's Encrypt certificates on remote hosts
+# Mode of issued Let's Encrypt certificates on remote hosts - used for Ansible Role tls.certbot.distribute
 certs_mode:
   - "0660"
   - "0660"
   - "0400"
 
-# Names of Let's Encrypt certificates for PostgreSQL cluster
+# Names of Let's Encrypt certificates for PostgreSQL cluster- used for Ansible Role rdbms.postgres.install
 certs_dest_postgres:
   - "cert_postgres.pem"
   - "chain_postgres.pem"
   - "key_postgres.pem"
 
+# Parameters for TLS
+cert_file: "/etc/ssl/private/cert.pem"
+key_file: "/etc/ssl/private/key.pem"
+haproxy_pem_file: "/etc/ssl/private/haproxy.pem"
+cert_file_postgres: "/etc/ssl/private/cert_postgres.pem"
+key_file_postgres: "/etc/ssl/private/key_postgres.pem"
+chain_file_postgres: "/etc/ssl/private/chain_postgres.pem"
+keystore_file: "/etc/ssl/private/{{ inventory_hostname }}.jks"
+keystore_password: "changeit"
+truststore_file: "/etc/ssl/certs/truststore.jks"
+truststore_password: "changeit"
+
 # Parameters when connecting to LDAP server
-ldap_password: "changeit"
 ldap_organization: "dc=example,dc=com"
-ldap_organization_upper: "DC=example,DC=com"
+ldap_server_address: "{% for host in groups.securities | shuffle %}ldaps://{{ host }}{% if not loop.last %},{% endif %}{% endfor %}"
+ldap_bind_user: "cn=admin,{{ ldap_organization }}"
+ldap_password: "changeit"
+ldap_user_search_base: "ou=people,{{ ldap_organization }}"
+ldap_group_search_base: "ou=groups,{{ ldap_organization }}"
+ldap_bind_dn_template: "uid={username},{{ ldap_user_search_base }}"
 
 # LDAP group used for IDE access
 ide_users_group: "ide_users"

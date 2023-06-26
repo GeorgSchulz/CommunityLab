@@ -98,7 +98,7 @@ georg@notebook:~/git/CommunityLab$ ansible all -m ping
 ```
 
 ### 2.3 Install and configure the IDE in Hetzner Cloud using Ansible
-#### 2.3.1 Define variables for your custom environment
+#### 2.3.1 Define variables for your custom environment (mandatory: domain, my_email)
 ```console
 georg@notebook:~/git/CommunityLab$ vim group_vars/all.yml
 ```
@@ -165,11 +165,6 @@ worker3
 [workers:vars]
 tls_user={{ hdfs_user }}
 
-# If using your own certs and Java Keystore/Truststores you have to define following variables
-cert_file_postgres=/etc/ssl/private/cert_postgres.pem
-key_file_postgres=/etc/ssl/private/key_postgres.pem
-chain_file_postgres=/etc/ssl/private/chain_postgres.pem
-
 [all:children]
 ansible
 hubs
@@ -183,24 +178,14 @@ keytab_user_yarn={{ yarn_user }}
 keytab_user_http=HTTP
 keytab_user_jupyter={{ jupyterhub_user }}
 
-# If Kerberos server is present you have to define following variables
+# If Kerberos server is present you have to define following variable
 kerberos_external=True
 
-# If using your own certs and Java Keystore/Truststores you have to define following variables
+# If using your own certs and Java Keystore/Truststores you have to define following variable, set other values in section "Parameters for TLS" in group_vars/all.yml
 tls_external=True
-cert_file=/etc/ssl/private/cert.pem
-key_file=/etc/ssl/private/key.pem
-keystore_file=/etc/ssl/private/{{ inventory_hostname }}.jks
-truststore_file=/etc/ssl/certs/truststore.jks
-haproxy_pem_file=/etc/ssl/private/haproxy.pem
 
-# If LDAP server is present you have to define following variables
+# If LDAP server is present you have to define following variable, set other values in section "Parameters when connecting to LDAP server" in group_vars/all.yml
 ldap_external=True
-ldap_server_address=0.0.0.0
-ldap_bind_user=cn=admin,{{ ldap_organization }}
-ldap_bind_dn_template=UID={username},OU=people,{{ ldap_organization_upper }}
-ldap_user_search_base=OU=people,{{ ldap_organization_upper }}
-ldap_group_search_base=ou=groups,{{ ldap_organization }}
 ```
 
 For other custom inventory examples see: 

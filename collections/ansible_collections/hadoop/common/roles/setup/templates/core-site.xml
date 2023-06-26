@@ -185,11 +185,23 @@
     </property>
     <property>
         <name>hadoop.security.group.mapping.provider.ad4users.ldap.url</name>
-	<value>ldap://{% if ldap_server_address is defined %}{{ ldap_server_address }}{% else %}{{ inventory_hostname }}{% endif %}:389</value>
+	<value>{{ ldap_server_address }}</value>
+    </property>
+    <property>
+        <name>hadoop.security.group.mapping.ldap.ssl</name>
+	<value>true</value>
+    </property>
+    <property>
+        <name>hadoop.security.group.mapping.ldap.ssl.keystore</name>
+	<value>{{ keystore_file }}</value>
+    </property>
+    <property>
+        <name>hadoop.security.group.mapping.ldap.ssl.keystore.password</name>
+	<value>{{ keystore_password }}</value>
     </property>
     <property>
         <name>hadoop.security.group.mapping.provider.ad4users.ldap.bind.user</name>
-	<value>{% if ldap_bind_user is defined %}{{ ldap_bind_user }}{% else %}cn=admin,{{ ldap_organization }}{% endif %}</value>
+	<value>{{ ldap_bind_user }}</value>
     </property>
     <property>
         <name>hadoop.security.group.mapping.provider.ad4users.ldap.bind.password</name>
@@ -201,11 +213,11 @@
     </property>
     <property>
        <name>hadoop.security.group.mapping.provider.ad4users.ldap.userbase</name>
-       <value>{% if ldap_user_search_base is defined %}{{ ldap_user_search_base }}{% else %}ou=people,{{ ldap_organization }}{% endif %}</value>
+       <value>{{ ldap_user_search_base }}</value>
     </property>
     <property>
        <name>hadoop.security.group.mapping.provider.ad4users.ldap.groupbase</name>
-       <value>{% if ldap_group_search_base is defined %}{{ ldap_group_search_base }}{% else %}ou=groups,{{ ldap_organization }}{% endif %}</value>
+       <value>{{ ldap_group_search_base }}</value>
     </property>
     <property>
         <name>hadoop.security.group.mapping.provider.ad4users.ldap.search.filter.user</name>
