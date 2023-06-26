@@ -234,13 +234,15 @@
 ##########                     Install and configure JupyterHub and JupyterLab                        ##########
 ################################################################################################################
 
-- name: install Keepalived for PostgreSQL user and schemes creation
+- name: install HAProxy and Keepalived for PostgreSQL access
   hosts: hubs
   become: yes
   tags:
     - jupyter
+    - haproxy
     - keepalived
   roles:
+    - name: loadbalancing.haproxy.setup
     - name: loadbalancing.keepalived.setup
       when:
         - groups.hubs | length == 2 

@@ -63,3 +63,9 @@ variable "server_type_master" {
 variable "server_type_worker" {
   default = "cpx51"
 }
+
+# TTL for created A-records
+
+variable "a_record_ttl" {
+  default = 600
+}

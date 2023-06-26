@@ -18,7 +18,7 @@ charset-normalizer        3.1.0              pyhd8ed1ab_0    conda-forge
 configurable-http-proxy   4.5.4                he2f69ee_2    conda-forge
 cryptography              39.0.0           py39hd598818_0    conda-forge
 greenlet                  2.0.2            py39h3d6467e_1    conda-forge
-grpcio                    1.54.2                   pypi_0    pypi
+grpcio                    1.56.0                   pypi_0    pypi
 icu                       70.1                 h27087fc_0    conda-forge
 idna                      3.4                pyhd8ed1ab_0    conda-forge
 importlib-metadata        6.7.0              pyha770c72_0    conda-forge
@@ -79,7 +79,7 @@ readline                  8.2                  h8228510_1    conda-forge
 requests                  2.31.0             pyhd8ed1ab_0    conda-forge
 ruamel.yaml               0.17.32          py39hd1e30aa_0    conda-forge
 ruamel.yaml.clib          0.2.7            py39h72bdee0_1    conda-forge
-setuptools                67.7.2             pyhd8ed1ab_0    conda-forge
+setuptools                68.0.0             pyhd8ed1ab_0    conda-forge
 six                       1.16.0             pyh6c4a22f_0    conda-forge
 skein                     0.8.2                    pypi_0    pypi
 sqlalchemy                2.0.16           py39hd1e30aa_0    conda-forge

@@ -1,38 +1,43 @@
-- name: copy ldap.conf
-  template:
-    src: "ldap.conf"
-    dest: "/etc/ldap.conf"
-
-- name: install necessary packages
-  environment: 
-    DEBIAN_FRONTEND: noninteractive
+- name: install relevant apt packages for sssd
   apt:
     name: "{{ item }}"
     state: present
     update_cache: yes
-    install_recommends: no
-  loop: "{{ ldap_client_packages }}"
+  loop:
+    - "sssd"
+    - "libpam-sss"
+    - "libnss-sss"
 
-- name: configure ldap client
-  debconf:
-    name: "ldap-auth-config"
-    question: "{{ item.question }}"
-    value: "{{ item.value }}"
-    vtype: select
-  loop: "{{ ldap_auth_config_debconf }}"
-  no_log: true
-
-- name: copy nsswitch.conf
-  copy:
-    src: "nsswitch.conf"
-    dest: "/etc/nsswitch.conf"
-
-- name: copy common-password
-  copy:
-    src: "common-password"
-    dest: "/etc/pam.d/common-password"
-
-- name: configure common-session
+- name: configure TLS_CACERT in /etc/ldap/ldap.conf
   lineinfile:
-    path: "/etc/pam.d/common-session"
-    line: "session optional pam_mkhomedir.so skel=/etc/skel umask=077"
+    path: '/etc/ldap/ldap.conf'
+    regexp: '^.*TLS_CACERT'
+    line: 'TLS_CACERT	/etc/ssl/private/chain.pem'
+    state: present
+
+- name: configure /etc/nsswitch and pam files for sssd
+  shell: "pam-auth-update --enable mkhomedir"
+
+- name: configure sssd with main configuration file sssd.conf
+  template:
+    src: "sssd.conf"
+    dest: "/etc/sssd/sssd.conf"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+
+- name: enable sssd service
+  systemd:
+    name: "sssd.service"
+    enabled: yes
+    daemon_reload: yes
+
+- name: stop sssd service
+  systemd:
+    name: "sssd.service"
+    state: stopped
+
+- name: start sssd service
+  systemd:
+    name: "sssd.service"
+    state: started

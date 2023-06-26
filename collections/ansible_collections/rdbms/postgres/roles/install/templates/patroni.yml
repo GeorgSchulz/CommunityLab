@@ -11,18 +11,18 @@ restapi:
     'X-Frame-Options': 'SAMEORIGIN'
     'X-XSS-Protection': '1; mode=block'
     'X-Content-Type-Options': 'nosniff'
-  cafile: "{% if chain_file_postgres is defined %}{{  chain_file_postgres }}{% else %}/etc/ssl/private/chain_postgres.pem{% endif %}"
-  certfile: "{% if cert_file_postgres is defined %}{{ cert_file_postgres }}{% else %}/etc/ssl/private/cert_postgres.pem{% endif %}"
-  keyfile: "{% if key_file_postgres is defined %}{{ key_file_postgres }}{% else %}/etc/ssl/private/key_postgres.pem{% endif %}"
+  cafile: "{{ chain_file_postgres }}"
+  certfile: "{{ cert_file_postgres }}"
+  keyfile: "{{ key_file_postgres }}"
   https_extra_headers:
     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
 
 zookeeper:
   hosts: "{%for host in groups.masters %}{{ host }}:2281{% if not loop.last %},{% endif %}{% endfor %}"
   use_ssl: true
-  cacert: "{% if chain_file_postgres is defined %}{{  chain_file_postgres }}{% else %}/etc/ssl/private/chain_postgres.pem{% endif %}"
-  cert: "{% if cert_file_postgres is defined %}{{ cert_file_postgres }}{% else %}/etc/ssl/private/cert_postgres.pem{% endif %}"
-  key: "{% if key_file_postgres is defined %}{{ key_file_postgres }}{% else %}/etc/ssl/private/key_postgres.pem{% endif %}"
+  cacert: "{{ chain_file_postgres }}"
+  cert: "{{ cert_file_postgres }}"
+  key: "{{ key_file_postgres }}"
   verify: false
 
 bootstrap:
@@ -112,5 +112,5 @@ postgresql:
       - hostssl jupyterhub jupyterhub {{ host }} scram-sha-256
 {% endfor %}
   ssl: on
-  ssl_cert_file: "/etc/ssl/private/cert_postgres.pem"
-  ssl_key_file: "/etc/ssl/private/key_postgres.pem"
+  ssl_cert_file: "{{ cert_file_postgres }}"
+  ssl_key_file: "{{ key_file_postgres }}"

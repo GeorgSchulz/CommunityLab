@@ -20,6 +20,8 @@
         conda install -c conda-forge {% for conda_package in jupyterlab_conda_packages %}{{ conda_package }}{% if not loop.last %} {% endif %}{% endfor %} -y
       args:
         executable: /bin/bash
+      async: 1800
+      poll: 300
     
     - name: install jupyterlab pip packages in jupyterlab environment
       shell: |

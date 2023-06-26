@@ -22,6 +22,7 @@ resource "hetznerdns_record" "jupyterhub_record" {
   name    = "jupyterhub"
   value   = hcloud_floating_ip.jupyterhub.ip_address
   type    = "A"
+  ttl     = "${var.a_record_ttl}"
 }
 
 resource "hcloud_floating_ip_assignment" "main" {
@@ -136,6 +137,7 @@ resource "hetznerdns_record" "hub1_record" {
   name    = "hub1"
   value   = hcloud_server.hub1.ipv4_address
   type    = "A"
+  ttl     = "${var.a_record_ttl}"
 }
 
 resource "hetznerdns_record" "hub2_record" {
@@ -143,6 +145,7 @@ resource "hetznerdns_record" "hub2_record" {
   name    = "hub2"
   value   = hcloud_server.hub2.ipv4_address
   type    = "A"
+  ttl     = "${var.a_record_ttl}"
 }
 
 resource "hetznerdns_record" "master1_record" {
@@ -150,6 +153,7 @@ resource "hetznerdns_record" "master1_record" {
   name    = "master1"
   value   = hcloud_server.master1.ipv4_address
   type    = "A"
+  ttl     = "${var.a_record_ttl}"
 }
 
 resource "hetznerdns_record" "master2_record" {
@@ -157,6 +161,7 @@ resource "hetznerdns_record" "master2_record" {
   name    = "master2"
   value   = hcloud_server.master2.ipv4_address
   type    = "A"
+  ttl     = "${var.a_record_ttl}"
 }
 
 resource "hetznerdns_record" "master3_record" {
@@ -164,6 +169,7 @@ resource "hetznerdns_record" "master3_record" {
   name    = "master3"
   value   = hcloud_server.master3.ipv4_address
   type    = "A"
+  ttl     = "${var.a_record_ttl}"
 }
 
 resource "hetznerdns_record" "worker1_record" {
@@ -171,6 +177,7 @@ resource "hetznerdns_record" "worker1_record" {
   name    = "worker1"
   value   = hcloud_server.worker1.ipv4_address
   type    = "A"
+  ttl     = "${var.a_record_ttl}"
 }
 
 resource "hetznerdns_record" "worker2_record" {
@@ -178,6 +185,7 @@ resource "hetznerdns_record" "worker2_record" {
   name    = "worker2"
   value   = hcloud_server.worker2.ipv4_address
   type    = "A"
+  ttl     = "${var.a_record_ttl}"
 }
 
 resource "hetznerdns_record" "worker3_record" {
@@ -185,6 +193,7 @@ resource "hetznerdns_record" "worker3_record" {
   name    = "worker3"
   value   = hcloud_server.worker3.ipv4_address
   type    = "A"
+  ttl     = "${var.a_record_ttl}"
 }
 
 resource "hetznerdns_record" "security1_record" {
@@ -192,6 +201,7 @@ resource "hetznerdns_record" "security1_record" {
   name    = "security1"
   value   = hcloud_server.security1.ipv4_address
   type    = "A"
+  ttl     = "${var.a_record_ttl}"
 }
 
 resource "hetznerdns_record" "security2_record" {
@@ -199,6 +209,7 @@ resource "hetznerdns_record" "security2_record" {
   name    = "security2"
   value   = hcloud_server.security2.ipv4_address
   type    = "A"
+  ttl     = "${var.a_record_ttl}"
 }
 
 # Configure reverse DNS for created VMs in Hetzner Cloud

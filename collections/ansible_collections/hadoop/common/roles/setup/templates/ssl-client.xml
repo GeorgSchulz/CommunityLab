@@ -19,7 +19,7 @@
 <configuration>
   <property>
     <name>ssl.client.truststore.location</name>
-    <value>{% if truststore_file is defined %}{{ truststore_file }}{% else %}/etc/ssl/certs/truststore.jks{% endif%}</value>
+    <value>{{ truststore_file }}</value>
   </property>
   <property>
     <name>ssl.client.truststore.password</name>
@@ -35,7 +35,7 @@
   </property>
   <property>
     <name>ssl.client.keystore.location</name>
-    <value>{% if keystore_file is defined %}{{ keystore_file }}{% else %}/etc/ssl/private/{{ inventory_hostname }}.jks{% endif %}</value>
+    <value>{{ keystore_file }}</value>
   </property>
   <property>
     <name>ssl.client.keystore.password</name>

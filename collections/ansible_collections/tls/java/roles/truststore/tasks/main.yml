@@ -25,7 +25,7 @@
     - name: import chain.pem into /etc/ssl/certs/truststore.jks
       shell: "keytool -import -alias {{ domain }}_chain -keystore /etc/ssl/certs/truststore.jks -file /etc/ssl/private/chain.pem -storepass {{ truststore_password }} -noprompt" 
     
-    - name: give access to create Java truststore
+    - name: give access to created Java truststore
       file:
         path: "/etc/ssl/certs/truststore.jks"
         owner: "{{ tls_user }}"
