@@ -95,7 +95,7 @@ truststore_password: "changeit"
 
 # Parameters when connecting to LDAP server
 ldap_organization: "dc=example,dc=com"
-ldap_server_address: "{% for host in groups.securities | shuffle %}ldaps://{{ host }}{% if not loop.last %},{% endif %}{% endfor %}"
+ldap_server_address: "{% for host in groups.securities | shuffle %}ldaps://{{ host }}:636{% if not loop.last %},{% endif %}{% endfor %}"
 ldap_bind_user: "cn=admin,{{ ldap_organization }}"
 ldap_password: "changeit"
 ldap_user_search_base: "ou=people,{{ ldap_organization }}"

@@ -3,8 +3,8 @@ c.JupyterHub.ssl_key = "{{ key_file }}"
 
 c.JupyterHub.authenticator_class = 'ldapauthenticator.LDAPAuthenticator'
 c.LDAPAuthenticator.use_ssl =  True
-c.LDAPAuthenticator.server_port =  636
-c.LDAPAuthenticator.server_address =  "{{ ldap_server_address }}"
+c.LDAPAuthenticator.server_port = 636
+c.LDAPAuthenticator.server_address =  "127.0.0.1" # HAProxy that routes to one or multipe LDAP servers, reason is that multiple LDAP servers can not be configured here
 c.LDAPAuthenticator.lookup_dn_search_user = '{{ ldap_bind_user }}'
 c.LDAPAuthenticator.lookup_dn_search_password = '{{ ldap_password }}'
 c.LDAPAuthenticator.bind_dn_template = '{{ ldap_bind_dn_template }}'
