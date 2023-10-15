@@ -221,8 +221,8 @@ After finishing your work in JupyterLab you can persist all your files in HDFS a
 
 You can copy your files to HDFS by using the **hdfs dfs -copyFromLocal <src> <dest>** command in the terminal of JupyterLab. If you want to provide files for other members of your Data Science project just copy them to the **/share** folder in HDFS. Files in this folder can be changed and deleted by all IDE users:
 
-[hdfs_copyFromLocal](images/hdfs_copyFromLocal_command.bmp)
+[hdfs_copyFromLocal](https://github.com/GeorgSchulz/CommunityLab/blob/master/images/hdfs_copyFromLocal_command.bmp?raw=True)
 
 Other team members can easily access them by using the **hdfs dfs -copyToLocal <src> <dest>** command in the terminal of JupyterLab and download them in their running YARN container:
  
-[hdfs_copyToLocal](images/hdfs_copyToLocal_command.bmp)
+[hdfs_copyToLocal](https://github.com/GeorgSchulz/CommunityLab/blob/master/images/hdfs_copyToLocal_command.bmp?raw=True)
