@@ -20,7 +20,7 @@
         conda install -c conda-forge {% for conda_package in jupyterlab_conda_packages %}{{ conda_package }}{% if not loop.last %} {% endif %}{% endfor %} -y
       args:
         executable: /bin/bash
-      async: 1800
+      async: 6800
       poll: 300
     
     - name: install jupyterlab pip packages in jupyterlab environment
@@ -30,8 +30,25 @@
       args:
         executable: /bin/bash
     
-    - name: change owner to yarn user and group - use shell module because of better performance
-      shell: "chown -R {{ yarn_user }}:{{ yarn_group }} -R {{ miniforge_base_path }}/envs/jupyterlab"
+    - name: install bash kernel in jupyterlab environment
+      shell: |
+        . /opt/miniforge/miniforge/bin/activate jupyterlab
+        python -m bash_kernel.install
+      args:
+        executable: /bin/bash
+    
+    - name: build jupyterlab
+      shell: |
+        . /opt/miniforge/miniforge/bin/activate jupyterlab
+        jupyter lab build
+      args:
+        executable: /bin/bash
+    
+    - name: change mode of environment - use shell module because of better performance
+      shell: "chmod -R 755 {{ miniforge_base_path }}"
+
+    - name: change owner to yarn user and group in environment - use shell module because of better performance
+      shell: "chown -R {{ yarn_user }}:{{ yarn_group }} -R {{ miniforge_base_path }}"
   when: not jupyterlab_env.stat.exists
 
 - name: create folders for environment variables in jupyterlab environment

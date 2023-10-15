@@ -199,3 +199,30 @@ For other custom inventory examples see:
 ```console
 georg@notebook:~/git/CommunityLab$ ansible-playbook setup.yml
 ```
+
+## 4. IDE Usage
+### 4.1 Use Git integration in JupyterLab
+
+After entering JupyterLab you can work with your GitHub or GitLab repositories by cloning them using the provided Git integration on the left side:
+ 
+![Git Integration: Clone existing GitHub repository](https://github.com/GeorgSchulz/CommunityLab/blob/master/images/git_clone.bmp?raw=True)
+
+Having successfully cloned your repository you can now directly interact with it:
+ 
+![Git Integration: Interact with GitHub repository](https://github.com/GeorgSchulz/CommunityLab/blob/master/images/git_repo.bmp?raw=True)
+
+### 4.2 Use Spark in JupyterLab
+
+Besides classical Data Science analysis using Python packages like NumPy, Pandas or scikit-learn you may want to use Spark in JupyterLab. See [spark_example.ipynb](examples/spark_example.ipynb) for example code on how to import the Python library PySpark and write data to HDFS or load data from HDFS in Parquet format.
+
+### 4.3 Store all used files in HDFS and make them available for other team members:
+
+After finishing your work in JupyterLab you can persist all your files in HDFS and stop your running YARN container. 
+
+You can copy your files to HDFS by using the **hdfs dfs -copyFromLocal <src> <dest>** command in the terminal of JupyterLab. If you want to provide files for other members of your Data Science project just copy them to the **/share** folder in HDFS. Files in this folder can be changed and deleted by all IDE users:
+
+[hdfs_copyFromLocal](images/hdfs_copyFromLocal_command.bmp)
+
+Other team members can easily access them by using the **hdfs dfs -copyToLocal <src> <dest>** command in the terminal of JupyterLab and download them in their running YARN container:
+ 
+[hdfs_copyToLocal](images/hdfs_copyToLocal_command.bmp)

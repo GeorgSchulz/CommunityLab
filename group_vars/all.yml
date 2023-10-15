@@ -3,7 +3,7 @@ ide_ha_setup: "{{ true if (groups.masters | length == 3) else false }}"
 
 # Used Domain
 domain: "example.com"
-
+  
 # Technical groups of IDE
 ide_services_group: "ide_services"
 ide_services_gid: "4001"
@@ -20,7 +20,7 @@ technical_groups:
   - name: "ssl-cert"
     gid: "4002"
 
-# Technical user of IDE
+# Technical users of IDE
 ldap_user: "openldap"
 zookeeper_user: "zookeeper"
 hdfs_user: "hdfs"
