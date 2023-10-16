@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - communitylab#18: IDE HA setup: Configure replication for both independent LDAP servers
 - communitylab#26: Error handling in Conda Package Manager
 
-## [v1.2.0] - 2023-10-15
+## [v1.2.0] - 2023-10-16
 
 ### Added
 
