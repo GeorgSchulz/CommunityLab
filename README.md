@@ -215,7 +215,7 @@ Having successfully cloned your repository you can now directly interact with it
 
 Besides classical Data Science analysis using Python packages like NumPy, Pandas or scikit-learn you may want to use Apache Spark in JupyterLab. This example code shows how to import the Python library PySpark and write data to HDFS or load data from HDFS in Parquet format.
 
-![Example Code: Usage of Python library PySpark](https://github.com/GeorgSchulz/CommunityLab/blob/master/examples/spark_example.ipynb?raw=True)
+![Example Code: Usage of Python library PySpark](examples/spark_example.ipynb)
 
 ### 4.3 Store all used files in HDFS and make them available for other team members
 
