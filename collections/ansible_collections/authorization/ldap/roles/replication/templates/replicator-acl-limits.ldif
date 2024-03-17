@@ -1,0 +1,11 @@
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+add: olcAccess
+olcAccess: {0}to *
+  by dn.exact="{{ ldap_replication_user }}" read
+  by * break
+-
+add: olcLimits
+olcLimits: dn.exact="{{ ldap_replication_user }}"
+  time.soft=unlimited time.hard=unlimited
+  size.soft=unlimited size.hard=unlimited

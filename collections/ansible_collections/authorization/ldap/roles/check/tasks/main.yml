@@ -20,5 +20,28 @@
             that: ldap_search.stdout_lines | length == ldap_users | length
             fail_msg: "Not all IDE users are added to 'cn={{ ide_users_group }},ou=groups,{{ ldap_organization }}', check Logs for more information"
             success_msg: "All IDE users are added to 'cn={{ ide_users_group }},ou=groups,{{ ldap_organization }}'"
+
+        - name: set fact when all LDAP users are present
+          set_fact:
+            ldap_users_present: True
+        
+        - name: only execute if two ldap server are present
+          block:
+            - name: check if ldap standard replication is active
+              shell: "ldapsearch -z1 -LLL -x -s base -b {{ ldap_organization }} contextCSN"
+              register: ldap_search_context
+
+            - name: print message depending on ldap replication check
+              assert:
+                that:
+                  - ldap_search_context.stdout_lines | length == 2
+                  - ldap_search_context.rc == 0
+                fail_msg: "LDAP standard replicaiton is not active, check Logs for more information"
+                success_msg: "LDAP standard replication is configured and active: {{ ldap_search_context.stdout_lines }}"
+                  
+            - name: set fact when LDAP standard replication is configured and active
+              set_fact:
+                ldap_replication_configured: True
+          when: groups.securities | length == 2
       when: ldap_service_status.status.ActiveState == "active"
   when: "'slapd' in ansible_facts.packages"
