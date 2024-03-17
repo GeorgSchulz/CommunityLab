@@ -101,6 +101,9 @@ ldap_password: "changeit"
 ldap_user_search_base: "ou=people,{{ ldap_organization }}"
 ldap_group_search_base: "ou=groups,{{ ldap_organization }}"
 ldap_bind_dn_template: "uid={username},{{ ldap_user_search_base }}"
+# Parameters for LDAP replication
+ldap_replication_user: "cn=replicator,{{ ldap_organization }}"
+ldap_replication_password: "changeit"
 
 # LDAP group used for IDE access
 ide_users_group: "ide_users"

@@ -1,0 +1,6 @@
+dn: {{ ldap_replication_user }}
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+cn: replicator
+description: Replication user
+userPassword: {CRYPT}x

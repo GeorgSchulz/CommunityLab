@@ -1,0 +1,9 @@
+- name: copy consumer_simple_sync.ldif to ldap consumer
+  template:
+    src: "consumer_simple_sync.ldif"
+    dest: "/tmp/consumer_simple_sync.ldif"
+
+- name: add consumer_simple_sync.ldif to ldap consumer
+  failed_when: ldapadd.rc not in [0,20]
+  shell: "ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/consumer_simple_sync.ldif"
+  register: ldapadd
