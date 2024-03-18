@@ -8,12 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - communitylab#32: Upgrading to Ubuntu 24.04
-- communitylab#31: Upgrading to PostgreSQL 16
 - communitylab#19: IDE HA setup: Configure OpenLDAP as backend for Kerberos server
 - communitylab#26: Error handling in Conda Package Manager
 
 ### Added
 
+- communitylab#31: Upgrading to PostgreSQL 16
 - communitylab#18: IDE HA setup: Configure replication for both independent LDAP servers
 
 ## [v1.2.0] - 2023-10-16
