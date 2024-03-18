@@ -12,7 +12,7 @@
           - "acl"
         state: latest
     
-    - name: set up PostgreSQL 14 repo
+    - name: set up PostgreSQL 16 repo
       copy:
         content: "deb http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
         dest: "/etc/apt/sources.list.d/pgdg.list"
@@ -22,13 +22,13 @@
         url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
         state: present
     
-    - name: install PostgreSQL 14
+    - name: install PostgreSQL 16
       failed_when: false
       apt:
-        name: "postgresql-14"
+        name: "postgresql-16"
         state: latest
         update_cache: yes
-  when: "'postgresql-14' not in ansible_facts.packages"
+  when: "'postgresql-16' not in ansible_facts.packages"
 
 - name: install virtualenv
   apt:
@@ -44,11 +44,11 @@
 - name: install requirements for patroni in virtualenv
   pip:
     requirements: "/tmp/requirements.txt"
-    virtualenv: "/usr/lib/postgresql/14/venv"
+    virtualenv: "/usr/lib/postgresql/16/venv"
 
 - name: change owner of virtualenv to postgres user
   file:
-    path: "/usr/lib/postgresql/14/venv"
+    path: "/usr/lib/postgresql/16/venv"
     state: directory
     owner: "postgres"
     group: "postgres"
@@ -127,17 +127,17 @@
   block:
     - name: delete PostgreSQL data for Patroni to initialize
       file:
-        path: "/var/lib/postgresql/14/main"
+        path: "/var/lib/postgresql/16/main"
         state: absent
     
     - name: create PostgreSQL data folder
       file:
-        path: "/var/lib/postgresql/14/main"
+        path: "/var/lib/postgresql/16/main"
         state: directory
         owner: "postgres"
         group: "postgres"
         mode: "0700"
-  when: "'postgresql-14' not in ansible_facts.packages"
+  when: "'postgresql-16' not in ansible_facts.packages"
 
 - name: copy systemd unit for patroni
   template:

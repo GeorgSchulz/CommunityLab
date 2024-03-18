@@ -80,9 +80,9 @@ bootstrap:
 postgresql:
   listen: "{{ inventory_hostname }}:5432"
   connect_address: "{{ inventory_hostname }}:5432"
-  data_dir: "/var/lib/postgresql/14/main"
-  config_dir: "/etc/postgresql/14/main"
-  bin_dir: "/usr/lib/postgresql/14/bin"
+  data_dir: "/var/lib/postgresql/16/main"
+  config_dir: "/etc/postgresql/16/main"
+  bin_dir: "/usr/lib/postgresql/16/bin"
   authentication:
     replication:
       username: repl

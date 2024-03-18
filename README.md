@@ -29,7 +29,7 @@ Following components are used:
 | Apache Hadoop    | 3.3.4   |
 | Apache Spark     | 3.1.2   |
 | Apache Zookeeper | 3.8.0   |
-| PostgreSQL       | 14      |
+| PostgreSQL       | 16      |
 
 The conda environments used for JupyterHub and JupyterLab contain following packages:
 - [JupyterHub](collections/ansible_collections/jupyter/hub/roles/install/files/jupyterhubenvironment.txt)
