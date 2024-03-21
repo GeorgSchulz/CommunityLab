@@ -1,3 +1,0 @@
-{% for host in groups.securities | sort %}
-host/{{ host }}@{{ realm }}
-{% endfor %}

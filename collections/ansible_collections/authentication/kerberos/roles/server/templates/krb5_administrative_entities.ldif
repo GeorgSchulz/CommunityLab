@@ -1,0 +1,13 @@
+dn: uid=kdc-service,{{ ldap_organization }}
+uid: kdc-service
+objectClass: account
+objectClass: simpleSecurityObject
+userPassword: {CRYPT}x
+description: Account used for the Kerberos KDC
+
+dn: uid=kadmin-service,{{ ldap_organization }}
+uid: kadmin-service
+objectClass: account
+objectClass: simpleSecurityObject
+userPassword: {CRYPT}x
+description: Account used for the Kerberos Admin server

@@ -1,4 +1,4 @@
-- name: install necessary packages on primary kdc
+- name: install necessary packages on primary KDC
   apt:
     name: "{{ item }}"
     state: present
