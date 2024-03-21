@@ -1,0 +1,14 @@
+dn: olcDatabase={1}mdb,cn=config
+add: olcAccess
+olcAccess: {2}to attrs=krbPrincipalKey
+  by anonymous auth
+  by dn.exact="uid=kdc-service,{{ ldap_organization }}" read
+  by dn.exact="uid=kadmin-service,{{ ldap_organization }}" write
+  by self write
+  by * none
+-
+add: olcAccess
+olcAccess: {3}to dn.subtree="cn=krbContainer,{{ ldap_organization }}"
+  by dn.exact="uid=kdc-service,{{ ldap_organization }}" read
+  by dn.exact="uid=kadmin-service,{{ ldap_organization }}" write
+  by * none

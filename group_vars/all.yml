@@ -3,7 +3,7 @@ ide_ha_setup: "{{ true if (groups.masters | length == 3) else false }}"
 
 # Used Domain
 domain: "example.com"
-  
+
 # Technical groups of IDE
 ide_services_group: "ide_services"
 ide_services_gid: "4001"
@@ -104,6 +104,9 @@ ldap_bind_dn_template: "uid={username},{{ ldap_user_search_base }}"
 # Parameters for LDAP replication
 ldap_replication_user: "cn=replicator,{{ ldap_organization }}"
 ldap_replication_password: "changeit"
+# Parameters for Kerberos LDAP backend
+ldap_kdc_service_password: "changeit"
+ldap_kadmin_service_password: "changeit"
 
 # LDAP group used for IDE access
 ide_users_group: "ide_users"

@@ -3,5 +3,7 @@
     name: "{{ item }}"
     state: present
     update_cache: yes
-  loop: "{{ primary_kdc_packages }}"
+  loop: 
+    - "krb5-kdc"
+    - "krb5-admin-server"
   when: '"security1" in group_names'

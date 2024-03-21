@@ -53,15 +53,15 @@ If you are german speaking you may be interested in my related academic work: [T
 ## 1. Prerequisites
 ### required
 - Ubuntu (was tested on Ubuntu 22.04.2 LTS)
-- Ansible (was tested on Ansible version 2.14.3)
-- Python (was tested on Python version 3.9.16)
+- Ansible (was tested on Ansible version 2.15.5)
+- Python (was tested on Python version 3.9.18)
 
 ### optional
-- Terraform (was tested on Terraform v1.4.2)
+- Terraform (was tested on Terraform v1.7.5)
 - A valid domain name
 - Hetzner Account, Hetzner Cloud API Token (Read/Write) and Hetzner DNS Token
 
-The installation process was tested on Ubuntu 22.04.2 LTS and Windows Ubuntu Subsystem.
+The installation process was tested on Ubuntu 22.04.2 LTS and [Windows Ubuntu Subsystem](https://learn.microsoft.com/de-de/windows/wsl/install).
 
 ## 2. Use Hetzner Cloud
 ### 2.1 Install Terraform and Ansible on your local machine if not present

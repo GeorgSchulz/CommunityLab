@@ -1,0 +1,105 @@
+- name: check if Kerberos schema file is already copied
+  stat:
+    path: "/etc/ldap/schema/kerberos.schema.gz"
+  register: kerberos_schema_file
+
+- name: copy and unarchive Kerberos schema file
+  block:
+    - name: copy Kerberos schema file to path /etc/ldap/schema
+      copy:
+        src: "/usr/share/doc/krb5-kdc-ldap/kerberos.schema.gz"
+        dest: "/etc/ldap/schema/kerberos.schema.gz"
+        remote_src: yes
+    
+    - name: decompress Kerberos schema file using gunzip
+      shell: "gunzip /etc/ldap/schema/kerberos.schema.gz"
+  when: not kerberos_schema_file.stat.exists
+
+- name: import Kerberos schema
+  shell: "ldap-schema-manager -i kerberos.schema"
+
+- name: copy krb5_principal_name.ldif to /tmp
+  copy:
+    src: "krb5_principal_name.ldif"
+    dest: "/tmp/krb5_principal_name.ldif"
+
+- name: import index krbPrincipalName to LDAP database
+  failed_when: ldap_modify.rc not in [0,20]
+  shell: "ldapmodify -Q -Y EXTERNAL -H ldapi:/// -w {{ ldap_password }} -f /tmp/krb5_principal_name.ldif"
+  register: ldap_modify
+
+- name: copy krb5_administrative_entities.ldif to /tmp
+  template:
+    src: "krb5_administrative_entities.ldif"
+    dest: "/tmp/krb5_administrative_entities.ldif"
+    
+- name: create LDAP entries for the Kerberos administrative entities that will contact the OpenLDAP server
+  failed_when: ldap_add.rc not in [0,68]
+  shell: "ldapadd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/krb5_administrative_entities.ldif"
+  register: ldap_add
+
+- name: set password for 'uid=kdc-service,{{ ldap_organization }}'
+  shell: "ldappasswd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -s {{ ldap_kdc_service_password }} uid=kdc-service,{{ ldap_organization }}"
+
+- name: set password for 'uid=kadmin-service,{{ ldap_organization }}'
+  shell: "ldappasswd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -s {{ ldap_kadmin_service_password }} uid=kadmin-service,{{ ldap_organization }}"
+
+- name: copy kerberos_ldap_acls.ldif to /tmp
+  template:
+    src: "kerberos_ldap_acls.ldif"
+    dest: "/tmp/kerberos_ldap_acls.ldif"
+
+- name: add Kerberos ACLs to LDAP database
+  failed_when: ldap_modify.rc not in [0,20]
+  shell: "ldapmodify -Q -Y EXTERNAL -H ldapi:/// -w {{ ldap_password }} -f /tmp/kerberos_ldap_acls.ldif"
+  register: ldap_modify
+
+- name: copy kerberos configuration files
+  template:
+    src: "{{ item.file }}"
+    dest: "{{ item.path }}/{{ item.file }}"
+  loop:
+    - file: "kadm5.acl"
+      path: "/etc/krb5kdc"
+    - file: "krb5.conf"
+      path: "/etc"
+  loop_control:
+    label: "{{ item.file }}"
+
+- name: create Kerberos LDAP database
+  failed_when: false
+  shell: "kdb5_ldap_util -D cn=admin,{{ ldap_organization }} create -subtrees {{ ldap_organization }} -r {{ realm }} -s -H ldapi:/// -w {{ ldap_password }} -P {{ realm_password }}"
+
+- name: copy script to create password stash file
+  template:
+    src: create_stash_file.sh
+    dest: /tmp/create_stash_file.sh
+    mode: "0555"
+
+- name: create a stash of the password used to bind to the LDAP server
+  shell: "/tmp/create_stash_file.sh"
+
+- name: stop Kerberos services
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+  loop:
+    - "krb5-kdc"
+    - "krb5-admin-server"
+
+- name: start Kerberos services
+  systemd:
+    name: "{{ item }}"
+    state: started
+  loop:
+    - "krb5-kdc"
+    - "krb5-admin-server"
+    
+- name: fetch stash and service.keyfile to ansible server
+  synchronize:
+    src: "/etc/krb5kdc/{{ item }}"
+    dest: "/tmp/"
+    mode: pull
+  loop:
+    - ".k5.{{ realm }}"
+    - "service.keyfile"

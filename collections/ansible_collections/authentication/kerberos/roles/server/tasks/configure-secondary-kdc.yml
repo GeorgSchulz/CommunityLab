@@ -1,0 +1,73 @@
+- name: check if Kerberos schema file is already copied
+  stat:
+    path: "/etc/ldap/schema/kerberos.schema.gz"
+  register: kerberos_schema_file
+
+- name: copy and unarchive Kerberos schema file
+  block:
+    - name: copy Kerberos schema file to path /etc/ldap/schema
+      copy:
+        src: "/usr/share/doc/krb5-kdc-ldap/kerberos.schema.gz"
+        dest: "/etc/ldap/schema/kerberos.schema.gz"
+        remote_src: yes
+    
+    - name: decompress Kerberos schema file using gunzip
+      shell: "gunzip /etc/ldap/schema/kerberos.schema.gz"
+  when: not kerberos_schema_file.stat.exists
+
+- name: import Kerberos schema
+  shell: "ldap-schema-manager -i kerberos.schema"
+
+- name: copy krb5_principal_name.ldif to /tmp
+  copy:
+    src: "krb5_principal_name.ldif"
+    dest: "/tmp/krb5_principal_name.ldif"
+
+- name: import index krbPrincipalName to LDAP database
+  failed_when: ldap_modify.rc not in [0,20]
+  shell: "ldapmodify -Q -Y EXTERNAL -H ldapi:/// -w {{ ldap_password }} -f /tmp/krb5_principal_name.ldif"
+  register: ldap_modify
+
+- name: copy kerberos configuration files
+  template:
+    src: "{{ item.file }}"
+    dest: "{{ item.path }}/{{ item.file }}"
+  loop:
+    - file: "kadm5.acl"
+      path: "/etc/krb5kdc"
+    - file: "krb5.conf"
+      path: "/etc"
+  loop_control:
+    label: "{{ item.file }}"
+
+- name: copy stash and service.keyfile to /etc/krb5kdc
+  copy:
+    src: "/tmp/{{ item }}"
+    dest: "/etc/krb5kdc/{{ item }}"
+  loop:
+    - ".k5.{{ realm }}"
+    - "service.keyfile"
+
+- name: stop Kerberos services
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+  loop:
+    - "krb5-kdc"
+    - "krb5-admin-server"
+
+- name: start Kerberos services
+  systemd:
+    name: "{{ item }}"
+    state: started
+  loop:
+    - "krb5-kdc"
+    - "krb5-admin-server"
+
+- name: delete stash and service.keyfile on ansible server
+  file:
+    path: "/tmp/{{ item }}"
+    state: absent
+  loop:
+    - ".k5.{{ realm }}"
+    - "service.keyfile"

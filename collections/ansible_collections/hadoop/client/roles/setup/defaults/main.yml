@@ -1,4 +1,4 @@
-hadoop_version: "3.3.3"
+hadoop_version: "3.3.4"
 hdfs_data_dir: "/var/hadoop/hdfs"
 hadoop_conf_dir: "/opt/apache-hadoop"
 hadoop_log_dir: "/var/log/hadoop"
