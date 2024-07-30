@@ -52,49 +52,68 @@ If you are german speaking you may be interested in my related academic work: [T
 
 ## 1. Prerequisites
 ### required
-- Ubuntu (was tested on Ubuntu 22.04.2 LTS)
+- Ubuntu (was tested on Ubuntu 22.04.4 LTS)
 - Ansible (was tested on Ansible version 2.15.5)
-- Python (was tested on Python version 3.9.18)
+- Python (was tested on Python version 3.9.19)
 
 ### optional
-- Terraform (was tested on Terraform v1.7.5)
+- Terraform (was tested on Terraform version v1.9.3)
+- Go (was tested on Go version go1.18.1)
 - A valid domain name
 - Hetzner Account, Hetzner Cloud API Token (Read/Write) and Hetzner DNS Token
 
-The installation process was tested on Ubuntu 22.04.2 LTS and [Windows Ubuntu Subsystem](https://learn.microsoft.com/de-de/windows/wsl/install).
+The installation process was tested on Ubuntu 22.04.4 LTS and [Windows Ubuntu Subsystem](https://learn.microsoft.com/de-de/windows/wsl/install).
 
 ## 2. Use Hetzner Cloud
-### 2.1 Install Terraform and Ansible on your local machine if not present
+### 2.1 Install Terraform, Go and Ansible on your local machine if not present
 ```console
 georg@notebook:~/git/CommunityLab$ bash requirements.sh 
 ```
 
 ### 2.2 Setup infrastructure in Hetzner Cloud using Terraform
-#### 2.2.1 Define variables for your custom infrastructure (mandatory: hetzner_token, hetznerdns_token, ssh_key_file, user, domain; optional: ide_ha_setup, set to true for IDE in HA mode)
+#### 2.2.1 Define variables for your custom infrastructure (mandatory: hetzner_token, hetznerdns_token, ssh_public_key_file, ssh_private_key_file, user, domain; optional: ide_ha_setup, set to true for IDE in HA mode)
 ```console
-georg@notebook:~/git/CommunityLab$ cd terraform
-georg@notebook:~/git/CommunityLab/terraform$ vim variables.tf
+georg@notebook:~/git/CommunityLab$ cd terraform/
+georg@notebook:~/git/CommunityLab/terraform$ vim terraform.tfvars
 ```
 
-#### 2.2.2 Initialize Terraform
+#### 2.2.2 Configure dependencies for Terratest
 ```console
+georg@notebook:~/git/CommunityLab$ cd test/
+georg@notebook:~/git/CommunityLab/terraform/test$ go mod init hcloud.tf
+georg@notebook:~/git/CommunityLab/terraform/test$ go mod tidy
+```
+
+#### 2.2.3 Test following Terraform deployment
+```console
+georg@notebook:~/git/CommunityLab/terraform/test$ go test deployment_test.go -v
+```
+
+#### 2.2.4 Verify created DNS and Reverse DNS entries of VMs in Hetzner Cloud are correct and SSH connection to VMs is possible
+```console
+georg@notebook:~/git/CommunityLab/terraform/test$ go test connection_test.go -v
+```
+
+#### 2.2.5 Verify infrastructure can be destroyed using Terraform
+```console
+georg@notebook:~/git/CommunityLab/terraform/test$ go test destruction_test.go -v
+```
+
+
+#### 2.2.6 Initialize Terraform after successfully testing all Terraform deployment steps
+```console
+georg@notebook:~/git/CommunityLab/terraform/test$ cd ../
 georg@notebook:~/git/CommunityLab/terraform$ terraform init
 ```
 
-#### 2.2.3 Create local files for Terraform resources and Ansible inventory
+#### 2.2.7 Create local files for Terraform resources and Ansible inventory
 ```console
 georg@notebook:~/git/CommunityLab/terraform$ terraform apply
 ```
 
-#### 2.2.4 Now use created Terraform resources to create infrastructure in Hetzner Cloud
+#### 2.2.8 Now use created Terraform resources to create infrastructure in Hetzner Cloud
 ```console
 georg@notebook:~/git/CommunityLab/terraform$ terraform apply
-```
-
-#### 2.2.5 Verify infrastructure is successfully configured using Ansible
-```console
-georg@notebook:~/git/CommunityLab/terraform$ cd ../
-georg@notebook:~/git/CommunityLab$ ansible all -m ping
 ```
 
 ### 2.3 Install and configure the IDE in Hetzner Cloud using Ansible

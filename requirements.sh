@@ -9,7 +9,7 @@ miniforge_link=/opt/miniforge/miniforge
 ansible_vault_file=~/.vault_pass.txt
 
 echo "===================================================================================================================="
-echo "========================      Idempotent installation script for Terraform and Ansible      ========================"
+echo "========================      Idempotent installation script for Terraform, Go and Ansible      ========================"
 echo "===================================================================================================================="
 echo ""
 
@@ -40,6 +40,28 @@ else
     	echo ""
 	echo "Using Terraform version:"
     	terraform -version
+	echo ""
+fi
+
+# Install Go if not present
+if command_output=$(go version > /dev/null 2>&1)
+then
+    	echo "Go is already installed."
+    	echo ""
+	echo "Using Go version:"
+	echo ""
+    	go version
+	echo ""
+else
+    	echo "Go is not installed."
+	echo ""
+
+   	sudo apt-get update && sudo apt-get install -y golang-go
+    	
+	echo "Successfully installed Go."
+    	echo ""
+	echo "Using Go version:"
+    	go version
 	echo ""
 fi
 
@@ -120,6 +142,6 @@ EOF
 fi
 
 echo "===================================================================================================================="
-echo "========================      Installation process for Terraform and Ansible finished      ========================="
+echo "========================      Installation process for Terraform, Go and Ansible finished      ========================="
 echo "===================================================================================================================="
 echo ""
