@@ -1,0 +1,1 @@
+../resources_non_ha_ide.tpl

@@ -12,7 +12,7 @@ provider "hetznerdns" {
 
 resource "hcloud_ssh_key" "communitylab_ssh_key" {
   name       = "CommunityLab"
-  public_key = file("${var.ssh_key_file}")
+  public_key = file("${var.ssh_public_key_file}")
 }
 
 # Create Zone in Hetzner Cloud

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- communitylab#39: Testing Terraform deployment using Terratest
 - communitylab#19: IDE HA setup: Configure OpenLDAP as backend for Kerberos server
 - communitylab#31: Upgrading to PostgreSQL 16
 - communitylab#18: IDE HA setup: Configure replication for both independent LDAP servers
