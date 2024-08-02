@@ -1,6 +1,7 @@
 c.JupyterHub.ssl_cert = "{{ cert_file }}"
 c.JupyterHub.ssl_key = "{{ key_file }}"
 
+c.Authenticator.allow_all = True
 c.JupyterHub.authenticator_class = 'ldapauthenticator.LDAPAuthenticator'
 c.LDAPAuthenticator.use_ssl =  True
 c.LDAPAuthenticator.server_port = 636
@@ -31,3 +32,9 @@ c.YarnSpawner.default_url = "/lab"
 c.YarnSpawner.prologue = 'source /opt/miniforge/miniforge/bin/activate jupyterlab'
 c.YarnSpawner.cmd = 'python -m yarnspawner.jupyter_labhub'
 c.ConfigurableHTTPProxy.command = ['configurable-http-proxy','ssl-protocol','TLSv1_2']
+
+c.Spawner.environment.update(
+    {
+        "JUPYTERHUB_SINGLEUSER_EXTENSION": "0",
+    }
+)

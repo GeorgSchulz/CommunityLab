@@ -30,7 +30,7 @@ variable "location" {
 variable "os_type" {
   description = "OS image type for created VMs"
   type        = string
-  default     = "ubuntu-22.04"
+  default     = "ubuntu-24.04"
 }
 
 variable "ssh_private_key_file" {

@@ -37,12 +37,19 @@
       args:
         executable: /bin/bash
     
-    - name: build jupyterlab
-      shell: |
-        . /opt/miniforge/miniforge/bin/activate jupyterlab
-        jupyter lab build
-      args:
-        executable: /bin/bash
+    - name: copy updated jupyter_labhub.py due to https://discourse.jupyter.org/t/notebook-spawned-in-yarn-but-killed-after-timeout/20333/2
+      copy:
+        src: "jupyter_labhub.py"
+        dest: "{{ miniforge_base_path }}/envs/jupyterlab/lib/python{{ environment_python_version_short }}/site-packages/yarnspawner/jupyter_labhub.py"
+
+    - name: replace scopes definition in auth.py of jupyterhub.services
+      lineinfile:
+        path: "{{ miniforge_base_path }}/envs/jupyterlab/lib/python3.9/site-packages/jupyterhub/services/auth.py"
+        search_string: '            scopes = self.hub_auth.check_scopes(self.hub_scopes, model)'
+        line: '            scopes = self.hub_scopes'
+        owner: "{{ yarn_user }}"
+        group: "{{ yarn_group }}"
+        mode: '0644'
     
     - name: change mode of environment - use shell module because of better performance
       shell: "chmod -R 755 {{ miniforge_base_path }}"
@@ -50,7 +57,7 @@
     - name: change owner to yarn user and group in environment - use shell module because of better performance
       shell: "chown -R {{ yarn_user }}:{{ yarn_group }} -R {{ miniforge_base_path }}"
   when: not jupyterlab_env.stat.exists
-
+    
 - name: create folders for environment variables in jupyterlab environment
   file:
     path: "{{ miniforge_base_path }}/envs/jupyterlab/etc/conda/{{ item }}"
