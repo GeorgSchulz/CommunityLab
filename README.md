@@ -24,8 +24,8 @@ Following components are used:
 
 | Component        | Version |
 |------------------|---------|
-| JupyterHub       | 3.1.1   |
-| JupyterLab       | 3.4.7   |
+| JupyterHub       | 4.1.5   |
+| JupyterLab       | 4.2.4   |
 | Apache Hadoop    | 3.3.4   |
 | Apache Spark     | 3.1.2   |
 | Apache Zookeeper | 3.8.0   |
@@ -52,7 +52,7 @@ If you are german speaking you may be interested in my related academic work: [T
 
 ## 1. Prerequisites
 ### required
-- Ubuntu (was tested on Ubuntu 22.04.4 LTS)
+- Ubuntu (was tested on Ubuntu 24.04 LTS)
 - Ansible (was tested on Ansible version 2.15.5)
 - Python (was tested on Python version 3.9.19)
 
@@ -62,7 +62,7 @@ If you are german speaking you may be interested in my related academic work: [T
 - A valid domain name
 - Hetzner Account, Hetzner Cloud API Token (Read/Write) and Hetzner DNS Token
 
-The installation process was tested on Ubuntu 22.04.4 LTS and [Windows Ubuntu Subsystem](https://learn.microsoft.com/de-de/windows/wsl/install).
+The installation process was tested on Ubuntu 24.04 LTS and [Windows Ubuntu Subsystem](https://learn.microsoft.com/de-de/windows/wsl/install).
 
 ## 2. Use Hetzner Cloud
 ### 2.1 Install Terraform, Go and Ansible on your local machine if not present
@@ -79,7 +79,7 @@ georg@notebook:~/git/CommunityLab/terraform$ vim terraform.tfvars
 
 #### 2.2.2 Configure dependencies for Terratest
 ```console
-georg@notebook:~/git/CommunityLab$ cd test/
+georg@notebook:~/git/CommunityLab/terraform$ cd test/
 georg@notebook:~/git/CommunityLab/terraform/test$ go mod init hcloud.tf
 georg@notebook:~/git/CommunityLab/terraform/test$ go mod tidy
 ```

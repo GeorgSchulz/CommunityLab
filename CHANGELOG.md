@@ -10,11 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - communitylab#37: Upgrading to Apache Zookeeper 3.8.4
 - communitylab#36: Upgrading to Apache Spark 3.5.1
 - communitylab#35: Upgrading to Apache Hadoop 3.4.0
-- communitylab#32: Upgrading to Ubuntu 24.04
 - communitylab#26: Error handling in Conda Package Manager
+
+## [v1.3.0] - 2024-08-02
 
 ### Added
 
+- communitylab#32: Upgrading to Ubuntu 24.04
 - communitylab#39: Testing Terraform deployment using Terratest
 - communitylab#19: IDE HA setup: Configure OpenLDAP as backend for Kerberos server
 - communitylab#31: Upgrading to PostgreSQL 16
