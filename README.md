@@ -24,11 +24,11 @@ Following components are used:
 
 | Component        | Version |
 |------------------|---------|
-| JupyterHub       | 4.1.5   |
+| JupyterHub       | 5.1.0   |
 | JupyterLab       | 4.2.4   |
-| Apache Hadoop    | 3.3.4   |
-| Apache Spark     | 3.1.2   |
-| Apache Zookeeper | 3.8.0   |
+| Apache Hadoop    | 3.4.0   |
+| Apache Spark     | 3.5.1   |
+| Apache Zookeeper | 3.9.2   |
 | PostgreSQL       | 16      |
 
 The conda environments used for JupyterHub and JupyterLab contain following packages:

@@ -7,10 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- communitylab#37: Upgrading to Apache Zookeeper 3.8.4
-- communitylab#36: Upgrading to Apache Spark 3.5.1
-- communitylab#35: Upgrading to Apache Hadoop 3.4.0
 - communitylab#26: Error handling in Conda Package Manager
+
+### Added
+
+- communitylab#35: Upgrading to Apache Hadoop 3.4.0
+- communitylab#37: Upgrading to Apache Zookeeper 3.9.2
+- communitylab#36: Upgrading to Apache Spark 3.5.1
+- communitylab#42: Removing bugs in Yarnspawner and upgrading JupyterHub
 
 ## [v1.3.0] - 2024-08-02
 

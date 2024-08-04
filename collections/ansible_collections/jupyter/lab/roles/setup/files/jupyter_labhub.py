@@ -14,7 +14,7 @@ except ImportError:
 
 # Borrowed and modified from jupyterhub/batchspawner:
 # https://github.com/jupyterhub/batchspawner/blob/d1052385f245a3c799c5b81d30c8e67f193963c6/batchspawner/singleuser.py
-class YarnSingleUserNotebookApp(SingleUserLabApp):
+class YarnSingleUserLabApp(SingleUserLabApp):
     @default('port')
     def _port(self):
         return random_port()
@@ -40,10 +40,9 @@ def main(argv=None):
             if not os.path.exists('.jupyter'):
                 os.mkdir('.jupyter')
             os.environ[var] = './.jupyter'
-    for var in ['JUPYTERHUB_OAUTH_ACCESS_SCOPES', 'JUPYTERHUB_OAUTH_SCOPES']:
-        if os.environ.get(var):
-            os.environ[var] = json.dumps(var)
-    return YarnSingleUserNotebookApp.launch_instance(argv)
+    application_user = os.environ["USER"]
+    os.environ["JUPYTERHUB_OAUTH_ACCESS_SCOPES"] = f'["access:servers!server={application_user}/", "access:servers!user={application_user}"]'
+    return YarnSingleUserLabApp.launch_instance(argv)
 
 
 if __name__ == "__main__":
