@@ -1,19 +1,21 @@
-- name: create system service
-  template:
+- name: Create system service
+  ansible.builtin.template:
     src: "hdfs-namenode.service"
     dest: "/etc/systemd/system/hdfs-namenode.service"
+    mode: "0644"
 
-- name: create namenode data folder
-  file:
-    path: "{{ hdfs_data_dir }}/namenode"
+- name: Create namenode data folder
+  ansible.builtin.file:
+    path: "{{ namenode_hdfs_data_dir }}/namenode"
     state: directory
     owner: "{{ hdfs_user }}"
     group: "{{ hdfs_group }}"
-    mode: 0775
+    mode: "0775"
 
-- name: create hosts file
-  template:
+- name: Create hosts file
+  ansible.builtin.template:
     src: "hosts.json.j2"
     dest: "/opt/apache-hadoop/hadoop/etc/hadoop/hosts.json"
     owner: "{{ hdfs_user }}"
     group: "{{ hdfs_group }}"
+    mode: "0644"

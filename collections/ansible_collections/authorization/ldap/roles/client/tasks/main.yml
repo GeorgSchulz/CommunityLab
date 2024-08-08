@@ -1,43 +1,43 @@
-- name: install relevant apt packages for sssd
-  apt:
+- name: Install relevant apt packages for sssd
+  ansible.builtin.apt:
     name: "{{ item }}"
     state: present
-    update_cache: yes
+    update_cache: true
   loop:
     - "sssd"
     - "libpam-sss"
     - "libnss-sss"
 
-- name: configure TLS_CACERT in /etc/ldap/ldap.conf
-  lineinfile:
+- name: Configure TLS_CACERT in /etc/ldap/ldap.conf
+  ansible.builtin.lineinfile:
     path: '/etc/ldap/ldap.conf'
     regexp: '^.*TLS_CACERT'
     line: 'TLS_CACERT	/etc/ssl/private/chain.pem'
     state: present
 
-- name: configure /etc/nsswitch and pam files for sssd
-  shell: "pam-auth-update --enable mkhomedir"
+- name: Configure /etc/nsswitch and pam files for sssd
+  ansible.builtin.command: "pam-auth-update --enable mkhomedir"
 
-- name: configure sssd with main configuration file sssd.conf
-  template:
+- name: Configure sssd with main configuration file sssd.conf
+  ansible.builtin.template:
     src: "sssd.conf"
     dest: "/etc/sssd/sssd.conf"
     owner: "root"
     group: "root"
     mode: "0600"
 
-- name: enable sssd service
-  systemd:
+- name: Enable sssd service
+  ansible.builtin.systemd:
     name: "sssd.service"
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
 
-- name: stop sssd service
-  systemd:
+- name: Stop sssd service
+  ansible.builtin.systemd:
     name: "sssd.service"
     state: stopped
 
-- name: start sssd service
-  systemd:
+- name: Start sssd service
+  ansible.builtin.systemd:
     name: "sssd.service"
     state: started

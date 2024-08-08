@@ -2,7 +2,8 @@
 ##########                Check mandatory variables for installation and configuration                ##########
 ################################################################################################################
 
-- hosts: ansible
+- name: Check if mandatory variables in group_vars/all.yml are defined
+  hosts: ansible
   tags:
     - preflight
   roles:
@@ -16,17 +17,18 @@
 ###########                    Set hostnames for all hosts in Hetzner Cloud                            ##########
 #################################################################################################################
 
-- hosts: all,!ansible
-  become: yes
+- name: Set hostnames for all hosts
+  hosts: all,!ansible
+  become: true
   tags:
     - hostname
   tasks:
-    - name: set hostnames and fqdn for all hosts on global level
-      shell: "hostnamectl set-hostname {{ inventory_hostname }}"
+    - name: Set hostnames and fqdn for all hosts on global level
+      ansible.builtin.shell: "hostnamectl set-hostname {{ inventory_hostname }}"
       when: custom_inventory_file is not defined
 
-    - name: reboot all servers
-      reboot:
+    - name: Reboot all servers
+      ansible.builtin.reboot:
         msg: "Reboot initiated by Ansible"
         connect_timeout: 5
         reboot_timeout: 600
@@ -40,25 +42,27 @@
 #################################################################################################################
 
 ################################################################################################################
-##########                              Setup environment of hosts                                    ##########
+##########                              Setup environment for hosts                                   ##########
 ################################################################################################################
 
-- hosts: all,!ansible
-  become: yes
+- name: Setup environment for hosts
+  hosts: all,!ansible
+  become: true
   tags:
     - environment
   roles:
     - name: ide.environment.setup
 
 ################################################################################################################
-##########                              Setup environment of hosts                                    ##########
+##########                              Setup environment for hosts                                   ##########
 ################################################################################################################
 
 ################################################################################################################
 ##########                              Setup TLS preparation                                         ##########
 ################################################################################################################
 
-- hosts: all,!ansible
+- name: Setup TLS for hosts
+  hosts: all,!ansible
   tags:
     - tls
   roles:
@@ -73,9 +77,9 @@
 ##########                                   Setup LDAP                                               ##########
 ################################################################################################################
 
-- name: install and configure LDAP server and database
+- name: Install and configure LDAP server and database
   hosts: securities
-  become: yes
+  become: true
   tags:
     - ldap
     - ldap_server
@@ -83,9 +87,9 @@
     - name: authorization.ldap.setup
       when: ldap_external is not defined
 
-- name: install and configure LDAP client
+- name: Install and configure LDAP client
   hosts: all,!ansible,!securities
-  become: yes
+  become: true
   tags:
     - ldap
     - ldap_client
@@ -101,9 +105,9 @@
 ##########                              Setup Kerberos server                                         ##########
 ################################################################################################################
 
-- name: install and configure Kerberos server
+- name: Install and configure Kerberos server
   hosts: securities
-  become: yes
+  become: true
   tags:
     - kerberos
   roles:
@@ -118,9 +122,9 @@
 ##########                              Setup Zookeeper cluster                                       ##########
 ################################################################################################################
 
-- name: install and configure Zookeeper cluster
+- name: Install and configure Zookeeper cluster
   hosts: masters
-  become: yes
+  become: true
   tags:
     - zookeeper
   roles:
@@ -134,9 +138,9 @@
 ##########                              Install and configure HDFS cluster                            ##########
 ################################################################################################################
 
-- name: install and configure HDFS Namenodes
+- name: Install and configure HDFS Namenodes
   hosts: masters
-  become: yes
+  become: true
   tags:
     - hadoop
     - hdfs
@@ -149,9 +153,9 @@
         - ide_ha_setup
     - name: hadoop.hdfs.namenode
 
-- name: install and configure HDFS Datanodes
+- name: Install and configure HDFS Datanodes
   hosts: workers
-  become: yes
+  become: true
   tags:
     - hadoop
     - hdfs
@@ -160,9 +164,9 @@
     - name: hadoop.hdfs.common
     - name: hadoop.hdfs.datanode
 
-- name: check HDFS is running and healthy
+- name: Check HDFS is running and healthy
   hosts: master1
-  become: yes
+  become: true
   become_user: "{{ hdfs_user }}"
   tags:
     - hadoop
@@ -179,9 +183,9 @@
 ##########                              Install and configure YARN cluster                            ##########
 ################################################################################################################
 
-- name: install and configure YARN resourcemanager
+- name: Install and configure YARN resourcemanager
   hosts: masters
-  become: yes
+  become: true
   tags:
     - hadoop
     - yarn
@@ -189,9 +193,9 @@
     - name: hadoop.yarn.common
     - name: hadoop.yarn.resourcemanager
 
-- name: install and configure YARN nodemanager
+- name: Install and configure YARN nodemanager
   hosts: workers
-  become: yes
+  become: true
   tags:
     - hadoop
     - yarn
@@ -199,9 +203,9 @@
     - name: hadoop.yarn.common
     - name: hadoop.yarn.nodemanager
 
-- name: check YARN is running and healthy
+- name: Check YARN is running and healthy
   hosts: master1
-  become: yes
+  become: true
   become_user: "{{ yarn_user }}"
   tags:
     - hadoop
@@ -218,9 +222,9 @@
 ##########                                    Install Spark                                           ##########
 ################################################################################################################
 
-- name: install Spark common libs
+- name: Install Spark common libs
   hosts: workers
-  become: yes
+  become: true
   tags:
     - spark
   roles:
@@ -234,9 +238,9 @@
 ##########                     Install and configure JupyterHub and JupyterLab                        ##########
 ################################################################################################################
 
-- name: install HAProxy and Keepalived for PostgreSQL access
+- name: Install HAProxy and Keepalived for PostgreSQL access
   hosts: hubs
-  become: yes
+  become: true
   tags:
     - jupyter
     - haproxy
@@ -245,21 +249,21 @@
     - name: loadbalancing.haproxy.setup
     - name: loadbalancing.keepalived.setup
       when:
-        - groups.hubs | length == 2 
+        - groups.hubs | length == 2
         - jupyterhub_domain_ip is defined
 
-- name: install PostgreSQL HA cluster on Worker Nodes as Backend for JupyterHub
+- name: Install PostgreSQL HA cluster on Worker Nodes as Backend for JupyterHub
   hosts: workers
-  become: yes
+  become: true
   tags:
     - jupyter
     - postgres
-  roles: 
+  roles:
     - name: rdbms.postgres.cluster
 
-- name: install JupyterHub
+- name: Install JupyterHub
   hosts: hubs
-  become: yes
+  become: true
   tags:
     - jupyter
     - jupyterhub
@@ -268,9 +272,9 @@
     - name: jupyter.hub.configure
     - name: jupyter.hub.service
 
-- name: install JupyterLab
+- name: Install JupyterLab
   hosts: workers
-  become: yes
+  become: true
   tags:
     - jupyter
     - jupyterlab

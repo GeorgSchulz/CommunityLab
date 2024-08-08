@@ -1,9 +1,9 @@
-- name: install necessary packages on primary kdc
-  apt:
+- name: Install necessary packages on primary kdc
+  ansible.builtin.apt:
     name: "{{ item }}"
     state: present
-    update_cache: yes
-  loop: 
+    update_cache: true
+  loop:
     - "krb5-kdc"
     - "krb5-admin-server"
   when: '"security1" in group_names'

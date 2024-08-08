@@ -1,39 +1,39 @@
-- name: get valid keytab for HDFS user
-  shell: "kinit -k hdfs/{{ inventory_hostname }}@{{ realm }} -t {{ keytab_folder }}/hdfs.keytab"
+- name: Get valid keytab for HDFS user
+  ansible.builtin.command: "kinit -k hdfs/{{ inventory_hostname }}@{{ realm }} -t {{ keytab_folder }}/hdfs.keytab"
 
-- name: block for IDE HA setup
-  block:
-    - name: check if HDFS namenodes are running
-      shell: "/opt/apache-hadoop/hadoop/bin/hdfs haadmin -getAllServiceState"
-      register: ha_namenodes
-    
-    - name: print message depending on hdfs haadmin -getAllServiceState output
-      assert:
-        that: "'active' in ha_namenodes.stdout"
-        fail_msg: "HDFS namenodes failed to start, check Logs for more information"
-        success_msg: "HDFS namenodes are running"
+- name: Block for IDE HA setup
   when:
     - ide_ha_setup is defined
     - ide_ha_setup
+  block:
+    - name: Check if HDFS namenodes are running
+      ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs haadmin -getAllServiceState"
+      register: ha_namenodes
 
-- name: check if HDFS Datanodes are running
-  shell: "/opt/apache-hadoop/hadoop/bin/hdfs dfsadmin -report"
+    - name: Print message depending on hdfs haadmin -getAllServiceState output
+      ansible.builtin.assert:
+        that: "'active' in ha_namenodes.stdout"
+        fail_msg: "HDFS namenodes failed to start, check Logs for more information"
+        success_msg: "HDFS namenodes are running"
+
+- name: Check if HDFS Datanodes are running
+  ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs dfsadmin -report"
   register: hdfs_report
 
-- name: print message depending on hdfs dfsadmin -report output
-  assert:
+- name: Print message depending on hdfs dfsadmin -report output
+  ansible.builtin.assert:
     that: "'Live datanodes ({{ groups.workers | length | int }})' in hdfs_report.stdout"
     fail_msg: "Not all {{ groups.workers | length | int }} HDFS datanodes are running successfully, check Logs for more information"
     success_msg: "All {{ groups.workers | length | int }} HDFS datanodes are running"
 
-- name: check if HDFS is writable as HDFS user
-  shell: |
+- name: Check if HDFS is writable as HDFS user
+  ansible.builtin.shell: |
     /opt/apache-hadoop/hadoop/bin/hdfs dfs -mkdir /test
     /opt/apache-hadoop/hadoop/bin/hdfs dfs -rm -r /test
   register: hdfs_writable
 
-- name: print message depending on hdfs writable commands
-  assert:
+- name: Print message depending on hdfs writable commands
+  ansible.builtin.assert:
     that: hdfs_writable.rc == 0
     fail_msg: "HDFS is not writable as HDFS user, check Logs for more information"
     success_msg: "HDFS is writable as HDFS user"

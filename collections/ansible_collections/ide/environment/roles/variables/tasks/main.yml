@@ -1,6 +1,7 @@
-- name: get Java Home
-  shell: "dirname $(dirname $(readlink -f $(which java)))"
+- name: Get Java Home
+  ansible.builtin.shell: "dirname $(dirname $(readlink -f $(which java)))"
   register: java_home
 
-- set_fact:
+- name: Set Java Home variable
+  ansible.builtin.set_fact:
     java_home: "{{ java_home.stdout }}"

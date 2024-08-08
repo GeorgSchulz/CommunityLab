@@ -1,5 +1,5 @@
-- name: install Zookeeper cluster
-  include_tasks: install.yml
+- name: Install Zookeeper cluster
+  ansible.builtin.include_tasks: install.yml
 
-- name: configure Zookeeper cluster
-  include_tasks: configure.yml
+- name: Configure Zookeeper cluster
+  ansible.builtin.include_tasks: configure.yml

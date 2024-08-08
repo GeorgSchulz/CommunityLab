@@ -1,8 +1,8 @@
-miniforge_base_path: "/opt/miniforge/miniforge"
-environment_python_version: "3.10.14"
-environment_python_version_short: "3.10"
+setup_miniforge_base_path: "/opt/miniforge/miniforge"
+setup_environment_python_version: "3.10.14"
+setup_environment_python_version_short: "3.10"
 
-jupyterlab_conda_packages:
+setup_conda_packages:
 # JupyterLab packages
   - "conda=24.7.1"
   - "nb_conda_kernels=2.5.1"

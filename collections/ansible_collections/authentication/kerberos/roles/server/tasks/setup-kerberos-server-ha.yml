@@ -1,10 +1,10 @@
-- name: install packages on Kerberos primary and secondary KDC
-  include_tasks: install-ha.yml
+- name: Install packages on Kerberos primary and secondary KDC
+  ansible.builtin.include_tasks: install-ha.yml
 
-- name: configure Kerberos primary KDC
-  include_tasks: configure-primary-kdc.yml
+- name: Configure Kerberos primary KDC
+  ansible.builtin.include_tasks: configure-primary-kdc.yml
   when: "'security1' in group_names"
 
-- name: configure Kerberos secondary KDC
-  include_tasks: configure-secondary-kdc.yml
+- name: Configure Kerberos secondary KDC
+  ansible.builtin.include_tasks: configure-secondary-kdc.yml
   when: "'security2' in group_names"

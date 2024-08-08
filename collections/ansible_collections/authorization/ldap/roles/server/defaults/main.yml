@@ -1,8 +1,8 @@
-ldap_server_packages:
+server_ldap_packages:
   - "ldap-utils"
   - "slapd"
 
-ldap_slapd_debconf:
+server_ldap_slapd_debconf:
   - question: "slapd/password1"
     value: "{{ ldap_password }}"
   - question: "slapd/internal/adminpw"

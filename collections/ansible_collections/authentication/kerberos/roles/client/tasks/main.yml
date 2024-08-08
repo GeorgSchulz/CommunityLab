@@ -1,10 +1,11 @@
-- name: install necessary packages
-  apt:
+- name: Install necessary packages
+  ansible.builtin.apt:
     name: "krb5-user"
     state: present
-    update_cache: yes
-    
-- name: copy krb5.conf
-  template:
+    update_cache: true
+
+- name: Copy krb5.conf
+  ansible.builtin.template:
     src: "krb5.conf"
     dest: "/etc/krb5.conf"
+    mode: "0644"

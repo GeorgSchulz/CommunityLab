@@ -1,1 +1,1 @@
-test_kerberos_propagation_principal: "test"
+check_kerberos_propagation_principal: "test"

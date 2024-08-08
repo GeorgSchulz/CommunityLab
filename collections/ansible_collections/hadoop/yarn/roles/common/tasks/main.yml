@@ -1,27 +1,28 @@
-- name: create data folder for yarn
-  file:
+- name: Create data folder for yarn
+  ansible.builtin.file:
     path: "{{ yarn_data_dir }}"
     state: directory
-    owner: "{{ yarn_user }}"
-    group: "{{ yarn_group }}"
+    owner: "{{ common_yarn_user }}"
+    group: "{{ common_yarn_group }}"
+    mode: "0755"
 
-- name: copy important configuration files
-  template:
+- name: Copy important configuration files
+  ansible.builtin.template:
     src: "{{ item }}"
     dest: "/opt/apache-hadoop/hadoop/etc/hadoop/{{ item }}"
-    owner: "{{ yarn_user }}"
-    group: "{{ yarn_group }}"
-    mode: 0644
+    owner: "{{ common_yarn_user }}"
+    group: "{{ common_yarn_group }}"
+    mode: "0644"
   loop:
     - "resource-profiles.json"
     - "resource-profiles.xml"
     - "resource-types.xml"
     - "node-resources.xml"
 
-- name: template yarn-site.xml
-  template:
-    src: "{{ yarn_site_name }}"
+- name: Template yarn-site.xml
+  ansible.builtin.template:
+    src: "{{ common_yarn_site_name }}"
     dest: "/opt/apache-hadoop/hadoop/etc/hadoop/yarn-site.xml"
-    owner: "{{ yarn_user }}"
-    group: "{{ yarn_group }}"
-    mode: 0644
+    owner: "{{ common_yarn_user }}"
+    group: "{{ common_yarn_group }}"
+    mode: "0644"

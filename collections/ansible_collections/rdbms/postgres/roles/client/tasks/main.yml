@@ -1,6 +1,0 @@
-- name: get PostgreSQL JDBC driver
-  get_url:
-    url: "https://jdbc.postgresql.org/download/postgresql-{{ postgres_jdbc_version }}.jar"
-    dest: "{{ postgres_jdbc_dest_dir }}/postgresql-{{ postgres_jdbc_version }}.jar"
-    owner: "{{ postgres_jdbc_user }}"
-    group: "{{ postgres_jdbc_group }}"

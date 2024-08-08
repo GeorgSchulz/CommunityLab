@@ -1,30 +1,34 @@
-- name: copy container-executor.cfg to host
-  copy: 
+- name: Copy container-executor.cfg to host
+  ansible.builtin.copy:
     content: |
-      yarn.nodemanager.linux-container-executor.group={{ ide_services_group }}#configured value of yarn.nodemanager.linux-container-executor.group
-      banned.users=#comma separated list of users who can not run applications
-      min.user.id=1000#Prevent other super-users
-      allowed.system.users={% for user in ldap_users %}{{ user.name }}{% if not loop.last %},{% endif %}{% endfor %} ##comma separated list of system users who CAN run applications
+      yarn.nodemanager.linux-container-executor.group={{ ide_services_group }}
+      # configured value of yarn.nodemanager.linux-container-executor.group
+      banned.users= # comma separated list of users who can not run applications
+      min.user.id=1000 # prevent other super-users
+      allowed.system.users={% for user in ldap_users %}{{ user.name }}{% if not loop.last %},{% endif %}{% endfor %}
+      # comma separated list of system users who CAN run applications
       feature.tc.enabled=false
     dest: "/opt/apache-hadoop/hadoop/etc/hadoop/container-executor.cfg"
+    mode: "0644"
 
-- name: create system service for YARN nodemanager
-  template:
+- name: Create system service for YARN nodemanager
+  ansible.builtin.template:
     src: "yarn-nodemanager.service"
     dest: "/etc/systemd/system/yarn-nodemanager.service"
+    mode: "0644"
 
-- name: enable yarn-nodemanager service
-  systemd:
+- name: Enable yarn-nodemanager service
+  ansible.builtin.systemd:
     name: "yarn-nodemanager.service"
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
 
-- name: stop yarn-nodemanager service
-  systemd:
+- name: Stop yarn-nodemanager service
+  ansible.builtin.systemd:
     name: "yarn-nodemanager.service"
     state: stopped
 
-- name: start yarn-nodemanager service
-  systemd:
+- name: Start yarn-nodemanager service
+  ansible.builtin.systemd:
     name: "yarn-nodemanager.service"
     state: started

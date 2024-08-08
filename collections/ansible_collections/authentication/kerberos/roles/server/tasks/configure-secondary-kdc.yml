@@ -1,37 +1,40 @@
-- name: check if Kerberos schema file is already copied
-  stat:
+- name: Check if Kerberos schema file is already copied
+  ansible.builtin.stat:
     path: "/etc/ldap/schema/kerberos.schema.gz"
   register: kerberos_schema_file
 
-- name: copy and unarchive Kerberos schema file
+- name: Copy and unarchive Kerberos schema file
+  when: not kerberos_schema_file.stat.exists
   block:
-    - name: copy Kerberos schema file to path /etc/ldap/schema
-      copy:
+    - name: Copy Kerberos schema file to path /etc/ldap/schema
+      ansible.builtin.copy:
         src: "/usr/share/doc/krb5-kdc-ldap/kerberos.schema.gz"
         dest: "/etc/ldap/schema/kerberos.schema.gz"
-        remote_src: yes
-    
-    - name: decompress Kerberos schema file using gunzip
-      shell: "gunzip /etc/ldap/schema/kerberos.schema.gz"
-  when: not kerberos_schema_file.stat.exists
+        mode: "0644"
+        remote_src: true
 
-- name: import Kerberos schema
-  shell: "ldap-schema-manager -i kerberos.schema"
+    - name: Decompress Kerberos schema file using gunzip
+      ansible.builtin.command: "gunzip /etc/ldap/schema/kerberos.schema.gz"
 
-- name: copy krb5_principal_name.ldif to /tmp
-  copy:
+- name: Import Kerberos schema
+  ansible.builtin.command: "ldap-schema-manager -i kerberos.schema"
+
+- name: Copy krb5_principal_name.ldif to /tmp
+  ansible.builtin.copy:
     src: "krb5_principal_name.ldif"
     dest: "/tmp/krb5_principal_name.ldif"
+    mode: "0644"
 
-- name: import index krbPrincipalName to LDAP database
+- name: Import index krbPrincipalName to LDAP database
   failed_when: ldap_modify.rc not in [0,20]
-  shell: "ldapmodify -Q -Y EXTERNAL -H ldapi:/// -w {{ ldap_password }} -f /tmp/krb5_principal_name.ldif"
+  ansible.builtin.command: "ldapmodify -Q -Y EXTERNAL -H ldapi:/// -w {{ ldap_password }} -f /tmp/krb5_principal_name.ldif"
   register: ldap_modify
 
-- name: copy kerberos configuration files
-  template:
+- name: Copy kerberos configuration files
+  ansible.builtin.template:
     src: "{{ item.file }}"
     dest: "{{ item.path }}/{{ item.file }}"
+    mode: "0644"
   loop:
     - file: "kadm5.acl"
       path: "/etc/krb5kdc"
@@ -40,32 +43,33 @@
   loop_control:
     label: "{{ item.file }}"
 
-- name: copy stash and service.keyfile to /etc/krb5kdc
-  copy:
+- name: Copy stash and service.keyfile to /etc/krb5kdc
+  ansible.builtin.copy:
     src: "/tmp/{{ item }}"
     dest: "/etc/krb5kdc/{{ item }}"
+    mode: "0644"
   loop:
     - ".k5.{{ realm }}"
     - "service.keyfile"
 
-- name: stop Kerberos services
-  systemd:
+- name: Stop Kerberos services
+  ansible.builtin.systemd:
     name: "{{ item }}"
     state: stopped
   loop:
     - "krb5-kdc"
     - "krb5-admin-server"
 
-- name: start Kerberos services
-  systemd:
+- name: Start Kerberos services
+  ansible.builtin.systemd:
     name: "{{ item }}"
     state: started
   loop:
     - "krb5-kdc"
     - "krb5-admin-server"
 
-- name: delete stash and service.keyfile on ansible server
-  file:
+- name: Delete stash and service.keyfile on ansible server
+  ansible.builtin.file:
     path: "/tmp/{{ item }}"
     state: absent
   loop:

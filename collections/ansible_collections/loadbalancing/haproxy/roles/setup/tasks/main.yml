@@ -1,29 +1,30 @@
-- name: install haproxy
-  apt:
+- name: Install haproxy
+  ansible.builtin.apt:
     name: "haproxy"
-    state: latest
-    update_cache: yes
+    state: present
+    update_cache: true
 
-- name: configure haproxy.cfg 
-  template:
+- name: Configure haproxy.cfg
+  ansible.builtin.template:
     src: "haproxy.cfg"
     dest: "/etc/haproxy/haproxy.cfg"
+    mode: "0644"
 
-- name: create haproxy.pem
-  shell: "cat /etc/ssl/private/cert.pem /etc/ssl/private/key.pem > /etc/ssl/private/haproxy.pem"
+- name: Create haproxy.pem
+  ansible.builtin.shell: "cat /etc/ssl/private/cert.pem /etc/ssl/private/key.pem > /etc/ssl/private/haproxy.pem"
 
-- name: enable haproxy service
-  systemd:
+- name: Enable haproxy service
+  ansible.builtin.systemd:
     name: "haproxy.service"
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
 
-- name: stop haproxy service
-  systemd:
+- name: Stop haproxy service
+  ansible.builtin.systemd:
     name: "haproxy.service"
     state: stopped
 
-- name: start haproxy service
-  systemd:
+- name: Start haproxy service
+  ansible.builtin.systemd:
     name: "haproxy.service"
     state: started

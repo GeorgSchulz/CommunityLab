@@ -1,14 +1,15 @@
-- name: create hdfs data folder
-  file:
+- name: Create hdfs data folder
+  ansible.builtin.file:
     path: "{{ hdfs_data_dir }}"
     state: directory
-    owner: "{{ hdfs_user }}"
-    group: "{{ hdfs_group }}"
-    mode: 0775
+    owner: "{{ common_hdfs_user }}"
+    group: "{{ common_hdfs_group }}"
+    mode: "0775"
 
-- name: template hdfs-site.xml
-  template:
-    src: "{{ hdfs_site_name }}"
+- name: Template hdfs-site.xml
+  ansible.builtin.template:
+    src: "{{ common_hdfs_site_name }}"
     dest: "/opt/apache-hadoop/hadoop/etc/hadoop/hdfs-site.xml"
-    owner: "{{ hdfs_user }}"
-    group: "{{ hdfs_group }}"
+    owner: "{{ common_hdfs_user }}"
+    group: "{{ common_hdfs_group }}"
+    mode: "0644"

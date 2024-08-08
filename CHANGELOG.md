@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- communitylab#44: Use Ansible Lint on all Ansible Collections
 - communitylab#35: Upgrading to Apache Hadoop 3.4.0
 - communitylab#37: Upgrading to Apache Zookeeper 3.9.2
 - communitylab#36: Upgrading to Apache Spark 3.5.1

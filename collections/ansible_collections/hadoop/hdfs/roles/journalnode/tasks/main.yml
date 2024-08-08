@@ -1,27 +1,29 @@
-- name: create configurations folder
-  file:
-    path: "{{ hdfs_data_dir }}/journalnode"
+- name: Create configurations folder
+  ansible.builtin.file:
+    path: "{{ journalnode_hdfs_data_dir }}"
     state: directory
     owner: "{{ journalnode_user }}"
     group: "{{ journalnode_group }}"
+    mode: "0755"
 
-- name: create system service
-  template:
+- name: Create system service
+  ansible.builtin.template:
     src: "hdfs-journalnode.service"
     dest: "/etc/systemd/system/hdfs-journalnode.service"
+    mode: "0644"
 
-- name: enable hdfs-journalnode service
-  systemd:
+- name: Enable hdfs-journalnode service
+  ansible.builtin.systemd:
     name: "hdfs-journalnode.service"
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
 
-- name: stop hdfs-journalnode service
-  systemd:
+- name: Stop hdfs-journalnode service
+  ansible.builtin.systemd:
     name: "hdfs-journalnode.service"
     state: stopped
 
-- name: start hdfs-journalnode service
-  systemd:
+- name: Start hdfs-journalnode service
+  ansible.builtin.systemd:
     name: "hdfs-journalnode.service"
     state: started

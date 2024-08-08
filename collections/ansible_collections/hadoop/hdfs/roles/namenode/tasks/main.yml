@@ -1,89 +1,92 @@
-- name: configure HDFS ZKFC
-  include_tasks: configure-zkfc.yml
+- name: Configure HDFS ZKFC
+  ansible.builtin.include_tasks: configure-zkfc.yml
   when:
     - ide_ha_setup is defined
     - ide_ha_setup
 
-- name: configure HDFS namenode
-  include_tasks: configure-namenode.yml
+- name: Configure HDFS namenode
+  ansible.builtin.include_tasks: configure-namenode.yml
 
-- name: check HDFS is already initialized
-  stat:
-    path: "{{ hdfs_data_dir }}/namenode/current"
+- name: Check HDFS is already initialized
+  ansible.builtin.stat:
+    path: "{{ namenode_hdfs_data_dir }}/namenode/current"
   register: namenode_initialized_dir
 
-- name: enable HDFS ZKFC
-  systemd:
+- name: Enable HDFS ZKFC
+  ansible.builtin.systemd:
     name: "hdfs-zkfc.service"
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
   when:
     - ide_ha_setup is defined
     - ide_ha_setup
 
-- name: enable HDFS namenode
-  systemd:
+- name: Enable HDFS namenode
+  ansible.builtin.systemd:
     name: "hdfs-namenode.service"
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
 
-- name: stop HDFS namenode
-  systemd:
+- name: Stop HDFS namenode
+  ansible.builtin.systemd:
     name: "hdfs-namenode.service"
     state: stopped
 
-- name: stop HDFS ZKFC
-  systemd:
+- name: Stop HDFS ZKFC
+  ansible.builtin.systemd:
     name: "hdfs-zkfc.service"
     state: stopped
   when:
     - ide_ha_setup is defined
     - ide_ha_setup
 
-- name: format HDFS ZKFC
+- name: Format HDFS ZKFC
+  become: true
   become_user: "{{ hdfs_user }}"
-  shell: "/opt/apache-hadoop/hadoop/bin/hdfs zkfc -formatZK -force"
-  when: 
+  ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs zkfc -formatZK -force"
+  when:
     - "'master1' in group_names"
     - not namenode_initialized_dir.stat.exists
     - ide_ha_setup is defined
     - ide_ha_setup
 
-- name: format HDFS namenode
+- name: Format HDFS namenode
+  become: true
   become_user: "{{ hdfs_user }}"
-  shell: "/opt/apache-hadoop/hadoop/bin/hdfs namenode -format -force"
-  when: 
+  ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs namenode -format -force"
+  when:
     - "'master1' in group_names"
     - not namenode_initialized_dir.stat.exists
 
-- name: start HDFS ZKFC
-  systemd:
+- name: Start HDFS ZKFC
+  ansible.builtin.systemd:
     name: "hdfs-zkfc.service"
     state: started
   when:
     - ide_ha_setup is defined
     - ide_ha_setup
 
-- name: start HDFS namenode
-  systemd:
+- name: Start HDFS namenode
+  ansible.builtin.systemd:
     name: "hdfs-namenode.service"
     state: started
   when: "'master1' in group_names"
 
-- name: bootstrap HDFS namenode
+- name: Bootstrap HDFS namenode
+  become: true
   become_user: "{{ hdfs_user }}"
-  shell: "/opt/apache-hadoop/hadoop/bin/hdfs namenode -bootstrapStandby -nonInteractive -force"
-  when: 
+  ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs namenode -bootstrapStandby -nonInteractive -force"
+  when:
     - "'master1' not in group_names"
     - not namenode_initialized_dir.stat.exists
     - ide_ha_setup is defined
     - ide_ha_setup
 
-- name: start HDFS namenode
-  systemd:
+- name: Start HDFS namenode
+  ansible.builtin.systemd:
     name: "hdfs-namenode.service"
     state: started
-  when: 
+  when:
     - "'master1' not in group_names"
     - ide_ha_setup is defined
     - ide_ha_setup

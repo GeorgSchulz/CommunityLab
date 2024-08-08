@@ -1,5 +1,5 @@
-- name: check if JupyterHub GUI is reachable
-  uri:
+- name: Check if JupyterHub GUI is reachable
+  ansible.builtin.uri:
     url: "{% if jupyterhub_domain_ip is defined %}{{ jupyterhub_domain }}{% else %}https://{{ inventory_hostname }}{% endif %}"
     method: GET
     validate_certs: false
@@ -7,9 +7,11 @@
   retries: 10
   until: jupyterhub_gui_status.status == 200
 
-- debug:
+- name: Set variable jupyterhub_gui_status
+  ansible.builtin.debug:
     var: jupyterhub_gui_status
 
-- debug:
+- name: Debug variable jupyterhub_gui_status
+  ansible.builtin.debug:
     msg: "IDE installed successfully, you can now visit JupyterHub GUI under: https://hub1.{{ domain }}:8443"
   when: jupyterhub_gui_status.status == 200

@@ -1,7 +1,7 @@
-- name: configure ldap provider
-  include_tasks: configure-ldap-provider.yml
+- name: Configure ldap provider
+  ansible.builtin.include_tasks: configure-ldap-provider.yml
   when: "'security1' in group_names"
 
-- name: configure ldap consumer
-  include_tasks: configure-ldap-consumer.yml
+- name: Configure ldap consumer
+  ansible.builtin.include_tasks: configure-ldap-consumer.yml
   when: "'security2' in group_names"

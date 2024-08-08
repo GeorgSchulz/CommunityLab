@@ -1,11 +1,11 @@
-miniforge_base_path: "/opt/miniforge/miniforge"
-environment_python_version: "3.10.14"
+install_miniforge_base_path: "/opt/miniforge/miniforge"
+install_environment_python_version: "3.10.14"
 
-jupyterhub_conda_packages: 
+install_conda_packages:
   - "jupyterhub=5.1.0"
   - "nodejs=22.5.1"
   - "configurable-http-proxy=4.6.2"
   - "jupyterhub-yarnspawner=0.4.0"
-jupyterhub_pip_packages:
+install_pip_packages:
   - "git+https://github.com/jupyterhub/ldapauthenticator.git"
   - "psycopg2-binary==2.9.9"

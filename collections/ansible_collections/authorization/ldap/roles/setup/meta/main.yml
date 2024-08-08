@@ -5,11 +5,11 @@ dependencies:
   - name: authorization.ldap.database
     tags:
      - ldap_user
-    when: 
+    when:
       - "'security1' in group_names"
       - ldap_users_present is not defined
   - name: authorization.ldap.replication
-    when: 
+    when:
       - groups.securities | length == 2
       - ldap_replication_configured is not defined
   - name: authorization.ldap.check

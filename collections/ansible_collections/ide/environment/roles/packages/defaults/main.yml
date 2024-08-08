@@ -1,2 +1,2 @@
-environment_apt_packages: 
+packages_environment_apt:
   - "openjdk-11-jre"

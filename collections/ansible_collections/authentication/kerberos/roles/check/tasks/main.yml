@@ -1,25 +1,25 @@
-- name: delete existing test kerberos propagation principal '{{ test_kerberos_propagation_principal }}@{{ realm }}' on primary and secondary KDC
-  shell: "kadmin.local -q \"delprinc -force {{ test_kerberos_propagation_principal }}\""
+- name: Delete existing test kerberos propagation principal on primary and secondary KDC
+  ansible.builtin.command: "kadmin.local -q \"delprinc -force {{ check_kerberos_propagation_principal }}\""
   when: "'security1' in group_names"
 
-- name: block for Kerberos primary KDC
-  block:
-    - name: create test kerberos propagation principal '{{ test_kerberos_propagation_principal }}@{{ realm }}' on primary KDC
-      shell: "kadmin.local -q \"addprinc -randkey {{ test_kerberos_propagation_principal }}\""
+- name: Block for Kerberos primary KDC
   when: "'security1' in group_names"
-
-- name: block for Kerberos secondary KDC
   block:
-    - name: get principals of Kerberos secondary KDC
-      shell: "kadmin.local -q \"listprincs\""
+    - name: Create test kerberos propagation principal on primary KDC
+      ansible.builtin.command: "kadmin.local -q \"addprinc -randkey {{ check_kerberos_propagation_principal }}\""
+
+- name: Block for Kerberos secondary KDC
+  when: "'security2' in group_names"
+  block:
+    - name: Get principals of Kerberos secondary KDC
+      ansible.builtin.command: "kadmin.local -q \"listprincs\""
       register: kerberos_principals
-    
-    - name: print message depending on listprincs output
-      assert:
-        that: "'{{ test_kerberos_propagation_principal }}@{{ realm }}' in kerberos_principals.stdout"
+
+    - name: Print message depending on listprincs output
+      ansible.builtin.assert:
+        that: "'{{ check_kerberos_propagation_principal }}@{{ realm }}' in kerberos_principals.stdout"
         fail_msg: "Kerberos database replication failed, see Logs for details"
         success_msg: "Kerberos primary and secondary KDC running and Kerberos database replication successfull"
-  when: "'security2' in group_names"
 
-- name: delete test kerberos propagation principal '{{ test_kerberos_propagation_principal }}/{{ realm }}' on primary and secondary KDC
-  shell: "kadmin.local -q \"delprinc -force {{ test_kerberos_propagation_principal }}\""
+- name: Delete test kerberos propagation principal on primary and secondary KDC
+  ansible.builtin.command: "kadmin.local -q \"delprinc -force {{ check_kerberos_propagation_principal }}\""

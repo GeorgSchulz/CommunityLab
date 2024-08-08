@@ -1,17 +1,18 @@
-- name: create folders for jupyterhub
-  file:
+- name: Create folders for jupyterhub
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ jupyterhub_user }}"
     group: "{{ jupyterhub_group }}"
+    mode: "0755"
   loop:
     - "/opt/jupyterhub"
     - "/etc/jupyterhub"
     - "/var/jupyterhub"
     - "/var/log/jupyterhub"
 
-- name: copy config files to /etc/jupyterhub
-  template:
+- name: Copy config files to /etc/jupyterhub
+  ansible.builtin.template:
     src: "{{ item }}"
     dest: "/etc/jupyterhub/{{ item }}"
     owner: "{{ jupyterhub_user }}"
@@ -21,31 +22,32 @@
     - "jupyterhub_config.py"
     - "env"
 
-- name: copy start-jupyterhub to /opt/jupyterhub
-  template:
+- name: Copy start-jupyterhub to /opt/jupyterhub
+  ansible.builtin.template:
     src: "start-jupyterhub"
     dest: "/opt/jupyterhub/start-jupyterhub"
     owner: "{{ jupyterhub_user }}"
     group: "{{ jupyterhub_group }}"
     mode: "0755"
 
-- name: check if jupyterhub cookie secret is already present
-  stat:
+- name: Check if jupyterhub cookie secret is already present
+  ansible.builtin.stat:
     path: "/etc/jupyterhub/jupyterhub_cookie_secret"
   register: jupyterhub_cookie_secret
 
-- name: generate jupyterhub cookie secret
-  shell: "openssl rand -hex 32 > /etc/jupyterhub/jupyterhub_cookie_secret"
+- name: Generate jupyterhub cookie secret
+  ansible.builtin.shell: "openssl rand -hex 32 > /etc/jupyterhub/jupyterhub_cookie_secret"
   when: not jupyterhub_cookie_secret.stat.exists
 
-- name: change permissions for jupyterhub cookie secret
-  file:
+- name: Change permissions for jupyterhub cookie secret
+  ansible.builtin.file:
     path: "/etc/jupyterhub/jupyterhub_cookie_secret"
     owner: "{{ jupyterhub_user }}"
     group: "{{ jupyterhub_group }}"
     mode: "0600"
 
-- name: create system service for JupyterHub
-  template:
+- name: Create system service for JupyterHub
+  ansible.builtin.template:
     src: "jupyterhub.service"
     dest: "/etc/systemd/system/jupyterhub.service"
+    mode: "0644"

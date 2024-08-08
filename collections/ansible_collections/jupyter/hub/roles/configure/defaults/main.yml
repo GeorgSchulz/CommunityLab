@@ -1,1 +1,1 @@
-miniforge_base: "/opt/miniforge/miniforge"
+configure_miniforge_base_path: "/opt/miniforge/miniforge"

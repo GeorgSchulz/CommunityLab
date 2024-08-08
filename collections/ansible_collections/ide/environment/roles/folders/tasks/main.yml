@@ -1,5 +1,6 @@
-- name: create relevant environment folders
-  file:
+- name: Create relevant environment folders
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-  loop: "{{ environment_folders }}"
+    mode: "0755"
+  loop: "{{ folders_environment }}"

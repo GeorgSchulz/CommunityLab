@@ -1,28 +1,31 @@
-- name: create /opt/apache-spark folder
-  file:
+- name: Create /opt/apache-spark folder
+  ansible.builtin.file:
     path: /opt/apache-spark
     state: directory
-    owner: "{{ hdfs_user }}"
-    group: "{{ hdfs_group }}"
+    mode: "0755"
+    owner: "{{ common_hdfs_user }}"
+    group: "{{ common_hdfs_group }}"
 
-- name: get spark tarball
-  get_url:
-    url: "https://archive.apache.org/dist/spark/spark-{{ spark_version }}/spark-{{ spark_version }}-bin-hadoop{{ spark_hadoop_version }}.tgz"
-    dest: "/var/tmp/spark-{{ spark_version }}-bin-hadoop{{ spark_hadoop_version }}.tgz"
+- name: Get spark tarball
+  ansible.builtin.get_url:
+    url: "https://archive.apache.org/dist/spark/spark-{{ common_spark_version }}/\
+          spark-{{ common_spark_version }}-bin-hadoop{{ common_spark_hadoop_version }}.tgz"
+    dest: "/var/tmp/spark-{{ common_spark_version }}-bin-hadoop{{ common_spark_hadoop_version }}.tgz"
+    mode: "0644"
 
-- name: unpack spark tarball
-  unarchive: 
-    copy: no
-    src: "/var/tmp/spark-{{ spark_version }}-bin-hadoop{{ spark_hadoop_version }}.tgz"
+- name: Unpack spark tarball
+  ansible.builtin.unarchive:
+    copy: false
+    src: "/var/tmp/spark-{{ common_spark_version }}-bin-hadoop{{ common_spark_hadoop_version }}.tgz"
     dest: "/opt/apache-spark"
-    owner: "{{ yarn_user }}"
-    group: "{{ yarn_group }}"
-    creates: "/opt/apache-spark/spark-{{ spark_version }}"
+    owner: "{{ common_yarn_user }}"
+    group: "{{ common_yarn_group }}"
+    creates: "/opt/apache-spark/spark-{{ common_spark_version }}"
 
-- name: create symbolic link
-  file: 
-    src: "/opt/apache-spark/spark-{{ spark_version }}-bin-hadoop{{ spark_hadoop_version }}"
+- name: Create symbolic link
+  ansible.builtin.file:
+    src: "/opt/apache-spark/spark-{{ common_spark_version }}-bin-hadoop{{ common_spark_hadoop_version }}"
     dest: "/opt/apache-spark/spark"
     state: link
-    owner: "{{ yarn_user }}"
-    group: "{{ yarn_group }}"
+    owner: "{{ common_yarn_user }}"
+    group: "{{ common_yarn_group }}"
