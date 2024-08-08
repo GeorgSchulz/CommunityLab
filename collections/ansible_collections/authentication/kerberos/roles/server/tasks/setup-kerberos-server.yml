@@ -1,10 +1,10 @@
-- name: install kerberos server
-  include_tasks: install.yml
+- name: Install kerberos server
+  ansible.builtin.include_tasks: install.yml
 
-- name: configure kerberos server
-  include_tasks: configure.yml
+- name: Configure kerberos server
+  ansible.builtin.include_tasks: configure.yml
 
-- name: restart krb5-kdc
-  systemd:
+- name: Restart krb5-kdc
+  ansible.builtin.systemd:
     name: "krb5-kdc"
     state: restarted

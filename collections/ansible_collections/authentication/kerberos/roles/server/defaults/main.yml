@@ -1,9 +1,9 @@
-primary_kdc_packages:
+server_primary_kdc_packages:
   - "krb5-kdc-ldap"
   - "schema2ldif"
   - "krb5-admin-server"
-  
-secondary_kdc_packages:
+
+server_secondary_kdc_packages:
   - "krb5-kdc-ldap"
   - "schema2ldif"
   - "krb5-admin-server"

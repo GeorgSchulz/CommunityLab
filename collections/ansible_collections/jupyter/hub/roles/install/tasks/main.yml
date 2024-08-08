@@ -1,29 +1,29 @@
-- name: check if jupyterhub environment is already present
-  stat:
+- name: Check if jupyterhub environment is already present
+  ansible.builtin.stat:
     path: "/opt/miniforge/miniforge/envs/jupyterhub/bin/python"
   register: jupyterhub_env
 
-- name: install jupyterhub environment if not present
-  block:
-    - name: create jupyterhub environment in '{{ miniforge_base_path }}'
-      shell: |
-        . /opt/miniforge/miniforge/bin/activate
-        conda create -n jupyterhub python={{ environment_python_version }} -y
-
-    - name: install jupyterhub conda packages in jupyterhub environment
-      shell: |
-        . /opt/miniforge/miniforge/bin/activate jupyterhub
-        conda install -c conda-forge {% for conda_package in jupyterhub_conda_packages %}{{ conda_package }}{% if not loop.last %} {% endif %}{% endfor %} -y
-      args:
-        executable: /bin/bash
-
-    - name: install jupyterhub pip packages in jupyterhub environment
-      shell: |
-        . /opt/miniforge/miniforge/bin/activate jupyterhub
-        pip install {% for pip_package in jupyterhub_pip_packages %}{{ pip_package }}{% if not loop.last %} {% endif %}{% endfor %}
-      args:
-        executable: /bin/bash
-
-    - name: change owner to jupyterhub user and group - use shell module because of better performance
-      shell: "chown {{ jupyterhub_user }}:{{ jupyterhub_group }} -R {{ miniforge_base_path }}/envs/jupyterhub"
+- name: Install jupyterhub environment if not present
   when: not jupyterhub_env.stat.exists
+  block:
+    - name: Create jupyterhub environment in /opt/miniforge/miniforge
+      ansible.builtin.shell: |
+        . /opt/miniforge/miniforge/bin/activate
+        conda create -n jupyterhub python={{ install_environment_python_version }} -y
+
+    - name: Install jupyterhub conda packages in jupyterhub environment
+      ansible.builtin.shell: |
+        . /opt/miniforge/miniforge/bin/activate jupyterhub
+        conda install -c conda-forge {% for conda_package in install_conda_packages %}{{ conda_package }}{% if not loop.last %} {% endif %}{% endfor %} -y
+      args:
+        executable: /bin/bash
+
+    - name: Install jupyterhub pip packages in jupyterhub environment
+      ansible.builtin.shell: |
+        . /opt/miniforge/miniforge/bin/activate jupyterhub
+        pip install {% for pip_package in install_pip_packages %}{{ pip_package }}{% if not loop.last %} {% endif %}{% endfor %}
+      args:
+        executable: /bin/bash
+
+    - name: Change owner to jupyterhub user and group - use shell module because of better performance
+      ansible.builtin.command: "chown {{ jupyterhub_user }}:{{ jupyterhub_group }} -R {{ install_miniforge_base_path }}/envs/jupyterhub"

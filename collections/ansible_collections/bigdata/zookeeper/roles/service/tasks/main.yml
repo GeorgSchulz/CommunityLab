@@ -1,15 +1,15 @@
-- name: enable zookeeper service
-  systemd:
+- name: Enable zookeeper service
+  ansible.builtin.systemd:
     name: "zookeeper.service"
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
 
-- name: stop zookeeper service
-  systemd:
+- name: Stop zookeeper service
+  ansible.builtin.systemd:
     name: "zookeeper.service"
     state: stopped
 
-- name: start zookeeper service
-  systemd:
+- name: Start zookeeper service
+  ansible.builtin.systemd:
     name: "zookeeper.service"
     state: started

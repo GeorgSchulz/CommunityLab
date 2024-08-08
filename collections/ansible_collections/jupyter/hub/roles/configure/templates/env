@@ -1,4 +1,4 @@
-PATH="/opt/apache-hadoop/hadoop/bin:{{ miniforge_base }}/envs/jupyterhub/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
+PATH="/opt/apache-hadoop/hadoop/bin:{{ configure_miniforge_base_path }}/envs/jupyterhub/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
 JAVA_HOME="{{ java_home}}"
 HADOOP_HOME="/opt/apache-hadoop/hadoop"
 HADOOP_CONF_DIR="/opt/apache-hadoop/hadoop/etc/hadoop"

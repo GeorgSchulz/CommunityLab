@@ -1,39 +1,40 @@
-- name: install keepalived
-  apt:
+- name: Install keepalived
+  ansible.builtin.apt:
     name: "keepalived"
-    state: latest
-    update_cache: yes
+    state: present
+    update_cache: true
 
-- name: get ip address of remote host - use bash to avoid dns python conflict for dig lookup
-  shell: "dig +short jupyterhub.{{ domain }}"
+- name: Get ip address of remote host - use bash to avoid dns python conflict for dig lookup
+  ansible.builtin.command: "dig +short jupyterhub.{{ domain }}"
   register: jupyterhub_domain_ip_address
 
-- name: configure keepalived for Hetzner Cloud
+- name: Configure keepalived for Hetzner Cloud
+  when: hetzner_token is defined
   block:
-    - name: install hcloud-cli
-      apt:
+    - name: Install hcloud-cli
+      ansible.builtin.apt:
         name: "hcloud-cli"
-        state: latest
-        update_cache: yes
-    
-    - name: copy failover.sh to /etc/keepalived
-      template:
+        state: present
+        update_cache: true
+
+    - name: Copy failover.sh to /etc/keepalived
+      ansible.builtin.template:
         src: "failover.sh"
         dest: "/etc/keepalived/failover.sh"
         mode: "0755"
-  when: hetzner_token is defined
 
-- name: configure keepalived
-  template:
+- name: Configure keepalived
+  ansible.builtin.template:
     src: "keepalived.conf"
     dest: "/etc/keepalived/keepalived.conf"
+    mode: "0644"
 
-- name: stop keepalived service
-  systemd:
+- name: Stop keepalived service
+  ansible.builtin.systemd:
     name: "keepalived.service"
     state: stopped
 
-- name: start keepalived service
-  systemd:
+- name: Start keepalived service
+  ansible.builtin.systemd:
     name: "keepalived.service"
     state: started

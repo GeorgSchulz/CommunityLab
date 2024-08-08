@@ -1,4 +1,0 @@
-postgres_jdbc_version: "42.4.0"
-postgres_jdbc_dest_dir: "/var/tmp"
-postgres_jdbc_user: "root"
-postgres_jdbc_group: "root"

@@ -1,27 +1,28 @@
-- name: create system service for YARN resourcemanager
-  template:
+- name: Create system service for YARN resourcemanager
+  ansible.builtin.template:
     src: "yarn-resourcemanager.service"
     dest: "/etc/systemd/system/yarn-resourcemanager.service"
+    mode: "0644"
 
-- name: enable yarn-resourcemanager service
-  systemd:
+- name: Enable yarn-resourcemanager service
+  ansible.builtin.systemd:
     name: "yarn-resourcemanager.service"
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
 
-- name: stop yarn-resourcemanager service
-  systemd:
+- name: Stop yarn-resourcemanager service
+  ansible.builtin.systemd:
     name: "yarn-resourcemanager.service"
     state: stopped
 
-- name: start active yarn-resourcemanager
-  systemd:
+- name: Start active yarn-resourcemanager
+  ansible.builtin.systemd:
     name: "yarn-resourcemanager.service"
     state: started
   when: "'master1' in group_names"
 
-- name: start passive yarn-resourcemanagers
-  systemd:
+- name: Start passive yarn-resourcemanagers
+  ansible.builtin.systemd:
     name: "yarn-resourcemanager.service"
     state: started
   when: "'master1' not in group_names"

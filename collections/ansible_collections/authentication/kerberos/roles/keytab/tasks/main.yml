@@ -1,5 +1,5 @@
-- name: create keytab looping over kerberos_keytabs list
-  include_tasks: create-keytab.yml
+- name: Create keytab looping over kerberos_keytabs list
+  ansible.builtin.include_tasks: create-keytab.yml
   loop: "{{ kerberos_keytabs }}"
   loop_control:
     loop_var: keytab

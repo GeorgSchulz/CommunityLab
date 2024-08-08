@@ -1,7 +1,8 @@
-- name: copy kerberos configuration files
-  template:
+- name: Copy kerberos configuration files
+  ansible.builtin.template:
     src: "{{ item.file }}"
     dest: "{{ item.path }}/{{ item.file }}"
+    mode: "0644"
   loop:
     - file: "kdc.conf"
       path: "/etc/krb5kdc"
@@ -12,9 +13,9 @@
   loop_control:
     label: "{{ item.file }}"
 
-- name: delete existing kerberos database
-  shell: "kdb5_util destroy -f"
+- name: Delete existing kerberos database
+  ansible.builtin.command: "kdb5_util destroy -f"
   failed_when: false
 
-- name: create database 
-  shell: "kdb5_util create -s -P {{ realm_password }}"
+- name: Create database
+  ansible.builtin.command: "kdb5_util create -s -P {{ realm_password }}"

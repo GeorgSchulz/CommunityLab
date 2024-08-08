@@ -55,7 +55,7 @@ export JAVA_HOME={{ java_home }}
 
 # Location of Hadoop.  By default, Hadoop will attempt to determine
 # this location based upon its execution path.
-export HADOOP_HOME="{{ hadoop_conf_dir }}/hadoop"
+export HADOOP_HOME="{{ setup_hadoop_conf_dir }}/hadoop"
 
 # Location of Hadoop's configuration information.  i.e., where this
 # file is living. If this is not defined, Hadoop will attempt to
@@ -65,7 +65,7 @@ export HADOOP_HOME="{{ hadoop_conf_dir }}/hadoop"
 # /etc/profile.d or equivalent.  Some options (such as
 # --config) may react strangely otherwise.
 #
-export HADOOP_CONF_DIR="{{ hadoop_conf_dir }}/hadoop/etc/hadoop"
+export HADOOP_CONF_DIR="{{ setup_hadoop_conf_dir }}/hadoop/etc/hadoop"
 
 # The maximum amount of heap to use (Java -Xmx).  If no unit
 # is provided, it will be converted to MB.  Daemons will
@@ -184,7 +184,7 @@ export HADOOP_OS_TYPE=${HADOOP_OS_TYPE:-$(uname -s)}
 # Where (primarily) daemon log files are stored.
 # ${HADOOP_HOME}/logs by default.
 # Java property: hadoop.log.dir
-export HADOOP_LOG_DIR="{{ hadoop_log_dir }}"
+export HADOOP_LOG_DIR="{{ setup_hadoop_log_dir }}"
 
 # A string representing this instance of hadoop. $USER by default.
 # This is used in writing log and pid files, so keep that in mind!

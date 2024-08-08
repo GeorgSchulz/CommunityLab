@@ -1,32 +1,37 @@
-- name: copy replicator.ldif to ldap provider
-  template:
+- name: Copy replicator.ldif to ldap provider
+  ansible.builtin.template:
     src: "replicator.ldif"
     dest: "/tmp/replicator.ldif"
+    mode: "0644"
 
-- name: add replication user '{{ ldap_replication_user }}'
+- name: Add replication user '{{ ldap_replication_user }}'
   failed_when: ldapadd.rc not in [0,68]
-  shell: "ldapadd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/replicator.ldif"
+  ansible.builtin.command: "ldapadd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
+                            -f /tmp/replicator.ldif"
   register: ldapadd
 
-- name: set password for IDE user '{{ ldap_replication_user }}'
-  shell: "ldappasswd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -s {{ ldap_replication_password }} {{ ldap_replication_user }}"
+- name: Set password for IDE user '{{ ldap_replication_user }}'
+  ansible.builtin.command: "ldappasswd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
+                            -s {{ ldap_replication_password }} {{ ldap_replication_user }}"
 
-- name: copy replicator-acl-limits.ldif to ldap provider
-  template:
+- name: Copy replicator-acl-limits.ldif to ldap provider
+  ansible.builtin.template:
     src: "replicator-acl-limits.ldif"
     dest: "/tmp/replicator-acl-limits.ldif"
+    mode: "0644"
 
-- name: add replicator-acl-limits.ldif to ldap provider
+- name: Add replicator-acl-limits.ldif to ldap provider
   failed_when: ldapmodify.rc not in [0,20]
-  shell: "ldapmodify -Q -Y EXTERNAL -H ldapi:/// -f /tmp/replicator-acl-limits.ldif"
+  ansible.builtin.command: "ldapmodify -Q -Y EXTERNAL -H ldapi:/// -f /tmp/replicator-acl-limits.ldif"
   register: ldapmodify
 
-- name: copy provider_simple_sync.ldif to ldap provider
-  copy:
+- name: Copy provider_simple_sync.ldif to ldap provider
+  ansible.builtin.copy:
     src: "provider_simple_sync.ldif"
     dest: "/tmp/provider_simple_sync.ldif"
+    mode: "0644"
 
-- name: add provider_simple_sync.ldif to ldap provider
+- name: Add provider_simple_sync.ldif to ldap provider
   failed_when: ldapmodify.rc not in [0,20]
-  shell: "ldapmodify -Q -Y EXTERNAL -H ldapi:/// -f /tmp/provider_simple_sync.ldif"
+  ansible.builtin.command: "ldapmodify -Q -Y EXTERNAL -H ldapi:/// -f /tmp/provider_simple_sync.ldif"
   register: ldapmodify

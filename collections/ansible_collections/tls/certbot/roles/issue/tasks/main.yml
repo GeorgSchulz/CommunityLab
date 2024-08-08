@@ -1,45 +1,50 @@
-- name: set fact for no root user - use shell to avoid ansible_fact_caching for root user
-  become: no
-  shell: "whoami" 
+- name: Set fact for no root user - use shell to avoid ansible_fact_caching for root user
+  become: false
+  ansible.builtin.command: "whoami"
   register: no_root_user
 
-- name: create folder for certs and keystores
+- name: Create folder for certs and keystores
   delegate_to: localhost
-  run_once: yes
-  become: yes
-  file:
+  run_once: true
+  become: true
+  ansible.builtin.file:
     path: "/opt/letsencrypt"
     state: directory
     owner: "{{ no_root_user.stdout }}"
+    mode: "0755"
 
-- name: check if certificate is already present on ansible server
+- name: Check if certificate is already present on ansible server
   delegate_to: localhost
-  stat:
+  ansible.builtin.stat:
     path: "/opt/letsencrypt/{{ inventory_hostname }}"
   register: cert_dir
 
-- name: issue and fetch certificates only if not present on ansible server
-  become: yes
+- name: Issue and fetch certificates only if not present on ansible server
+  become: true
+  when: not cert_dir.stat.exists
   block:
-    - name: install certbot
-      apt:
+    - name: Install certbot
+      ansible.builtin.apt:
         name: "certbot"
         state: present
-        update_cache: yes
+        update_cache: true
 
-    - name: issue certificate using certbot when shared IP address for JupyterHub frontend is undefined
-      shell: "certbot certonly --standalone --preferred-challenges http --agree-tos --email {{ my_email }} -d {{ inventory_hostname }}"
+    - name: Issue certificate using certbot when shared IP address for JupyterHub frontend is undefined
+      ansible.builtin.command: "certbot certonly --standalone --preferred-challenges http --agree-tos --email {{ my_email }} -d {{ inventory_hostname }}"
       when: jupyterhub_domain_ip is not defined
-    
-    - name: issue certificate using certbot when shared IP address for JupyterHub frontend is defined
+
+    - name: Issue certificate using certbot when shared IP address for JupyterHub frontend is defined
+      when:
+        - jupyterhub_domain_ip is defined
+        - "'hubs' in group_names"
       block:
-        - name: install jq
-          apt:
+        - name: Install jq
+          ansible.builtin.apt:
             name: "jq"
             state: present
 
-        - name: download scripts for Hetzner DNS challenge
-          get_url:
+        - name: Download scripts for Hetzner DNS challenge
+          ansible.builtin.get_url:
             url: "{{ item.src }}"
             dest: "{{ item.dest }}"
             mode: "0550"
@@ -49,20 +54,20 @@
             - src: "https://raw.githubusercontent.com/dschoeffm/hetzner-dns-certbot/master/certbot-hetzner-cleanup.sh"
               dest: "/usr/local/bin/certbot-hetzner-cleanup.sh"
 
-        - name: copy Hetzner DNS API token to hub servers
-          copy:
+        - name: Copy Hetzner DNS API token to hub servers
+          ansible.builtin.copy:
             content: "{{ hetznerdns_token }}"
             dest: "/etc/hetzner-dns-token"
+            mode: "0640"
 
-        - name: issue certificates using DNS challenge on hub servers
-          shell: "yes | certbot certonly --manual --preferred-challenges=dns --agree-tos --email {{ my_email }} --manual-auth-hook /usr/local/bin/certbot-hetzner-auth.sh --manual-cleanup-hook /usr/local/bin/certbot-hetzner-cleanup.sh -d {{ inventory_hostname }} -d jupyterhub.{{ domain }}"
-      when: 
-        - jupyterhub_domain_ip is defined
-        - "'hubs' in group_names"
-          
-    - name: fetch certificate to ansible server
-      synchronize:
+        - name: Issue certificates using DNS challenge on hub servers
+          ansible.builtin.shell: "yes | certbot certonly --manual --preferred-challenges=dns --agree-tos \
+                                  --email {{ my_email }} --manual-auth-hook /usr/local/bin/certbot-hetzner-auth.sh \
+                                  --manual-cleanup-hook /usr/local/bin/certbot-hetzner-cleanup.sh \
+                                  -d {{ inventory_hostname }} -d jupyterhub.{{ domain }}"
+
+    - name: Fetch certificate to ansible server
+      ansible.posix.synchronize:
         src: "/etc/letsencrypt/archive/{{ inventory_hostname }}"
         dest: "/opt/letsencrypt/"
         mode: pull
-  when: not cert_dir.stat.exists

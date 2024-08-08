@@ -1,15 +1,15 @@
-- name: enable patroni service
-  systemd:
+- name: Enable patroni service
+  ansible.builtin.systemd:
     name: "patroni.service"
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
 
-- name: stop patroni service
-  systemd:
+- name: Stop patroni service
+  ansible.builtin.systemd:
     name: "patroni.service"
     state: stopped
 
-- name: start patroni service
-  systemd:
+- name: Start patroni service
+  ansible.builtin.systemd:
     name: "patroni.service"
     state: started

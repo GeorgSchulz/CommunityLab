@@ -1,57 +1,62 @@
-- name: check if keytab is already present and kinit possible using principal '{{ keytab.principal }}'
-  shell: "kinit -k {{ keytab.principal}}/{{ inventory_hostname }}@{{ realm }} -t {{ keytab_folder }}/{{ keytab.principal }}.keytab"
+- name: Check if keytab is already present and kinit possible using specific principal
+  ansible.builtin.command: "kinit -k {{ keytab.principal}}/{{ inventory_hostname }}@{{ realm }} -t {{ keytab_folder }}/{{ keytab.principal }}.keytab"
   failed_when: false
   register: keytab_possible
 
-- name: create principal on kerberos primary kdc when kinit not possible and fetch it to localhost
+- name: Create principal on kerberos primary kdc when kinit not possible and fetch it to localhost
   delegate_to: "{{ groups.security1[0] }}"
+  when: keytab_possible.rc != 0
   block:
-    - name: add principal '{{ keytab.principal }}'
-      shell: "kadmin.local -q \"addprinc -randkey {{ keytab.principal }}/{{ inventory_hostname }}\""
-    
-    - name: add additional non-fqdn principal if additional_principal true
-      shell: "kadmin.local -q \"addprinc -randkey {{ keytab.principal }}/{{ keytab.additional_principal_name }}\""
+    - name: Add specific principal
+      ansible.builtin.command: "kadmin.local -q \"addprinc -randkey {{ keytab.principal }}/{{ inventory_hostname }}\""
+
+    - name: Add additional non-fqdn principal if additional_principal true
+      ansible.builtin.command: "kadmin.local -q \"addprinc -randkey {{ keytab.principal }}/{{ keytab.additional_principal_name }}\""
       when: keytab.additional_principal_name is defined
-    
-    - name: change random principal password for '{{ keytab.principal }}' if set
-      shell: "kadmin.local -q \"change_password -w {{ keytab.principal_password }} {{ keytab.principal }}/{{ inventory_hostname }}\""
+
+    - name: Change random principal password for specific principal if set
+      ansible.builtin.command: "kadmin.local -q \"change_password -w {{ keytab.principal_password }} {{ keytab.principal }}/{{ inventory_hostname }}\""
       when: keytab.principal_password is defined
-    
-    - name: delete existing keytab in '/tmp/{{ keytab.principal }}_{{ inventory_hostname }}.keytab'
-      file: 
+
+    - name: Delete existing keytab in /tmp
+      ansible.builtin.file:
         path: "/tmp/{{ keytab.principal }}_{{ inventory_hostname }}.keytab"
         state: absent
-    
-    - name: create keytab in '/tmp/{{ keytab.principal }}_{{ inventory_hostname }}.keytab'
-      shell: "kadmin.local -q \"xst -norandkey -k /tmp/{{ keytab.principal }}_{{ inventory_hostname }}.keytab {{ keytab.principal }}/{{ inventory_hostname }}\""
 
-    - name: add additional non-fqdn principal to keytab if additional_principal_name is defined
-      shell: "kadmin.local -q \"ktadd -norandkey -k /tmp/{{ keytab.principal }}_{{ inventory_hostname }}.keytab {{ keytab.principal }}/{{ keytab.additional_principal_name }}\""
+    - name: Create keytab in /tmp
+      ansible.builtin.command: "kadmin.local -q \"xst -norandkey \
+                                -k /tmp/{{ keytab.principal }}_{{ inventory_hostname }}.keytab \
+                                {{ keytab.principal }}/{{ inventory_hostname }}\""
+
+    - name: Add additional non-fqdn principal to keytab if additional_principal_name is defined
+      ansible.builtin.command: "kadmin.local -q \"ktadd -norandkey \
+                                               -k /tmp/{{ keytab.principal }}_{{ inventory_hostname }}.keytab \
+                                               {{ keytab.principal }}/{{ keytab.additional_principal_name }}\""
       when: keytab.additional_principal_name is defined
-    
-    - name: fetch keytab to localhost to '/tmp/{{ keytab.principal }}_{{ inventory_hostname }}.keytab'
-      fetch:
+
+    - name: Fetch keytab to localhost to /tmp
+      ansible.builtin.fetch:
         src: "/tmp/{{ keytab.principal }}_{{ inventory_hostname }}.keytab"
         dest: "/tmp/{{ keytab.principal }}_{{ inventory_hostname }}.keytab"
-        flat: yes
-    
-    - name: delete existing keytab in '/tmp/{{ keytab.principal }}_{{ inventory_hostname }}.keytab'
-      file: 
+        flat: true
+
+    - name: Delete existing keytab in /tmp
+      ansible.builtin.file:
         path: "/tmp/{{ keytab.principal }}_{{ inventory_hostname }}.keytab"
         state: absent
-  when: keytab_possible.rc != 0
 
-- name: copy keytab from localhost to remote host
+- name: Copy keytab from localhost to remote host
+  when: keytab_possible.rc != 0
   block:
-    - name: copy keytab to kerberos client to '/tmp/{{ keytab.principal }}_{{ inventory_hostname }}.keytab'
-      copy:
+    - name: Copy keytab to kerberos client to /tmp
+      ansible.builtin.copy:
         src: "/tmp/{{ keytab.principal }}_{{ inventory_hostname }}.keytab"
         dest: "{{ keytab_folder }}/{{ keytab.principal }}.keytab"
+        mode: "0644"
         owner: "{{ keytab_user }}"
         group: "{{ ide_services_group }}"
-        
-    - name: delete existing keytab in '/tmp/{{ keytab.principal }}_{{ inventory_hostname }}.keytab'
-      file: 
+
+    - name: Delete existing keytab in /tmp
+      ansible.builtin.file:
         path: "/tmp/{{ keytab.principal }}_{{ inventory_hostname }}.keytab"
         state: absent
-  when: keytab_possible.rc != 0

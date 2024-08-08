@@ -1,61 +1,64 @@
-- name: gather package facts
-  package_facts:
+- name: Gather package facts
+  ansible.builtin.package_facts:
     manager: auto
 
-- name: install PostgreSQL
+- name: Install PostgreSQL
+  when: "'postgresql-16' not in ansible_facts.packages"
   block:
-    - name: install required packages
-      apt:
+    - name: Install required packages
+      ansible.builtin.apt:
         name:
           - "wget"
           - "python3-psycopg2"
           - "acl"
-        state: latest
-    
-    - name: set up PostgreSQL 16 repo
-      copy:
+        state: present
+
+    - name: Set up PostgreSQL 16 repo
+      ansible.builtin.copy:
         content: "deb http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
         dest: "/etc/apt/sources.list.d/pgdg.list"
-    
-    - name: add apt signing key
-      apt_key:
+        mode: "0644"
+
+    - name: Add apt signing key
+      ansible.builtin.apt_key:
         url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
         state: present
-    
-    - name: install PostgreSQL 16
-      failed_when: false
-      apt:
-        name: "postgresql-16"
-        state: latest
-        update_cache: yes
-  when: "'postgresql-16' not in ansible_facts.packages"
 
-- name: install virtualenv
-  apt:
+    - name: Install PostgreSQL 16
+      failed_when: false
+      ansible.builtin.apt:
+        name: "postgresql-16"
+        state: present
+        update_cache: true
+
+- name: Install virtualenv
+  ansible.builtin.apt:
     name: "virtualenv"
     state: present
 
-- name: copy requirements.txt 
-  copy:
+- name: Copy requirements.txt
+  ansible.builtin.copy:
     src: "requirements.txt"
     dest: "/tmp/requirements.txt"
     owner: "postgres"
+    mode: "0644"
 
-- name: install requirements for patroni in virtualenv
-  pip:
+- name: Install requirements for patroni in virtualenv
+  ansible.builtin.pip:
     requirements: "/tmp/requirements.txt"
     virtualenv: "/usr/lib/postgresql/16/venv"
 
-- name: change owner of virtualenv to postgres user
-  file:
+- name: Change owner of virtualenv to postgres user
+  ansible.builtin.file:
     path: "/usr/lib/postgresql/16/venv"
     state: directory
     owner: "postgres"
     group: "postgres"
-    recurse: yes
+    mode: "0755"
+    recurse: true
 
-- name: copy .pgpass file to postgres home directory
-  copy:
+- name: Copy .pgpass file to postgres home directory
+  ansible.builtin.copy:
     content: |
       {% for item in postgres %}
       {{ item.hostname }}:{{ item.port }}:{{ item.database }}:{{ item.username }}:{{ item.password }}
@@ -65,22 +68,22 @@
     group: "postgres"
     mode: "0400"
 
-- name: add postgres user to group ssl-cert
-  user: 
+- name: Add postgres user to group ssl-cert
+  ansible.builtin.user:
    name: "postgres"
    group: "postgres"
    shell: "/bin/bash"
    groups: "ssl-cert"
-   append: yes
+   append: true
 
-- name: copy cert, fullchain and private key for PostgreSQL cluster
-  copy:
+- name: Copy cert, fullchain and private key for PostgreSQL cluster
+  ansible.builtin.copy:
     src: "{{ item.0 }}"
     dest: "/etc/ssl/private/{{ item.1 }}"
     owner: "postgres"
     group: "ssl-cert"
     mode: "{{ item.2 }}"
-  with_together: 
+  with_together:
     - "{{ certs_source }}"
     - "{{ certs_dest_postgres }}"
     - "{{ certs_mode }}"
@@ -88,58 +91,60 @@
     label: "{{ item.1 }}"
   when: (custom_inventory_file is not defined) or (tls_external is not defined)
 
-- name: change ownership and mode if external TLS is provided
-  file:
+- name: Change ownership and mode if external TLS is provided
+  ansible.builtin.file:
     path: "{{ item.0 }}"
     owner: "postgres"
     group: "ssl-cert"
     mode: "{{ item.1 }}"
-  with_together: 
-    - "{{ ssl_files }}"
-    - "{{ ssl_mode }}"
+  with_together:
+    - "{{ install_ssl_files }}"
+    - "{{ install_ssl_mode }}"
   loop_control:
     label: "{{ item.0 }}"
-  when: 
+  when:
     - custom_inventory_file is defined
     - custom_inventory_file
     - tls_external is defined
     - tls_external
 
-- name: add softdog module
-  modprobe:
+- name: Add softdog module
+  community.general.modprobe:
     name: "softdog"
     state: present
 
-- name: change ownership of /dev/watchdog
-  file:
+- name: Change ownership of /dev/watchdog
+  ansible.builtin.file:
     path: "/dev/watchdog"
     owner: "postgres"
     group: "postgres"
 
-- name: copy patroni.yml
-  template:
+- name: Copy patroni.yml
+  ansible.builtin.template:
     src: "patroni.yml"
     dest: "/etc/patroni.yml"
     owner: "postgres"
     group: "postgres"
+    mode: "0644"
 
-- name: delete present PostgreSQL data    
+- name: Delete present PostgreSQL data
+  when: "'postgresql-16' not in ansible_facts.packages"
   block:
-    - name: delete PostgreSQL data for Patroni to initialize
-      file:
+    - name: Delete PostgreSQL data for Patroni to initialize
+      ansible.builtin.file:
         path: "/var/lib/postgresql/16/main"
         state: absent
-    
-    - name: create PostgreSQL data folder
-      file:
+
+    - name: Create PostgreSQL data folder
+      ansible.builtin.file:
         path: "/var/lib/postgresql/16/main"
         state: directory
         owner: "postgres"
         group: "postgres"
         mode: "0700"
-  when: "'postgresql-16' not in ansible_facts.packages"
 
-- name: copy systemd unit for patroni
-  template:
+- name: Copy systemd unit for patroni
+  ansible.builtin.template:
     src: "patroni.service"
     dest: "/etc/systemd/system/patroni.service"
+    mode: "0644"

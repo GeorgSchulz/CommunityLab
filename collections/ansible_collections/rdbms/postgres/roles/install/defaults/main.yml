@@ -1,27 +1,9 @@
-patroni_venv_packages:
-  - "click==8.1.3"
-  - "kazoo==2.8.0"
-  - "patroni==2.1.4"
-  - "pip==20.0.2"
-  - "pkg-resources==0.0.0"
-  - "prettytable==3.3.0"
-  - "psutil==5.9.1"
-  - "psycopg2-binary==2.9.3"
-  - "python-dateutil==2.8.2"
-  - "PyYAML==6.0"
-  - "setuptools==44.0.0"
-  - "six==1.16.0"
-  - "urllib3==1.26.9"
-  - "wcwidth==0.2.5"
-  - "wheel==0.34.2"
-  - "ydiff==1.2"
-
-ssl_files:
+install_ssl_files:
   - "{{ chain_file_postgres }}"
   - "{{ cert_file_postgres }}"
   - "{{ key_file_postgres }}"
 
-ssl_mode:
+install_ssl_mode:
   - "0660"
   - "0660"
   - "0400"

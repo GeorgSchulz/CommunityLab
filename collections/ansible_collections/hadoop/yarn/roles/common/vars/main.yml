@@ -1,2 +1,2 @@
 kerberos_keytabs:
-  - principal: "{{ yarn_user }}"
+  - principal: "{{ common_yarn_user }}"

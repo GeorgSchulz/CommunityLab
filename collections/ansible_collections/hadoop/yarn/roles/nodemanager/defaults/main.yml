@@ -1,2 +1,2 @@
-yarn_user: "{{ yarn_user | default('yarn') }}"
-yarn_group: "{{ yarn_group | default('yarn') }}"
+nodemanager_yarn_user: "{{ yarn_user | default('yarn') }}"
+nodemanager_yarn_group: "{{ yarn_group | default('yarn') }}"

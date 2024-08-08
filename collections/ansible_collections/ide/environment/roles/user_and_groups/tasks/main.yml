@@ -1,11 +1,11 @@
-- name: create groups
-  include_tasks: create-groups.yml
+- name: Create groups
+  ansible.builtin.include_tasks: create-groups.yml
   loop: "{{ technical_groups }}"
   loop_control:
     label: "{{ item.name }}"
 
-- name: create users
-  include_tasks: create-users.yml
+- name: Create users
+  ansible.builtin.include_tasks: create-users.yml
   loop: "{{ technical_users }}"
   loop_control:
     label: "{{ item.name }}"

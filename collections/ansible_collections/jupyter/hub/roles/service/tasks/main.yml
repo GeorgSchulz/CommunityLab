@@ -1,15 +1,15 @@
-- name: enable jupyterhub service
-  systemd:
+- name: Enable jupyterhub service
+  ansible.builtin.systemd:
     name: "jupyterhub.service"
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
 
-- name: stop jupyterhub service
-  systemd:
+- name: Stop jupyterhub service
+  ansible.builtin.systemd:
     name: "jupyterhub.service"
     state: stopped
 
-- name: start jupyterhub service
-  systemd:
+- name: Start jupyterhub service
+  ansible.builtin.systemd:
     name: "jupyterhub.service"
     state: started

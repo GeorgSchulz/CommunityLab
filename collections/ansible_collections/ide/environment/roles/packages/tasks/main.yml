@@ -1,6 +1,6 @@
-- name: install environment apt packages
-  apt:
+- name: Install environment apt packages
+  ansible.builtin.apt:
     name: "{{ item }}"
     state: present
-    update_cache: yes
-  loop: "{{ environment_apt_packages }}"
+    update_cache: true
+  loop: "{{ packages_environment_apt }}"
