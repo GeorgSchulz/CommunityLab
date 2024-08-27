@@ -1,3 +1,9 @@
+- name: Install git
+  ansible.builtin.apt:
+    name: "git"
+    state: present
+    update_cache: true
+
 - name: Check if jupyterhub environment is already present
   ansible.builtin.stat:
     path: "/opt/miniforge/miniforge/envs/jupyterhub/bin/python"

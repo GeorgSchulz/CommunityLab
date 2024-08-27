@@ -17,13 +17,11 @@
   loop:
     - domain
     - realm
-    - realm_password
     - my_email
     - truststore_password
     - keystore_password
     - keytab_folder
     - hadoop_nameservice
-    - haproxy_admin_password
 
 - name: Check if defined domain is reachable
   ansible.builtin.wait_for:

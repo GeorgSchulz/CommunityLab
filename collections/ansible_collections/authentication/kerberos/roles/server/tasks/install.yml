@@ -6,4 +6,4 @@
   loop:
     - "krb5-kdc"
     - "krb5-admin-server"
-  when: '"security1" in group_names'
+  when: '"kerberos1" in group_names'

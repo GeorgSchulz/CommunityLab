@@ -31,7 +31,7 @@
     </property>
     <property>
         <name>dfs.permissions.superusergroup</name>
-        <value>{{ ide_services_group }}</value>
+        <value>{{ hdfs_group }}</value>
     </property>
     <property>
         <name>dfs.namenode.acls.enabled</name>

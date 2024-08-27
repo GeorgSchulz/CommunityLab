@@ -1,0 +1,7 @@
+dependencies:
+  - name: tls.java.common
+  - name: ide.environment.variables
+  - name: tls.certs.issue
+  - name: tls.certs.distribute
+  - name: tls.java.keystore
+  - name: tls.java.truststore

@@ -1,2 +1,0 @@
-ZOO_LOG_DIR="{{ cluster_zookeeper_log_dir }}"
-JVMFLAGS="-Dzookeeper.jdk.tls.rejectClientInitiatedRenegotiation=true -Dzookeeper.serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.ssl.keyStore.location={{ keystore_file }} -Dzookeeper.ssl.keyStore.password={{ keystore_password }} -Dzookeeper.ssl.trustStore.location={{ truststore_file }} -Dzookeeper.ssl.trustStore.password={{ truststore_password }} -Dzookeeper.client.secure=true"

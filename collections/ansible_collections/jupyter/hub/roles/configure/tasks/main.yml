@@ -51,3 +51,19 @@
     src: "jupyterhub.service"
     dest: "/etc/systemd/system/jupyterhub.service"
     mode: "0644"
+
+- name: Enable jupyterhub service
+  ansible.builtin.systemd:
+    name: "jupyterhub.service"
+    enabled: true
+    daemon_reload: true
+
+- name: Stop jupyterhub service
+  ansible.builtin.systemd:
+    name: "jupyterhub.service"
+    state: stopped
+
+- name: Start jupyterhub service
+  ansible.builtin.systemd:
+    name: "jupyterhub.service"
+    state: started

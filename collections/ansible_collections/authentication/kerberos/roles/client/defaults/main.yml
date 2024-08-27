@@ -1,0 +1,2 @@
+setup_realm: "{{ realm | default('COMMUNITY.LAB') }}"
+setup_domain: "{{ domain | default('example.com') }}"

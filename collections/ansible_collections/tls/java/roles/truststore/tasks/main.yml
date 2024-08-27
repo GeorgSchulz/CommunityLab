@@ -15,16 +15,16 @@
 
     - name: Copy temporary all certs of hosts to /var/tmp of each host
       ansible.builtin.copy:
-        src: "/opt/letsencrypt/{{ item }}/cert1.pem"
+        src: "{{ local_cert_path }}/{{ item + '.' + domain if molecule_deployment is defined and molecule_deployment else item }}/{{ cert_name }}"
         dest: "/var/tmp/{{ item }}_cert.pem"
         mode: "0644"
-      loop: "{{ groups.all | difference(groups.ansible) }}"
-
+      loop: "{{ groups.all }}"
+    
     - name: Import all certs from hosts into /etc/ssl/certs/truststore.jks
-      ansible.builtin.shell: "keytool -import -alias {{ item }} -keystore /etc/ssl/certs/truststore.jks \
+      ansible.builtin.shell: "keytool -import -alias {{ item + '.' + domain if molecule_deployment is defined and molecule_deployment else item }} -keystore /etc/ssl/certs/truststore.jks \
                               -file /var/tmp/{{ item }}_cert.pem -storepass {{ truststore_password }} -noprompt"
-      loop: "{{ groups.all | difference(groups.ansible) }}"
-
+      loop: "{{ groups.all }}"
+    
     - name: Import chain.pem into /etc/ssl/certs/truststore.jks
       ansible.builtin.shell: "keytool -import -alias {{ domain }}_chain -keystore /etc/ssl/certs/truststore.jks \
                               -file /etc/ssl/private/chain.pem -storepass {{ truststore_password }} -noprompt"
@@ -33,11 +33,11 @@
       ansible.builtin.file:
         path: "/etc/ssl/certs/truststore.jks"
         owner: "{{ tls_user }}"
-        group: "ssl-cert"
+        group: "{{ tls_group }}"
         mode: "0644"
 
     - name: Delete all certs in /var/tmp
       ansible.builtin.file:
         path: "/var/tmp/{{ item }}_cert.pem"
         state: absent
-      loop: "{{ groups.all | difference(groups.ansible) }}"
+      loop: "{{ groups.all }}"

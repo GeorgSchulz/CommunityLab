@@ -1,0 +1,3 @@
+setup_realm: "{{ realm | default('COMMUNITY.LAB') }}"
+setup_realm_password: "{{ realm_password | default('changeit') }}"
+setup_domain: "{{ domain | default('example.com') }}"

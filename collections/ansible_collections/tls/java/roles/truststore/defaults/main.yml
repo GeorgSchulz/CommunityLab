@@ -1,0 +1,2 @@
+local_cert_path: "{{ '/opt/selfsigned' if self_signed_certificates is defined and self_signed_certificates == true else '/opt/letsencrypt' }}"
+cert_name: "{{ 'cert.pem' if self_signed_certificates is defined and self_signed_certificates == true else 'cert1.pem' }}"

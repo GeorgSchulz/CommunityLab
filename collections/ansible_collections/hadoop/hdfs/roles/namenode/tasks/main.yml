@@ -13,27 +13,25 @@
   register: namenode_initialized_dir
 
 - name: Enable HDFS ZKFC
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "hdfs-zkfc.service"
     enabled: true
-    daemon_reload: true
   when:
     - ide_ha_setup is defined
     - ide_ha_setup
 
 - name: Enable HDFS namenode
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "hdfs-namenode.service"
     enabled: true
-    daemon_reload: true
 
 - name: Stop HDFS namenode
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "hdfs-namenode.service"
     state: stopped
 
 - name: Stop HDFS ZKFC
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "hdfs-zkfc.service"
     state: stopped
   when:
@@ -45,7 +43,7 @@
   become_user: "{{ hdfs_user }}"
   ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs zkfc -formatZK -force"
   when:
-    - "'master1' in group_names"
+    - "'namenode1' in group_names"
     - not namenode_initialized_dir.stat.exists
     - ide_ha_setup is defined
     - ide_ha_setup
@@ -55,11 +53,11 @@
   become_user: "{{ hdfs_user }}"
   ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs namenode -format -force"
   when:
-    - "'master1' in group_names"
+    - "'namenode1' in group_names"
     - not namenode_initialized_dir.stat.exists
 
 - name: Start HDFS ZKFC
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "hdfs-zkfc.service"
     state: started
   when:
@@ -67,10 +65,10 @@
     - ide_ha_setup
 
 - name: Start HDFS namenode
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "hdfs-namenode.service"
     state: started
-  when: "'master1' in group_names"
+  when: "'namenode1' in group_names"
 
 - name: Bootstrap HDFS namenode
   become: true
@@ -83,10 +81,10 @@
     - ide_ha_setup
 
 - name: Start HDFS namenode
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "hdfs-namenode.service"
     state: started
   when:
-    - "'master1' not in group_names"
+    - "'namenode1' not in group_names"
     - ide_ha_setup is defined
     - ide_ha_setup

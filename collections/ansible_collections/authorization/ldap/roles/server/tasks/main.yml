@@ -34,12 +34,18 @@
     dest: "/tmp/ssl.ldif"
     mode: "0644"
 
-- name: Restart slapd
-  ansible.builtin.service:
+- name: Stop slapd service
+  ansible.builtin.systemd_service:
     name: "slapd"
-    state: restarted
+    state: stopped
+
+- name: Start slapd service
+  ansible.builtin.systemd_service:
+    name: "slapd"
+    state: started
 
 - name: Configure ldap server for TLS
+  failed_when: ldapmodify.rc not in [20,0]
   ansible.builtin.command: "ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/ssl.ldif"
   register: ldapmodify
 
@@ -50,6 +56,7 @@
     mode: "0644"
 
 - name: Load ldap module memberOf
+  failed_when: ldapadd.rc not in [20,0]
   ansible.builtin.command: "ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/update-module.ldif"
   register: ldapadd
 
@@ -69,6 +76,7 @@
     mode: "0644"
 
 - name: Ldapadd add-refint.ldif
+  failed_when: ldapadd.rc not in [20,0]
   ansible.builtin.command: "ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/add-refint.ldif"
   register: ldapadd
 
@@ -84,7 +92,12 @@
     dest: "/etc/default/slapd"
     mode: "0644"
 
-- name: Restart slapd
-  ansible.builtin.service:
+- name: Stop slapd service
+  ansible.builtin.systemd_service:
     name: "slapd"
-    state: restarted
+    state: stopped
+
+- name: Start slapd service
+  ansible.builtin.systemd_service:
+    name: "slapd"
+    state: started

@@ -1,0 +1,114 @@
+---
+
+- name: Setup environment
+  hosts: all
+  gather_facts: true
+  roles:
+    - name: ide.environment.setup
+
+- name: Setup TLS preparation
+  hosts: all
+  gather_facts: true
+  roles:
+    - name: tls.certs.setup
+
+- name: Setup LDAP server
+  hosts: ldap
+  gather_facts: true
+  roles:
+    - name: authorization.ldap.setup
+
+- name: Setup Kerberos server
+  hosts: kerberos
+  gather_facts: true
+  roles:
+    - name: authentication.kerberos.setup
+
+- name: Setup Zookeeper
+  hosts: zookeeper
+  become: true
+  roles:
+    - name: bigdata.zookeeper.setup
+
+- name: Setup HDFS installation
+  hosts: namenodes:datanodes
+  gather_facts: true
+  roles:
+    - name: hadoop.common.setup
+    - name: hadoop.hdfs.common 
+
+- name: Setup HDFS namenode
+  hosts: namenodes
+  gather_facts: true
+  roles:
+    - name: hadoop.hdfs.namenode
+
+- name: Setup HDFS datanodes
+  hosts: datanodes
+  gather_facts: true
+  roles:
+    - name: hadoop.hdfs.datanode
+
+- name: Check HDFS is running and healthy
+  hosts: namenode1
+  become: true
+  become_user: "hdfs"
+  roles:
+    - name: hadoop.hdfs.check
+
+- name: Setup YARN resourcemanager
+  hosts: resourcemanagers
+  gather_facts: true
+  roles:
+    - name: hadoop.yarn.common
+    - name: hadoop.yarn.resourcemanager
+
+- name: Setup YARN nodemanagers
+  hosts: nodemanagers
+  gather_facts: true
+  roles:
+    - name: hadoop.yarn.common
+    - name: hadoop.yarn.nodemanager
+
+- name: Check YARN is running and healthy
+  hosts: resourcemanager1
+  become: true
+  become_user: "yarn"
+  roles:
+    - name: hadoop.yarn.check
+
+- name: Install Spark common libs
+  hosts: spark
+  become: true
+  gather_facts: true
+  roles:
+    - name: bigdata.spark.common
+
+- name: Install HAProxy for PostgreSQL access
+  hosts: loadbalancers
+  become: true
+  gather_facts: true
+  roles:
+    - name: loadbalancing.haproxy.setup
+
+- name: Install PostgreSQL as Backend for JupyterHub
+  hosts: postgres
+  become: true
+  gather_facts: true
+  roles:
+    - name: rdbms.postgres.setup
+
+- name: Install JupyterHub
+  hosts: hubs
+  become: true
+  gather_facts: true
+  roles:
+    - name: jupyter.hub.setup
+
+- name: Install JupyterLab
+  hosts: jupyterlab
+  become: true
+  gather_facts: true
+  serial: 1
+  roles:
+    - name: jupyter.lab.setup

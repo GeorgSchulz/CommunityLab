@@ -1,0 +1,3 @@
+install_zookeeper_version: "3.9.2"
+install_zookeeper_data_dir: "/var/zookeeper"
+install_zookeeper_log_dir: "/var/log/zookeeper"

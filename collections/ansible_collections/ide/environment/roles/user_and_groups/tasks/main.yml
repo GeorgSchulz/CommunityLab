@@ -1,11 +1,16 @@
-- name: Create groups
-  ansible.builtin.include_tasks: create-groups.yml
-  loop: "{{ technical_groups }}"
-  loop_control:
-    label: "{{ item.name }}"
+- name: Create service group
+  become: true
+  ansible.builtin.group:
+    name: "{{ service_group }}"
+    gid: "{{ service_gid }}"
+    state: present
 
-- name: Create users
-  ansible.builtin.include_tasks: create-users.yml
-  loop: "{{ technical_users }}"
-  loop_control:
-    label: "{{ item.name }}"
+- name: Create service user
+  become: true
+  ansible.builtin.user:
+    name: "{{ service_user }}"
+    comment: "User for {{ service_name }}"
+    uid: "{{ service_uid }}"
+    group: "{{ service_gid }}"
+    state: present
+    shell: /bin/bash

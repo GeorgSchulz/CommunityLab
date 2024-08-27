@@ -2,8 +2,8 @@
   run_once: true
   block:
     - name: Check if main ZNode is accessible using zkCli.sh
-      ansible.builtin.command: '/opt/apache-zookeeper/zookeeper/bin/zkCli.sh -server {% for host in groups.masters %} \
-                                {{ host }}:2281{% if not loop.last %},{% endif %}{% endfor %} get /zookeeper'
+      ansible.builtin.command: "/opt/apache-zookeeper/zookeeper/bin/zkCli.sh \
+        -server {% for host in groups.zookeeper %}{{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }}:2281{% if not loop.last %},{% endif %}{% endfor %} get /zookeeper"
       register: main_znode_get
       retries: 5
       until: main_znode_get.rc == 0

@@ -1,0 +1,6 @@
+---
+- name: Setup Kerberos server
+  hosts: kerberos
+  gather_facts: true
+  roles:
+    - name: authentication.kerberos.setup

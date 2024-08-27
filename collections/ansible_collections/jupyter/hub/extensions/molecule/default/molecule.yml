@@ -1,0 +1,203 @@
+---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yml
+platforms:
+  - name: instance-1
+    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
+    command: /usr/lib/systemd/systemd
+    pre_build_image: true
+    cgroupns_mode: host
+    ipv4_address: 172.23.27.3
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
+  - name: instance-2
+    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
+    command: /usr/lib/systemd/systemd
+    pre_build_image: true
+    cgroupns_mode: host
+    ipv4_address: 172.23.27.4
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
+  - name: instance-3
+    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
+    command: /usr/lib/systemd/systemd
+    pre_build_image: true
+    cgroupns_mode: host
+    ipv4_address: 172.23.27.5
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
+  - name: instance-4
+    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
+    command: /usr/lib/systemd/systemd
+    pre_build_image: true
+    cgroupns_mode: host
+    ipv4_address: 172.23.27.6
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
+  - name: instance-5
+    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
+    command: /usr/lib/systemd/systemd
+    pre_build_image: true
+    cgroupns_mode: host
+    ipv4_address: 172.23.27.7
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
+  - name: instance-6
+    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
+    command: /usr/lib/systemd/systemd
+    pre_build_image: true
+    cgroupns_mode: host
+    ipv4_address: 172.23.27.8
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
+provisioner:
+  name: ansible
+  log: false
+  options:
+    vvv: false
+  playbooks:
+    converge: converge.yml
+  inventory:
+    group_vars:
+      all:
+        molecule_deployment: true
+        tls_external: false
+        kerberos_external: false
+        jupyterhub_user: "jupyterhub"
+        jupyterhub_group: "jupyterhub"
+        hdfs_user: "hdfs"
+        hdfs_group: "hadoop"
+        yarn_user: "yarn"
+        yarn_group: "hadoop"
+        self_signed_certificates: true
+        domain: "example.com"
+        ldap_organization: "dc=example,dc=com"
+        keystore_file: "/etc/ssl/private/{{ ansible_fqdn }}.jks"
+        keystore_password: "changeit"
+        truststore_file: "/etc/ssl/certs/truststore.jks"
+        truststore_password: "changeit"
+        keytab_folder: "/etc/keytabs"
+        realm: "COMMUNITY.LAB"
+        ide_services_group: "hadoop"
+        ide_users_group: "ide_users"
+        ide_users_gid: "5001"
+        keytab_user_yarn: "yarn"
+        keytab_user_hdfs: "hdfs"
+        keytab_user_http: "HTTP"
+        keytab_user_jupyter: "jupyterhub"
+        ldap_server_address: "{% for host in groups.ldap | shuffle %}ldaps://{{ host }}.example.com:636{% if not loop.last %},{% endif %}{% endfor %}"
+        ldap_organization: "dc=example,dc=com"
+        ldap_user_search_base: "ou=people,{{ ldap_organization }}"
+        ldap_group_search_base: "ou=groups,{{ ldap_organization }}"
+        ldap_bind_user: "cn=admin,{{ ldap_organization }}"
+        ldap_password: "changeit"
+        ldap_bind_dn_template: "uid={username},{{ ldap_user_search_base }}"
+        jupyterhub_user_password: "changeit"
+        ldap_users: 
+          - name: "teppler"
+            uid_number: 6000
+            gid_number: "{{ ide_users_gid }}"
+            password: albstadt
+          - name: "anolle"
+            uid_number: 6001
+            gid_number: "{{ ide_users_gid }}"
+            password: sigmaringen
+          - name: "gschulz"
+            uid_number: 6002
+            gid_number: "{{ ide_users_gid }}"
+            password: datascience
+      hubs:
+        service_user: "jupyterhub"
+        service_name: "JupyterHub"
+        service_uid: "5001"
+        service_group: "jupyterhub"
+        service_gid: "4001"
+        tls_user: "jupyterhub"
+        tls_group: "jupyterhub"
+        keytab_group: "jupyterhub"
+        cert_file: "/etc/ssl/private/cert.pem"
+        key_file: "/etc/ssl/private/key.pem"
+      loadbalancers:
+        haproxy_admin_password: "changeit"
+        haproxy_pem_file: "/etc/ssl/private/haproxy.pem"
+      ldap:
+        ldap_user: "openldap"
+        ldap_uid: "5001"
+        ldap_group: "openldap"
+        ldap_gid: "4001"
+        service_user: "{{ ldap_user }}"
+        service_name: "OpenLdap"
+        service_uid: "{{ ldap_uid }}"
+        service_group: "{{ ldap_group }}"
+        service_gid: "{{ ldap_gid }}"
+        tls_user: "{{ ldap_user }}"
+        tls_group: "{{ ldap_group }}"
+      resourcemanagers:
+        service_user: "yarn"
+        service_name: "Apache Hadoop"
+        service_uid: "5004"
+        service_group: "hadoop"
+        service_gid: "4001"
+        tls_user: "yarn"
+        tls_group: "hadoop"
+      nodemanagers:
+        service_user: "yarn"
+        service_name: "Apache Hadoop"
+        service_uid: "5004"
+        service_group: "hadoop"
+        service_gid: "4001"
+        tls_user: "yarn"
+        tls_group: "hadoop"
+      postgres:
+        certs_source: 
+          - "/opt/selfsigned/{{ ansible_fqdn }}/cert.pem"
+          - "/opt/selfsigned/{{ ansible_fqdn }}/RootCA.pem"
+          - "/opt/selfsigned/{{ ansible_fqdn }}/key.pem"
+        certs_mode:
+          - "0660"
+          - "0660"
+          - "0400"
+        certs_dest_postgres:
+          - "cert_postgres.pem"
+          - "chain_postgres.pem"
+          - "key_postgres.pem"
+        cert_file_postgres: "/etc/ssl/private/cert_postgres.pem"
+        key_file_postgres: "/etc/ssl/private/key_postgres.pem"
+        chain_file_postgres: "/etc/ssl/private/chain_postgres.pem"
+        postgres_user_password: "changeit"
+        repl_user_password: "changeit"
+        postgres_host: "{{ groups.loadbalancer1[0] + '.' + domain }}"
+        postgres_schemes:
+          - username: "postgres"
+            database: "postgres"
+            password: "{{ postgres_user_password }}"
+            port: 5432
+            hostname: "*"
+          - username: "jupyterhub"
+            database: "jupyterhub"
+            password: "{{ jupyterhub_user_password }}"
+            port: 5432
+            hostname: "*"
+            scheme: "jupyterhub"
+      postgres1:
+        patroni_id: 1
+      postgres2:
+        patroni_id: 2
+      postgres3:
+        patroni_id: 3
+      zookeeper1:
+        zookeeper_id: 1

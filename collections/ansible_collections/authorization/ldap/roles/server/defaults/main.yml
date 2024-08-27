@@ -14,15 +14,15 @@ server_ldap_slapd_debconf:
   - question: "slapd/unsafe_selfwrite_acl"
     value: "note"
   - question: "slapd/purge_database"
-    value: true
+    value: "true"
   - question: "slapd/domain"
     value: "{{ domain }}"
   - question: "slapd/ppolicy_schema_needs_update"
     value: "abort installation"
   - question: "slapd/invalid_config"
-    value: true
+    value: "true"
   - question: "slapd/move_old_database"
-    value: false
+    value: "false"
   - question: "slapd/backend"
     value: "MDB"
   - question: "shared/organization"
@@ -30,7 +30,7 @@ server_ldap_slapd_debconf:
   - question: "slapd/dump_database_destdir"
     value: "/var/backups/slapd-VERSION"
   - question: "slapd/no_configuration"
-    value: false
+    value: "false"
   - question: "slapd/dump_database"
     value: "when needed"
   - question: "slapd/password_mismatch"

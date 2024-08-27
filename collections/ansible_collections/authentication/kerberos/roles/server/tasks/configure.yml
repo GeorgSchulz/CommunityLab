@@ -18,4 +18,4 @@
   failed_when: false
 
 - name: Create database
-  ansible.builtin.command: "kdb5_util create -s -P {{ realm_password }}"
+  ansible.builtin.command: "kdb5_util create -s -P {{ setup_realm_password }}"

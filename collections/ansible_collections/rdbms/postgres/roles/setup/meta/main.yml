@@ -1,0 +1,3 @@
+dependencies:
+  - name: rdbms.postgres.install
+  - name: rdbms.postgres.schemes

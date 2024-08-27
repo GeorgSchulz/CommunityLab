@@ -1,3 +1,0 @@
-cluster_zookeeper_version: "3.9.2"
-cluster_zookeeper_data_dir: "/var/zookeeper"
-cluster_zookeeper_log_dir: "/var/log/zookeeper"

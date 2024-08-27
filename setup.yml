@@ -3,7 +3,7 @@
 ################################################################################################################
 
 - name: Check if mandatory variables in group_vars/all.yml are defined
-  hosts: ansible
+  hosts: localhost
   tags:
     - preflight
   roles:
@@ -18,14 +18,16 @@
 #################################################################################################################
 
 - name: Set hostnames for all hosts
-  hosts: all,!ansible
+  hosts: all
   become: true
   tags:
     - hostname
   tasks:
     - name: Set hostnames and fqdn for all hosts on global level
       ansible.builtin.shell: "hostnamectl set-hostname {{ inventory_hostname }}"
-      when: custom_inventory_file is not defined
+      when: 
+        - custom_inventory_file is defined
+        - custom_inventory_file == false
 
     - name: Reboot all servers
       ansible.builtin.reboot:
@@ -35,7 +37,9 @@
         pre_reboot_delay: 0
         post_reboot_delay: 30
         test_command: whoami
-      when: custom_inventory_file is not defined
+      when:
+        - custom_inventory_file is defined
+        - custom_inventory_file == false
 
 #################################################################################################################
 ###########                    Set hostnames for all hosts in Hetzner Cloud                            ##########
@@ -46,7 +50,7 @@
 ################################################################################################################
 
 - name: Setup environment for hosts
-  hosts: all,!ansible
+  hosts: all
   become: true
   tags:
     - environment
@@ -62,12 +66,14 @@
 ################################################################################################################
 
 - name: Setup TLS for hosts
-  hosts: all,!ansible
+  hosts: all
   tags:
     - tls
   roles:
-    - name: tls.certs.common
-      when: tls_external is not defined
+    - name: tls.certs.setup
+      when:
+        - tls_external is defined
+        - tls_external == false
 
 ################################################################################################################
 ##########                              Setup TLS preparation                                         ##########
@@ -78,26 +84,30 @@
 ################################################################################################################
 
 - name: Install and configure LDAP server and database
-  hosts: securities
+  hosts: ldap
   become: true
   tags:
     - ldap
     - ldap_server
   roles:
     - name: authorization.ldap.setup
-      when: ldap_external is not defined
+      when: 
+        - ldap_external is defined
+        - ldap_external == false
 
 - name: Install and configure LDAP client
-  hosts: all,!ansible,!securities
+  hosts: all,!ldap
   become: true
   tags:
     - ldap
     - ldap_client
   roles:
     - name: authorization.ldap.client
-      when: ldap_external is not defined
+      when: 
+        - ldap_external is defined
+        - ldap_external == false
 
-################################################################################################################
+##########################I######################################################################################
 ##########                                   Setup LDAP                                               ##########
 ################################################################################################################
 
@@ -106,13 +116,15 @@
 ################################################################################################################
 
 - name: Install and configure Kerberos server
-  hosts: securities
+  hosts: kerberos
   become: true
   tags:
     - kerberos
   roles:
     - name: authentication.kerberos.setup
-      when: kerberos_external is not defined
+      when: 
+        - kerberos_external is defined
+        - kerberos_external == false
 
 ################################################################################################################
 ##########                              Setup Kerberos server                                         ##########
@@ -123,7 +135,7 @@
 ################################################################################################################
 
 - name: Install and configure Zookeeper cluster
-  hosts: masters
+  hosts: zookeeper
   become: true
   tags:
     - zookeeper
@@ -139,7 +151,7 @@
 ################################################################################################################
 
 - name: Install and configure HDFS Namenodes
-  hosts: masters
+  hosts: namenodes
   become: true
   tags:
     - hadoop
@@ -154,7 +166,7 @@
     - name: hadoop.hdfs.namenode
 
 - name: Install and configure HDFS Datanodes
-  hosts: workers
+  hosts: datanodes
   become: true
   tags:
     - hadoop
@@ -165,7 +177,7 @@
     - name: hadoop.hdfs.datanode
 
 - name: Check HDFS is running and healthy
-  hosts: master1
+  hosts: namenode1
   become: true
   become_user: "{{ hdfs_user }}"
   tags:
@@ -184,7 +196,7 @@
 ################################################################################################################
 
 - name: Install and configure YARN resourcemanager
-  hosts: masters
+  hosts: resourcemanagers
   become: true
   tags:
     - hadoop
@@ -194,7 +206,7 @@
     - name: hadoop.yarn.resourcemanager
 
 - name: Install and configure YARN nodemanager
-  hosts: workers
+  hosts: nodemanagers
   become: true
   tags:
     - hadoop
@@ -204,7 +216,7 @@
     - name: hadoop.yarn.nodemanager
 
 - name: Check YARN is running and healthy
-  hosts: master1
+  hosts: resourcemanager1
   become: true
   become_user: "{{ yarn_user }}"
   tags:
@@ -223,7 +235,7 @@
 ################################################################################################################
 
 - name: Install Spark common libs
-  hosts: workers
+  hosts: spark
   become: true
   tags:
     - spark
@@ -253,13 +265,13 @@
         - jupyterhub_domain_ip is defined
 
 - name: Install PostgreSQL HA cluster on Worker Nodes as Backend for JupyterHub
-  hosts: workers
+  hosts: postgres
   become: true
   tags:
     - jupyter
     - postgres
   roles:
-    - name: rdbms.postgres.cluster
+    - name: rdbms.postgres.setup
 
 - name: Install JupyterHub
   hosts: hubs
@@ -268,12 +280,10 @@
     - jupyter
     - jupyterhub
   roles:
-    - name: jupyter.hub.install
-    - name: jupyter.hub.configure
-    - name: jupyter.hub.service
+    - name: jupyter.hub.setup
 
 - name: Install JupyterLab
-  hosts: workers
+  hosts: jupyterlab
   become: true
   tags:
     - jupyter

@@ -1,0 +1,6 @@
+---
+- name: Setup Apache Spark common libs
+  hosts: spark
+  gather_facts: true
+  roles:
+    - name: bigdata.spark.common

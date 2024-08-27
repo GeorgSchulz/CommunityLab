@@ -1,6 +1,6 @@
 dependencies:
   - name: ide.environment.variables
   - name: authentication.kerberos.client
-    when: kerberos_external is not defined
-  - name: authentication.kerberos.keytab
-    when: kerberos_external is not defined
+    when: 
+      - kerberos_external is defined
+      - kerberos_external == false

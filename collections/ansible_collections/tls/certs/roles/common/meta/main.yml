@@ -1,6 +1,0 @@
-dependencies:
-  - name: ide.environment.variables
-  - name: tls.certbot.issue
-  - name: tls.certbot.distribute
-  - name: tls.java.keystore
-  - name: tls.java.truststore

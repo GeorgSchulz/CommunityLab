@@ -9,8 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - communitylab#26: Error handling in Conda Package Manager
 
+## [v1.4.0] - 2024-08-27
+
 ### Added
 
+- communitylab#46: Testing Ansible Collections using Ansible Molecule
 - communitylab#44: Use Ansible Lint on all Ansible Collections
 - communitylab#35: Upgrading to Apache Hadoop 3.4.0
 - communitylab#37: Upgrading to Apache Zookeeper 3.9.2

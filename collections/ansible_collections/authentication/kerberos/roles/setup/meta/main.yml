@@ -6,4 +6,3 @@ dependencies:
   - name: authentication.kerberos.check
     tags:
       - check
-    when: groups.securities | length == 2

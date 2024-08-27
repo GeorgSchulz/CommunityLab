@@ -1,8 +1,15 @@
 dn: cn=config
 changetype: modify
+{% if self_signed_certificates is defined and self_signed_certificates == "false" %}
 add: olcTLSCACertificateFile
 olcTLSCACertificateFile: /etc/ssl/private/chain.pem
 -
+{% endif %}
+{% if self_signed_certificates is defined and self_signed_certificates == "true" %}
+add: olcTLSCACertificateFile
+olcTLSCACertificateFile: /etc/ssl/private/cert.pem
+-
+{% endif %}
 add: olcTLSCertificateFile
 olcTLSCertificateFile: /etc/ssl/private/cert.pem
 -

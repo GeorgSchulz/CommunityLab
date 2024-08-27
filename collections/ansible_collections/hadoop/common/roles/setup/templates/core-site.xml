@@ -19,11 +19,11 @@
 <configuration>
     <property>
        <name>fs.defaultFS</name>
-       <value>hdfs://{{ groups.master1[0] }}</value>	
+       <value>hdfs://{{ groups.namenode1[0] + '.' + domain if molecule_deployment is defined and molecule_deployment else groups.namenode1[0] }}</value>
     </property>	
     <property>
        <name>fs.default.name</name>
-       <value>hdfs://{{ groups.master1[0] }}</value>	
+       <value>hdfs://{{ groups.namenode1[0] + '.' + domain if molecule_deployment is defined and molecule_deployment else groups.namenode1[0] }}</value>
     </property>	
     <property>
       <name>hadoop.rpc.protection</name>
@@ -39,7 +39,7 @@
     </property>
     <property>
       <name>ha.zookeeper.quorum</name>
-      <value>{% for host in groups.masters %}{{ host }}:2281{% if not loop.last %},{% endif %}{% endfor %}</value>
+      <value>{% for host in groups.zookeeper %}{{ host }}.{{ domain }}:2281{% if not loop.last %},{% endif %}{% endfor %}</value>
     </property>
     <property>
       <name>ha.zookeeper.acl</name>
@@ -198,6 +198,14 @@
     <property>
         <name>hadoop.security.group.mapping.ldap.ssl.keystore.password</name>
 	<value>{{ keystore_password }}</value>
+    </property>
+    <property>
+        <name>hadoop.security.group.mapping.ldap.ssl.truststore</name>
+	<value>{{ truststore_file }}</value>
+    </property>
+    <property>
+        <name>hadoop.security.group.mapping.ldap.ssl.truststore.password</name>
+	<value>{{ truststore_password }}</value>
     </property>
     <property>
         <name>hadoop.security.group.mapping.provider.ad4users.ldap.bind.user</name>

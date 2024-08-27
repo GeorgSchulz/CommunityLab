@@ -6,6 +6,7 @@ miniforge_url=https://github.com/conda-forge/miniforge/releases/latest/download/
 miniforge_base=/opt/miniforge
 miniforge_path=/opt/miniforge/miniforge3
 miniforge_link=/opt/miniforge/miniforge
+conda_env_python_version=3.12
 ansible_vault_file=~/.vault_pass.txt
 
 echo "===================================================================================================================="
@@ -13,58 +14,64 @@ echo "========================      Idempotent installation script for Terraform
 echo "===================================================================================================================="
 echo ""
 
-# Install Terraform if not present
-if command_output=$(terraform -version > /dev/null 2>&1)
+# Install Terraform if not present and $1 is all
+if [ "$1" == "all" ]
 then
-    	echo "Terraform is already installed."
-    	echo ""
-	echo "Using Terraform version:"
-	echo ""
-    	terraform -version
-	echo ""
-else
-    	echo "Terraform is not installed."
-	echo ""
+        if command_output=$(terraform -version > /dev/null 2>&1)
+	then
+    		echo "Terraform is already installed."
+    		echo ""
+		echo "Using Terraform version:"
+		echo ""
+    		terraform -version
+		echo ""
+	else
+    		echo "Terraform is not installed."
+		echo ""
 
-   	sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
-        wget -O- https://apt.releases.hashicorp.com/gpg | \
-	gpg --dearmor | \
-	sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
-	echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
-	https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
-	sudo tee /etc/apt/sources.list.d/hashicorp.list
-	sudo apt update
-	sudo apt-get install terraform
+   		sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+        	wget -O- https://apt.releases.hashicorp.com/gpg | \
+		gpg --dearmor | \
+		sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
+		echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+		https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+		sudo tee /etc/apt/sources.list.d/hashicorp.list
+		sudo apt update
+		sudo apt-get install terraform
     	
-	echo "Successfully installed Terraform."
-    	echo ""
-	echo "Using Terraform version:"
-    	terraform -version
-	echo ""
+		echo "Successfully installed Terraform."
+    		echo ""
+		echo "Using Terraform version:"
+    		terraform -version
+		echo ""
+	fi
 fi
 
-# Install Go if not present
-if command_output=$(go version > /dev/null 2>&1)
+# Install Go if not present and $1 is all
+if [ "$1" == "all" ]
 then
-    	echo "Go is already installed."
-    	echo ""
-	echo "Using Go version:"
-	echo ""
-    	go version
-	echo ""
-else
-    	echo "Go is not installed."
-	echo ""
-
-   	sudo apt-get update && sudo apt-get install -y golang-go
-    	
-	echo "Successfully installed Go."
-    	echo ""
-	echo "Using Go version:"
-    	go version
-	echo ""
+        if command_output=$(go version > /dev/null 2>&1)
+	then
+	    	echo "Go is already installed."
+	    	echo ""
+		echo "Using Go version:"
+		echo ""
+	    	go version
+		echo ""
+	else
+	    	echo "Go is not installed."
+		echo ""
+	
+	   	sudo apt-get update && sudo apt-get install -y golang-go
+	    	
+		echo "Successfully installed Go."
+	    	echo ""
+		echo "Using Go version:"
+	    	go version
+		echo ""
+	fi
 fi
-
+	
 # Install Ansible if not present
 if command_output=$(ansible --version > /dev/null 2>&1)
 then
@@ -99,9 +106,9 @@ else
 		# Install Ansible using Miniforge
         	bash /tmp/$miniforge_script -b -p $miniforge_path
         	source $miniforge_path/etc/profile.d/conda.sh
-        	conda create -n ansible python=3.9 -y
+        	conda create -n ansible python=$conda_env_python_version -y
         	conda activate ansible
-        	conda install -c conda-forge ansible -y
+        	conda install -c conda-forge ansible ansible-lint molecule -y
         	conda deactivate
         	ln -s $miniforge_path $miniforge_link
 EOF

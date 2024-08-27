@@ -1,0 +1,89 @@
+---
+- name: Create
+  hosts: localhost
+  gather_facts: false
+  vars:
+    molecule_inventory:
+      all:
+        hosts: {}
+        molecule: {}
+  tasks:
+    - name: Create docker network
+      docker_network:
+        name: example.com
+        ipam_config:
+          - subnet: "172.23.27.0/24"
+            gateway: "172.23.27.2"
+            iprange: "172.23.27.0/26"
+    
+    - name: Create container
+      become: true
+      community.docker.docker_container:
+        name: "{{ item.name }}"
+        image: "{{ item.image }}"
+        state: started
+        command: "{{ item.command }}"
+        log_driver: json-file
+        publish_all_ports: true
+        cgroupns_mode: "{{ item.cgroupns_mode }}"
+        privileged: "{{ item.privileged }}"
+        volumes: "{{ item.volumes }}"
+        networks:
+          - name: example.com
+            ipv4_address: "{{ item.ipv4_address }}"
+        hostname: "{{ item.name }}.example.com"
+        tls_hostname: "{{ item.name }}.example.com"
+        capabilities:
+          - NET_ADMIN
+      register: result
+      loop: "{{ molecule_yml.platforms }}"
+
+    - name: Fail if container is not running
+      when: >
+        item.container.State.ExitCode != 0 or
+        not item.container.State.Running
+      ansible.builtin.include_tasks:
+        file: create-fail.yml
+      loop: "{{ result.results }}"
+      loop_control:
+        label: "{{ item.container.Name }}"
+
+    - name: Add container to molecule_inventory
+      vars:
+        inventory_partial_yaml: |
+          all:
+            children:
+              spark:
+                hosts:
+                  "{{ item.name }}":
+                    ansible_connection: community.docker.docker
+      ansible.builtin.set_fact:
+        molecule_inventory: >
+          {{ molecule_inventory | combine(inventory_partial_yaml | from_yaml, recursive=true) }}
+      loop: "{{ molecule_yml.platforms }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Dump molecule_inventory
+      ansible.builtin.copy:
+        content: |
+          {{ molecule_inventory | to_yaml }}
+        dest: "{{ molecule_ephemeral_directory }}/inventory/molecule_inventory.yml"
+        mode: "0600"
+
+    - name: Force inventory refresh
+      ansible.builtin.meta: refresh_inventory
+
+# we want to avoid errors like "Failed to create temporary directory"
+- name: Validate that inventory was refreshed
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Check uname
+      ansible.builtin.raw: uname -a
+      register: result
+      changed_when: false
+
+    - name: Display uname info
+      ansible.builtin.debug:
+        msg: "{{ result.stdout }}"
