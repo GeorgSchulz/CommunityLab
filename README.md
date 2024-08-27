@@ -2,7 +2,7 @@
 
 _CommunityLab_ is an Open-Source ready to use configuration system like Amazon Elastic MapReduce (EMR) and Azure Hadoop Insight (HDInsight).
 
-Build your own high available and scalable Open-Source IDE using Ansible. The relevant Ansible Collections of the IDE are tested using [Ansible Molecule]((https://ansible.readthedocs.io/projects/molecule/).
+Build your own high available and scalable Open-Source IDE using Ansible. The relevant Ansible Collections of the IDE are tested using [Ansible Molecule](https://ansible.readthedocs.io/projects/molecule/).
 
 Following components are used:
 
