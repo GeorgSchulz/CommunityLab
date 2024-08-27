@@ -1,2 +1,2 @@
 packages_environment_apt:
-  - "openjdk-11-jre"
+  - "systemctl"

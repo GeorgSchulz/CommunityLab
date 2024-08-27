@@ -1,9 +1,9 @@
 scope: "postgres_cluster"
-name: "patroni_{{ hostvars[inventory_hostname].patroni_id }}"
+name: "patroni_{{ patroni_id }}"
 
 restapi:
-  listen: "{{ inventory_hostname }}:8008"
-  connect_address: "{{ inventory_hostname }}:8008"
+  listen: "{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}:8008"
+  connect_address: "{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}:8008"
   authentication:
     username: "postgres"
     password: "{{ postgres_user_password }}"
@@ -18,7 +18,7 @@ restapi:
     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
 
 zookeeper:
-  hosts: "{%for host in groups.masters %}{{ host }}:2281{% if not loop.last %},{% endif %}{% endfor %}"
+  hosts: "{% for host in groups.zookeeper %}{{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }}:2281{% if not loop.last %},{% endif %}{% endfor %}"
   use_ssl: true
   cacert: "{{ chain_file_postgres }}"
   cert: "{{ cert_file_postgres }}"
@@ -46,25 +46,27 @@ bootstrap:
   - encoding: UTF8
 
   pg_hba:
-{%for host in groups.workers %}
-    - host postgres postgres {{ host }} scram-sha-256
+{%for host in groups.postgres %}
+    - host postgres postgres {{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }} scram-sha-256
 {% endfor %}
-{%for host in groups.workers %}
-    - hostssl postgres postgres {{ host }} scram-sha-256
+{%for host in groups.postgres %}
+    - hostssl postgres postgres {{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }} scram-sha-256
 {% endfor %}
-{%for host in groups.workers %}
-    - hostssl replication repl {{ host }} scram-sha-256
+{%for host in groups.postgres %}
+    - hostssl replication repl {{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }} scram-sha-256
 {% endfor %}
     - hostssl all         all         0.0.0.0/0  scram-sha-256
-{%for host in groups.hubs %}
-    - host postgres postgres {{ host }} scram-sha-256
+{% for host in groups.loadbalancers %}
+    - host postgres postgres {{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }} scram-sha-256
 {% endfor %}
-{%for host in groups.hubs %}
-    - host jupyterhub jupyterhub {{ host }} scram-sha-256
+{% if groups.hubs is defined %}
+{% for host in groups.hubs %}
+    - host jupyterhub jupyterhub {{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }} scram-sha-256
 {% endfor %}
-{%for host in groups.hubs %}
-    - hostssl jupyterhub jupyterhub {{ host }} scram-sha-256
+{% for host in groups.hubs %}
+    - hostssl jupyterhub jupyterhub {{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }} scram-sha-256
 {% endfor %}
+{% endif %}
 
   users:
     postgres:
@@ -78,8 +80,8 @@ bootstrap:
         - replication
 
 postgresql:
-  listen: "{{ inventory_hostname }}:5432"
-  connect_address: "{{ inventory_hostname }}:5432"
+  listen: "{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}:5432"
+  connect_address: "{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}:5432"
   data_dir: "/var/lib/postgresql/16/main"
   config_dir: "/etc/postgresql/16/main"
   bin_dir: "/usr/lib/postgresql/16/bin"
@@ -92,25 +94,27 @@ postgresql:
       password: "{{ postgres_user_password }}"
   parameters:
   pg_hba:
-{%for host in groups.workers %}
-      - host postgres postgres {{ host }} scram-sha-256
+{% for host in groups.postgres %}
+      - host postgres postgres {{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }} scram-sha-256
 {% endfor %}
-{%for host in groups.workers %}
-      - hostssl postgres postgres {{ host }} scram-sha-256
+{% for host in groups.postgres %}
+      - hostssl postgres postgres {{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }} scram-sha-256
 {% endfor %}
-{%for host in groups.workers %}
-      - hostssl replication repl {{ host }} scram-sha-256
+{% for host in groups.postgres %}
+      - hostssl replication repl {{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }} scram-sha-256
 {% endfor %}
       - hostssl all         all         0.0.0.0/0  scram-sha-256
-{%for host in groups.hubs %}
-      - host postgres postgres {{ host }} scram-sha-256
+{% for host in groups.loadbalancers %}
+      - host postgres postgres {{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }} scram-sha-256
 {% endfor %}
-{%for host in groups.hubs %}
-      - host jupyterhub jupyterhub {{ host }} scram-sha-256
+{% if groups.hubs is defined %}
+{% for host in groups.hubs %}
+      - host jupyterhub jupyterhub {{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }} scram-sha-256
 {% endfor %}
-{%for host in groups.hubs %}
-      - hostssl jupyterhub jupyterhub {{ host }} scram-sha-256
+{% for host in groups.hubs %}
+      - hostssl jupyterhub jupyterhub {{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }} scram-sha-256
 {% endfor %}
+{% endif %}
   ssl: on
   ssl_cert_file: "{{ cert_file_postgres }}"
   ssl_key_file: "{{ key_file_postgres }}"

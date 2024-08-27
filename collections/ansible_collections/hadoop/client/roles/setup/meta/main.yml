@@ -1,0 +1,3 @@
+dependencies:
+  - name: tls.java.common
+  - name: ide.environment.variables

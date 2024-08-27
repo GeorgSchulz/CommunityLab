@@ -22,7 +22,7 @@
   failed_when: ldapadd.rc not in [0,68]
 
 - name: Create group for IDE users
-  ansible.builtin.command: "ldapadd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/group.ldif"
+  ansible.builtin.command: "ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/group.ldif"
   register: ldapadd
   failed_when: ldapadd.rc not in [0,68]
 

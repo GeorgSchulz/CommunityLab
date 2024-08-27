@@ -1,7 +1,7 @@
 - name: Installation for only one kerberos server
   ansible.builtin.include_tasks: setup-kerberos-server.yml
-  when: groups.securities | length == 1
+  when: groups.kerberos | length == 1
 
 - name: Installation for two kerberos server
   ansible.builtin.include_tasks: setup-kerberos-server-ha.yml
-  when: groups.securities | length == 2
+  when: groups.kerberos | length == 2

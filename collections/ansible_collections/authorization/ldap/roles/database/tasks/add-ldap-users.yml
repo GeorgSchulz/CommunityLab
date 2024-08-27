@@ -12,9 +12,9 @@
 
 - name: Add specific IDE user
   failed_when: ldapadd.rc not in [0,68]
-  ansible.builtin.command: "ldapadd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/user.ldif"
+  ansible.builtin.command: "ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/user.ldif"
   register: ldapadd
 
 - name: Set password for specific IDE user
-  ansible.builtin.command: "ldappasswd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
+  ansible.builtin.command: "ldappasswd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
                             -s {{ item.password }} uid={{ item.name }},ou=people,{{ ldap_organization }}"

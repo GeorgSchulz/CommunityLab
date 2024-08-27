@@ -1,5 +1,5 @@
 - name: Create postgres user and schemes
   ansible.builtin.include_tasks: create-user-and-schemes.yml
-  loop: "{{ postgres }}"
+  loop: "{{ postgres_schemes }}"
   loop_control:
     label: "{{ item.username }}"

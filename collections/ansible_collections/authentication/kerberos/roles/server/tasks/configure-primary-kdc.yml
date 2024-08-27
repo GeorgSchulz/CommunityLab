@@ -38,16 +38,16 @@
 
 - name: Create LDAP entries for the Kerberos administrative entities that will contact the OpenLDAP server
   failed_when: ldap_add.rc not in [0,68]
-  ansible.builtin.command: "ldapadd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
+  ansible.builtin.command: "ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
                             -f /tmp/krb5_administrative_entities.ldif"
   register: ldap_add
 
 - name: Set password for 'uid=kdc-service,{{ ldap_organization }}'
-  ansible.builtin.command: "ldappasswd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
+  ansible.builtin.command: "ldappasswd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
                             -s {{ ldap_kdc_service_password }} uid=kdc-service,{{ ldap_organization }}"
 
 - name: Set password for 'uid=kadmin-service,{{ ldap_organization }}'
-  ansible.builtin.command: "ldappasswd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
+  ansible.builtin.command: "ldappasswd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
                             -s {{ ldap_kadmin_service_password }} uid=kadmin-service,{{ ldap_organization }}"
 
 - name: Copy kerberos_ldap_acls.ldif to /tmp

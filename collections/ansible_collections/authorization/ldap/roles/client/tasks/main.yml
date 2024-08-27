@@ -8,12 +8,19 @@
     - "libpam-sss"
     - "libnss-sss"
 
-- name: Configure TLS_CACERT in /etc/ldap/ldap.conf
-  ansible.builtin.lineinfile:
-    path: '/etc/ldap/ldap.conf'
-    regexp: '^.*TLS_CACERT'
-    line: 'TLS_CACERT	/etc/ssl/private/chain.pem'
-    state: present
+- name: Create directory /etc/ldap if not present
+  ansible.builtin.file:
+    path: "/etc/ldap"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+- name: Configure ldap.conf
+  ansible.builtin.template:
+    src: "ldap.conf"
+    dest: "/etc/ldap/ldap.conf"
+    mode: "0644"
 
 - name: Configure /etc/nsswitch and pam files for sssd
   ansible.builtin.command: "pam-auth-update --enable mkhomedir"
@@ -27,17 +34,17 @@
     mode: "0600"
 
 - name: Enable sssd service
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "sssd.service"
     enabled: true
     daemon_reload: true
 
 - name: Stop sssd service
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "sssd.service"
     state: stopped
 
 - name: Start sssd service
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "sssd.service"
     state: started

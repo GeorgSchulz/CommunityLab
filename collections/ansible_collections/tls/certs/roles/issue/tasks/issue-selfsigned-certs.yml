@@ -1,0 +1,75 @@
+- name: Set fact for no root user - use command to avoid ansible_fact_caching for root user
+  become: false
+  ansible.builtin.command: "whoami"
+  register: no_root_user
+
+- name: Create folder for certificate and key
+  delegate_to: localhost
+  run_once: true
+  become: true
+  ansible.builtin.file:
+    path: "/opt/selfsigned"
+    state: directory
+    owner: "{{ no_root_user.stdout }}"
+    mode: "0755"
+
+- name: Check if certificate and key are already present on ansible server
+  delegate_to: localhost
+  ansible.builtin.stat:
+    path: "/opt/selfsigned/{{ ansible_fqdn }}"
+  register: cert_dir
+
+- name: Issue and fetch certificates only if not present on ansible server
+  become: true
+  when: not cert_dir.stat.exists
+  block:
+    - name: Create CA Key
+      ansible.builtin.command: "openssl genrsa -out /tmp/RootCA.key 4096"
+    
+    - name: Create Root CA
+      ansible.builtin.command: "openssl req -x509 -new -nodes -key /tmp/RootCA.key -sha256 -days 365 \
+                                -out /tmp/RootCA.pem -subj '/CN=Root CA/C=GE/ST=Hessen/L=Kassel/O=FreelancerMap'"
+
+    - name: Install ca-certificates
+      ansible.builtin.apt:
+        name: "ca-certificates"
+        state: present
+        update_cache: true
+
+    - name: Copy Root CA to /usr/local/share/ca-certificates/
+      ansible.builtin.copy:
+        src: "/tmp/RootCA.pem"
+        dest: "/usr/local/share/ca-certificates/RootCA.crt"
+        remote_src: true
+        owner: "root"
+        group: "root"
+        mode: "0644"
+
+    - name: Update ca-certificates
+      ansible.builtin.command: "update-ca-certificates"
+    
+    - name: Create cert for host
+      ansible.builtin.command: "openssl req -new -nodes -out /tmp/{{ ansible_fqdn }}.csr -newkey rsa:4096 -keyout /tmp/{{ ansible_fqdn }}.key \
+                                -subj '/CN={{ ansible_fqdn }}/C=GE/ST=Hessen/L=Kassel/O=FreelancerMap'"
+    
+    - name: Sign cert for host
+      ansible.builtin.command: "openssl x509 -req -in /tmp/{{ ansible_fqdn }}.csr -CA /tmp/RootCA.pem -CAkey /tmp/RootCA.key \
+                                -CAcreateserial -out /tmp/{{ ansible_fqdn }}.crt -days 730 -sha256"
+
+    - name: Create folder for host on ansible server
+      delegate_to: localhost
+      ansible.builtin.file:
+        path: "/opt/selfsigned/{{ ansible_fqdn }}"
+        state: directory
+        owner: "{{ no_root_user.stdout }}"
+        mode: "0777"
+    
+    - name: Fetch self signed certificate and key to ansible server
+      become: true
+      ansible.builtin.fetch:
+        src: "/tmp/{{ item.0 }}"
+        dest: "/opt/selfsigned/{{ ansible_fqdn }}/{{ item.1 }}"
+        flat: true
+      with_together:
+        - ["{{ ansible_fqdn }}.crt","RootCA.pem","{{ ansible_fqdn }}.key"]
+        - ["cert.pem","RootCA.pem","key.pem"]

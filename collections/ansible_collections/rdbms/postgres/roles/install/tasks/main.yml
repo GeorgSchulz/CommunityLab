@@ -12,20 +12,20 @@
           - "python3-psycopg2"
           - "acl"
         state: present
+        update_cache: true
 
-    - name: Set up PostgreSQL 16 repo
-      ansible.builtin.copy:
-        content: "deb http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
-        dest: "/etc/apt/sources.list.d/pgdg.list"
-        mode: "0644"
-
-    - name: Add apt signing key
-      ansible.builtin.apt_key:
+    - name: Install PostgreSQL 16 key
+      ansible.builtin.get_url:
         url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
-        state: present
+        dest: "/etc/apt/trusted.gpg.d/postgresql.asc"
 
+    - name:  Add PostgreSQL 16 repository
+      ansible.builtin.apt_repository:
+        repo:  "deb [signed-by=/etc/apt/trusted.gpg.d/postgresql.asc] http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
+        state: present
+        update_cache: yes
+    
     - name: Install PostgreSQL 16
-      failed_when: false
       ansible.builtin.apt:
         name: "postgresql-16"
         state: present
@@ -60,7 +60,7 @@
 - name: Copy .pgpass file to postgres home directory
   ansible.builtin.copy:
     content: |
-      {% for item in postgres %}
+      {% for item in postgres_schemes %}
       {{ item.hostname }}:{{ item.port }}:{{ item.database }}:{{ item.username }}:{{ item.password }}
       {% endfor %}
     dest: "/var/lib/postgresql/.pgpass"
@@ -68,20 +68,21 @@
     group: "postgres"
     mode: "0400"
 
-- name: Add postgres user to group ssl-cert
-  ansible.builtin.user:
-   name: "postgres"
-   group: "postgres"
-   shell: "/bin/bash"
-   groups: "ssl-cert"
-   append: true
+- name: change ownership of /etc/ssl/private to postgres
+  ansible.builtin.file:
+    path: "/etc/ssl/private"
+    owner: "postgres"
+    group: "postgres"
+    state: directory
+    mode: "0750"
+  when: (custom_inventory_file is defined and custom_inventory_file == false) or (tls_external is defined and tls_external == false)
 
 - name: Copy cert, fullchain and private key for PostgreSQL cluster
   ansible.builtin.copy:
     src: "{{ item.0 }}"
     dest: "/etc/ssl/private/{{ item.1 }}"
     owner: "postgres"
-    group: "ssl-cert"
+    group: "postgres"
     mode: "{{ item.2 }}"
   with_together:
     - "{{ certs_source }}"
@@ -89,13 +90,13 @@
     - "{{ certs_mode }}"
   loop_control:
     label: "{{ item.1 }}"
-  when: (custom_inventory_file is not defined) or (tls_external is not defined)
+  when: (custom_inventory_file is defined and custom_inventory_file == false) or (tls_external is defined and tls_external == false)
 
 - name: Change ownership and mode if external TLS is provided
   ansible.builtin.file:
     path: "{{ item.0 }}"
     owner: "postgres"
-    group: "ssl-cert"
+    group: "postgres"
     mode: "{{ item.1 }}"
   with_together:
     - "{{ install_ssl_files }}"
@@ -107,17 +108,6 @@
     - custom_inventory_file
     - tls_external is defined
     - tls_external
-
-- name: Add softdog module
-  community.general.modprobe:
-    name: "softdog"
-    state: present
-
-- name: Change ownership of /dev/watchdog
-  ansible.builtin.file:
-    path: "/dev/watchdog"
-    owner: "postgres"
-    group: "postgres"
 
 - name: Copy patroni.yml
   ansible.builtin.template:
@@ -148,3 +138,19 @@
     src: "patroni.service"
     dest: "/etc/systemd/system/patroni.service"
     mode: "0644"
+
+- name: Enable patroni service
+  ansible.builtin.systemd:
+    name: "patroni.service"
+    enabled: true
+    daemon_reload: true
+
+- name: Stop patroni service
+  ansible.builtin.systemd:
+    name: "patroni.service"
+    state: stopped
+
+- name: Start patroni service
+  ansible.builtin.systemd:
+    name: "patroni.service"
+    state: started

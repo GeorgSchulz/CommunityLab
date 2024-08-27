@@ -1,3 +1,9 @@
+- name: Install git
+  ansible.builtin.apt:
+    name: "git"
+    state: present
+    update_cache: true
+
 - name: Check if jupyterlab environment is already present
   ansible.builtin.stat:
     path: "/opt/miniforge/miniforge/envs/jupyterlab/bin/python"
@@ -72,7 +78,7 @@
   become_user: "{{ hdfs_user }}"
   block:
     - name: Get valid keytab for HDFS user
-      ansible.builtin.command: "kinit -k {{ hdfs_user }}/{{ inventory_hostname }}@{{ realm }} -t {{ keytab_folder }}/{{ hdfs_user }}.keytab"
+      ansible.builtin.command: "kinit -k {{ hdfs_user }}/{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}@{{ realm }} -t {{ keytab_folder }}/{{ hdfs_user }}.keytab"
 
     - name: Set ACL in root folder of HDFS
       ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs dfs -setfacl -m \"group:{{ ide_users_group }}:rwx\" /"

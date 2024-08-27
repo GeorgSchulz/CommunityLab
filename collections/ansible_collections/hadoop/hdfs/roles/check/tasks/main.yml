@@ -1,5 +1,5 @@
 - name: Get valid keytab for HDFS user
-  ansible.builtin.command: "kinit -k hdfs/{{ inventory_hostname }}@{{ realm }} -t {{ keytab_folder }}/hdfs.keytab"
+  ansible.builtin.command: "kinit -k hdfs/{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}@{{ realm }} -t {{ keytab_folder }}/hdfs.keytab"
 
 - name: Block for IDE HA setup
   when:
@@ -22,9 +22,9 @@
 
 - name: Print message depending on hdfs dfsadmin -report output
   ansible.builtin.assert:
-    that: "'Live datanodes ({{ groups.workers | length | int }})' in hdfs_report.stdout"
-    fail_msg: "Not all {{ groups.workers | length | int }} HDFS datanodes are running successfully, check Logs for more information"
-    success_msg: "All {{ groups.workers | length | int }} HDFS datanodes are running"
+    that: "'Live datanodes ({{ groups.datanodes | length | int }})' in hdfs_report.stdout"
+    fail_msg: "Not all {{ groups.datanodes | length | int }} HDFS datanodes are running successfully, check Logs for more information"
+    success_msg: "All {{ groups.datanodes | length | int }} HDFS datanodes are running"
 
 - name: Check if HDFS is writable as HDFS user
   ansible.builtin.shell: |

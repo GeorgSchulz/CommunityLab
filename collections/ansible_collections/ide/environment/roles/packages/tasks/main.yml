@@ -1,4 +1,5 @@
 - name: Install environment apt packages
+  become: true
   ansible.builtin.apt:
     name: "{{ item }}"
     state: present

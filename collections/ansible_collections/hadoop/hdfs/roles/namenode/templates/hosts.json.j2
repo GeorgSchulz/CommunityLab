@@ -1,5 +1,5 @@
 [
-{% for host in groups['workers'] %}
+{% for host in groups['datanodes'] %}
   {
     "hostName": "{{ host }}", "adminState": "NORMAL"
   }{% if not loop.last %},{% endif %}

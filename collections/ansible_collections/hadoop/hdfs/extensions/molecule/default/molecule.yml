@@ -1,0 +1,140 @@
+---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yml
+platforms:
+  - name: instance-1
+    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
+    command: /usr/lib/systemd/systemd
+    pre_build_image: true
+    cgroupns_mode: host
+    ipv4_address: 172.23.27.3
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
+  - name: instance-2
+    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
+    command: /usr/lib/systemd/systemd
+    pre_build_image: true
+    cgroupns_mode: host
+    ipv4_address: 172.23.27.4
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
+  - name: instance-3
+    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
+    command: /usr/lib/systemd/systemd
+    pre_build_image: true
+    cgroupns_mode: host
+    ipv4_address: 172.23.27.5
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
+  - name: instance-4
+    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
+    command: /usr/lib/systemd/systemd
+    pre_build_image: true
+    cgroupns_mode: host
+    ipv4_address: 172.23.27.6
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
+  - name: instance-5
+    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
+    command: /usr/lib/systemd/systemd
+    pre_build_image: true
+    cgroupns_mode: host
+    ipv4_address: 172.23.27.7
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
+provisioner:
+  name: ansible
+  log: false
+  options:
+    vvv: false
+  playbooks:
+    converge: converge.yml
+  inventory:
+    group_vars:
+      all:
+        molecule_deployment: true
+        tls_external: false
+        kerberos_external: false
+        hdfs_user: "hdfs"
+        hdfs_group: "hadoop"
+        self_signed_certificates: true
+        domain: "example.com"
+        ldap_organization: "dc=example,dc=com"
+        keytab_folder: "/etc/keytabs"
+        realm: "COMMUNITY.LAB"
+        ldap_organization: "dc=example,dc=com"
+        ldap_server_address: "{% for host in groups.ldap | shuffle %}ldaps://{{ host }}.example.com:636{% if not loop.last %},{% endif %}{% endfor %}"
+        ldap_organization: "dc=example,dc=com"
+        ldap_user_search_base: "ou=people,{{ ldap_organization }}"
+        ldap_group_search_base: "ou=groups,{{ ldap_organization }}"
+        ldap_bind_user: "cn=admin,{{ ldap_organization }}"
+        ldap_password: "changeit"
+        ldap_bind_dn_template: "uid={username},{{ ldap_user_search_base }}"
+        ide_users_group: "ide_services"
+        ide_users_gid: "4002"
+        ldap_users: 
+          - name: "teppler"
+            uid_number: 6000
+            gid_number: "{{ ide_users_gid }}"
+            password: albstadt
+          - name: "anolle"
+            uid_number: 6001
+            gid_number: "{{ ide_users_gid }}"
+            password: sigmaringen
+          - name: "gschulz"
+            uid_number: 6002
+            gid_number: "{{ ide_users_gid }}"
+            password: datascience
+        ldap_users: 
+          - name: "teppler"
+            uid_number: 6000
+            gid_number: "{{ ide_users_gid }}"
+            password: albstadt
+          - name: "anolle"
+            uid_number: 6001
+            gid_number: "{{ ide_users_gid }}"
+            password: sigmaringen
+          - name: "gschulz"
+            uid_number: 6002
+            gid_number: "{{ ide_users_gid }}"
+            password: datascience
+      ldap:
+        ldap_user: "openldap"
+        ldap_uid: "5001"
+        ldap_group: "openldap"
+        ldap_gid: "4001"
+        service_user: "{{ ldap_user }}"
+        service_name: "OpenLdap"
+        service_uid: "{{ ldap_uid }}"
+        service_group: "{{ ldap_group }}"
+        service_gid: "{{ ldap_gid }}"
+        tls_user: "{{ ldap_user }}"
+        tls_group: "{{ ldap_group }}"
+      namenodes:
+        service_user: "hdfs"
+        service_name: "Apache Hadoop"
+        service_uid: "5003"
+        service_group: "hadoop"
+        service_gid: "4002"
+        tls_user: "hdfs"
+        tls_group: "hadoop"
+      datanodes:
+        service_user: "hdfs"
+        service_name: "Apache Hadoop"
+        service_uid: "5003"
+        service_group: "hadoop"
+        service_gid: "4002"
+        tls_user: "hdfs"
+        tls_group: "hadoop"

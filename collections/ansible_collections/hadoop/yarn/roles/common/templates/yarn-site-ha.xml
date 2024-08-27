@@ -25,9 +25,9 @@
   </property>
   <property>
     <name>yarn.resourcemanager.ha.rm-ids</name>
-    <value>master1,master2,master3</value>
+    <value>{% for host in groups.resourcemanagers %}{{ host }}{% if not loop.last %},{% endif %}{% endfor %}</value>
   </property>
-{% for host in groups['masters'] %} <property>
+{% for host in groups.resourcemanagers %} <property>
     <name>yarn.resourcemanager.hostname.{{ hostvars[host].inventory_hostname_short }}</name>
     <value>{{ host }}</value>
   </property>
@@ -202,7 +202,7 @@
   </property>
   <property>
     <name>yarn.resourcemanager.zk-address</name>
-    <value>{% for host in groups.masters %}{{ host }}:2281{%- if not loop.last %},{% endif %}{% endfor %}</value>
+    <value>{% for host in groups.zookeeper %}{{ host }}:2281{%- if not loop.last %},{% endif %}{% endfor %}</value>
   </property>
   <property>
     <name>yarn.resourcemanager.zk-state-store.parent-path</name>

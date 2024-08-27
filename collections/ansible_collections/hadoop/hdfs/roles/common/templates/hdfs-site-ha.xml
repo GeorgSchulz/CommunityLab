@@ -23,9 +23,9 @@
     </property>
     <property>
         <name>dfs.ha.namenodes.{{ hadoop_nameservice }}</name>
-        <value>{% for host in groups['masters'] | sort %}{{ hostvars[host].inventory_hostname_short }}{% if not loop.last %},{% endif %}{% endfor %}</value>
+        <value>{% for host in groups.namenodes | sort %}{{ hostvars[host].inventory_hostname_short }}{% if not loop.last %},{% endif %}{% endfor %}</value>
     </property>
-{% for host in groups['masters'] %} <property>
+{% for host in groups.namenodes %} <property>
         <name>dfs.namenode.rpc-address.{{ hadoop_nameservice }}.{{ hostvars[host].inventory_hostname_short }}</name>
         <value>{{ host }}:8020</value>
     </property>
@@ -55,7 +55,7 @@
     </property>
     <property>
         <name>dfs.namenode.shared.edits.dir</name>
-        <value>qjournal://{% for host in groups['masters'] %}{{ host }}:8485{% if not loop.last %};{% endif %}{% endfor %}/{{ hadoop_nameservice }}</value>
+        <value>qjournal://{% for host in groups.namenodes %}{{ host }}:8485{% if not loop.last %};{% endif %}{% endfor %}/{{ hadoop_nameservice }}</value>
     </property>
     <property>
         <name>dfs.journalnode.edits.dir</name>

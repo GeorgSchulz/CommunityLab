@@ -1,31 +1,51 @@
+- name: Create Apache Spark group
+  become: true
+  ansible.builtin.group:
+    name: "{{ common_spark_group }}"
+    gid: "{{ common_spark_gid }}"
+    state: present
+
+- name: Create Apache Spark user
+  become: true
+  ansible.builtin.user:
+    name: "{{ common_spark_user }}"
+    comment: "User for Apache Spark"
+    uid: "{{ common_spark_uid }}"
+    group: "{{ common_spark_gid }}"
+    state: present
+    shell: /bin/bash
+
 - name: Create /opt/apache-spark folder
+  become: true
   ansible.builtin.file:
     path: /opt/apache-spark
     state: directory
     mode: "0755"
-    owner: "{{ common_hdfs_user }}"
-    group: "{{ common_hdfs_group }}"
+    owner: "{{ common_spark_user }}"
+    group: "{{ common_spark_group }}"
 
-- name: Get spark tarball
+- name: Get Apache Spark tarball
   ansible.builtin.get_url:
     url: "https://archive.apache.org/dist/spark/spark-{{ common_spark_version }}/\
           spark-{{ common_spark_version }}-bin-hadoop{{ common_spark_hadoop_version }}.tgz"
     dest: "/var/tmp/spark-{{ common_spark_version }}-bin-hadoop{{ common_spark_hadoop_version }}.tgz"
     mode: "0644"
 
-- name: Unpack spark tarball
+- name: Unpack Apache Spark tarball
+  become: true
   ansible.builtin.unarchive:
     copy: false
     src: "/var/tmp/spark-{{ common_spark_version }}-bin-hadoop{{ common_spark_hadoop_version }}.tgz"
     dest: "/opt/apache-spark"
-    owner: "{{ common_yarn_user }}"
-    group: "{{ common_yarn_group }}"
+    owner: "{{ common_spark_user }}"
+    group: "{{ common_spark_group }}"
     creates: "/opt/apache-spark/spark-{{ common_spark_version }}"
 
-- name: Create symbolic link
+- name: Create symbolic link in /opt/apache-spark
+  become: true
   ansible.builtin.file:
     src: "/opt/apache-spark/spark-{{ common_spark_version }}-bin-hadoop{{ common_spark_hadoop_version }}"
     dest: "/opt/apache-spark/spark"
     state: link
-    owner: "{{ common_yarn_user }}"
-    group: "{{ common_yarn_group }}"
+    owner: "{{ common_spark_user }}"
+    group: "{{ common_spark_group }}"

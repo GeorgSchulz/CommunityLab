@@ -1,0 +1,73 @@
+- name: Set fact for no root user - use command to avoid ansible_fact_caching for root user
+  become: false
+  ansible.builtin.command: "whoami"
+  register: no_root_user
+
+- name: Create folder for certificates and keys
+  delegate_to: localhost
+  run_once: true
+  become: true
+  ansible.builtin.file:
+    path: "/opt/letsencrypt"
+    state: directory
+    owner: "{{ no_root_user.stdout }}"
+    mode: "0755"
+
+- name: Check if certificate and key are already present on ansible server
+  delegate_to: localhost
+  ansible.builtin.stat:
+    path: "/opt/letsencrypt/{{ inventory_hostname }}"
+  register: cert_dir
+
+- name: Issue and fetch certificate and key only if not present on ansible server
+  become: true
+  when: not cert_dir.stat.exists
+  block:
+    - name: Install certbot
+      ansible.builtin.apt:
+        name: "certbot"
+        state: present
+        update_cache: true
+
+    - name: Issue certificate and key using certbot when shared IP address for JupyterHub frontend is undefined
+      ansible.builtin.command: "certbot certonly --standalone --preferred-challenges http --agree-tos --email {{ my_email }} -d {{ inventory_hostname }}"
+      when: jupyterhub_domain_ip is not defined
+
+    - name: Issue certificate and key using certbot when shared IP address for JupyterHub frontend is defined
+      when:
+        - jupyterhub_domain_ip is defined
+        - "'hubs' in group_names"
+      block:
+        - name: Install jq
+          ansible.builtin.apt:
+            name: "jq"
+            state: present
+
+        - name: Download scripts for Hetzner DNS challenge
+          ansible.builtin.get_url:
+            url: "{{ item.src }}"
+            dest: "{{ item.dest }}"
+            mode: "0550"
+          loop:
+            - src: "https://raw.githubusercontent.com/dschoeffm/hetzner-dns-certbot/master/certbot-hetzner-auth.sh"
+              dest: "/usr/local/bin/certbot-hetzner-auth.sh"
+            - src: "https://raw.githubusercontent.com/dschoeffm/hetzner-dns-certbot/master/certbot-hetzner-cleanup.sh"
+              dest: "/usr/local/bin/certbot-hetzner-cleanup.sh"
+
+        - name: Copy Hetzner DNS API token to hub servers
+          ansible.builtin.copy:
+            content: "{{ hetznerdns_token }}"
+            dest: "/etc/hetzner-dns-token"
+            mode: "0640"
+
+        - name: Issue certificate and key using DNS challenge on hub servers
+          ansible.builtin.shell: "yes | certbot certonly --manual --preferred-challenges=dns --agree-tos \
+                                  --email {{ my_email }} --manual-auth-hook /usr/local/bin/certbot-hetzner-auth.sh \
+                                  --manual-cleanup-hook /usr/local/bin/certbot-hetzner-cleanup.sh \
+                                  -d {{ inventory_hostname }} -d jupyterhub.{{ domain }}"
+
+    - name: Fetch certificate and key to ansible server
+      ansible.posix.synchronize:
+        src: "/etc/letsencrypt/archive/{{ inventory_hostname }}"
+        dest: "/opt/letsencrypt/"
+        mode: pull

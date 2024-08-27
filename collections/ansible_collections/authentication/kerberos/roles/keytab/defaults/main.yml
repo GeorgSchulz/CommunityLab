@@ -1,1 +1,2 @@
 keytab_user: "{% if keytab.keytab_user is defined %}{{ keytab.keytab_user }}{% else %}{{ keytab.principal }}{% endif %}"
+keytab_group: "{{ ide_services_group | default('root') }}"

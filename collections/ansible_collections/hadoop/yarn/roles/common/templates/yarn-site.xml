@@ -18,23 +18,23 @@
 
   <property>
     <name>yarn.resourcemanager.webapp.address</name>
-    <value>{{ groups.master1[0] }}:8088</value>
+    <value>{{ groups.resourcemanager1[0] + '.' + domain if molecule_deployment is defined and molecule_deployment else groups.resourcemanager1[0] }}:8088</value>
   </property>
   <property>
     <name>yarn.resourcemanager.webapp.https.address</name>
-    <value>{{ groups.master1[0] }}:8090</value>
+    <value>{{ groups.resourcemanager1[0] + '.' + domain if molecule_deployment is defined and molecule_deployment else groups.resourcemanager1[0] }}:8090</value>
   </property>
   <property>
     <name>yarn.resourcemanager.resource-tracker.address</name>
-    <value>{{ groups.master1[0] }}:8031</value>
+    <value>{{ groups.resourcemanager1[0] + '.' + domain if molecule_deployment is defined and molecule_deployment else groups.resourcemanager1[0] }}:8031</value>
   </property>
   <property>
     <name>yarn.resourcemanager.address</name>
-    <value>{{ groups.master1[0] }}:8032</value>
+    <value>{{ groups.resourcemanager1[0] + '.' + domain if molecule_deployment is defined and molecule_deployment else groups.resourcemanager1[0] }}:8032</value>
   </property>
   <property>
     <name>yarn.resourcemanager.scheduler.address</name>
-    <value>{{ groups.master1[0] }}:8030</value>
+    <value>{{ groups.resourcemanager1[0] + '.' + domain if molecule_deployment is defined and molecule_deployment else groups.resourcemanager1[0] }}:8030</value>
   </property>
   <properties>
     <name>yarn.alc.enable</name>

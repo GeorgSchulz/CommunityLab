@@ -1,0 +1,72 @@
+---
+
+- name: Setup environment
+  hosts: all
+  gather_facts: true
+  roles:
+    - name: ide.environment.setup
+
+- name: Setup TLS preparation
+  hosts: all
+  gather_facts: true
+  roles:
+    - name: tls.certs.setup
+
+- name: Setup LDAP server
+  hosts: ldap
+  gather_facts: true
+  roles:
+    - name: authorization.ldap.setup
+
+- name: Setup Kerberos server
+  hosts: kerberos
+  gather_facts: true
+  roles:
+    - name: authentication.kerberos.setup
+
+- name: Setup HDFS installation
+  hosts: namenodes:datanodes
+  gather_facts: true
+  roles:
+    - name: hadoop.common.setup
+    - name: hadoop.hdfs.common 
+
+- name: Setup HDFS namenode
+  hosts: namenodes
+  gather_facts: true
+  roles:
+    - name: hadoop.hdfs.namenode
+
+- name: Setup HDFS datanodes
+  hosts: datanodes
+  gather_facts: true
+  roles:
+    - name: hadoop.hdfs.datanode
+
+- name: Check HDFS is running and healthy
+  hosts: namenode1
+  become: true
+  become_user: "hdfs"
+  roles:
+    - name: hadoop.hdfs.check
+
+- name: Setup YARN resourcemanager
+  hosts: resourcemanagers
+  gather_facts: true
+  roles:
+    - name: hadoop.yarn.common
+    - name: hadoop.yarn.resourcemanager
+
+- name: Setup YARN nodemanagers
+  hosts: nodemanagers
+  gather_facts: true
+  roles:
+    - name: hadoop.yarn.common
+    - name: hadoop.yarn.nodemanager
+
+- name: Check YARN is running and healthy
+  hosts: resourcemanager1
+  become: true
+  become_user: "yarn"
+  roles:
+    - name: hadoop.yarn.check
