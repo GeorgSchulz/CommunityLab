@@ -1,9 +1,7 @@
 # E-mail address that will be used by Certbot for issuing all Let's Encrypt certificates, this is just an example must be a valid address in order for Certbot to issue certificates successfully
-# Used in tls.certs.issue
-my_email: "schulz.georg.1992@web.de"
+my_email: "communitylab@example.com"
 
 # LDAP users to create for IDE usage
-# Used in authorization.ldap.database
 ldap_users: 
   - name: "teppler"
     uid_number: 6000
