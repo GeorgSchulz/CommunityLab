@@ -19,12 +19,13 @@
         dest: "/var/tmp/{{ item }}_cert.pem"
         mode: "0644"
       loop: "{{ groups.all }}"
-    
+
     - name: Import all certs from hosts into /etc/ssl/certs/truststore.jks
-      ansible.builtin.shell: "keytool -import -alias {{ item + '.' + domain if molecule_deployment is defined and molecule_deployment else item }} -keystore /etc/ssl/certs/truststore.jks \
+      ansible.builtin.shell: "keytool -import -alias {{ item + '.' + domain if molecule_deployment is defined and molecule_deployment else item }} \
+                              -keystore /etc/ssl/certs/truststore.jks \
                               -file /var/tmp/{{ item }}_cert.pem -storepass {{ truststore_password }} -noprompt"
       loop: "{{ groups.all }}"
-    
+
     - name: Import chain.pem into /etc/ssl/certs/truststore.jks
       ansible.builtin.shell: "keytool -import -alias {{ domain }}_chain -keystore /etc/ssl/certs/truststore.jks \
                               -file /etc/ssl/private/chain.pem -storepass {{ truststore_password }} -noprompt"

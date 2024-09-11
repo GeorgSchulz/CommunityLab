@@ -1,5 +1,7 @@
 - name: Get valid keytab for HDFS user
-  ansible.builtin.command: "kinit -k hdfs/{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}@{{ realm }} -t {{ keytab_folder }}/hdfs.keytab"
+  ansible.builtin.command: "kinit -k \
+                            hdfs/{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}@{{ realm }} -t \
+                            {{ keytab_folder }}/hdfs.keytab"
 
 - name: Block for IDE HA setup
   when:

@@ -3,6 +3,6 @@
   hosts: zookeeper
   gather_facts: true
   roles:
-    - name: ide.environment.user_and_groups
-    - name: tls.certs.setup
-    - name: bigdata.zookeeper.setup
+    - role: ide.environment.user_and_groups
+    - role: tls.certs.setup
+    - role: bigdata.zookeeper.setup

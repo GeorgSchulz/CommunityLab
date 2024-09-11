@@ -4,48 +4,48 @@
   hosts: all
   gather_facts: true
   roles:
-    - name: ide.environment.setup
+    - role: ide.environment.setup
 
 - name: Setup TLS preparation
   hosts: all
   gather_facts: true
   roles:
-    - name: tls.certs.setup
+    - role: tls.certs.setup
 
 - name: Setup LDAP server
   hosts: ldap
   gather_facts: true
   roles:
-    - name: authorization.ldap.setup
+    - role: authorization.ldap.setup
 
 - name: Setup Kerberos server
   hosts: kerberos
   gather_facts: true
   roles:
-    - name: authentication.kerberos.setup
+    - role: authentication.kerberos.setup
 
 - name: Setup HDFS installation
   hosts: namenodes:datanodes
   gather_facts: true
   roles:
-    - name: hadoop.common.setup
-    - name: hadoop.hdfs.common 
+    - role: hadoop.common.setup
+    - role: hadoop.hdfs.common
 
 - name: Setup HDFS namenode
   hosts: namenodes
   gather_facts: true
   roles:
-    - name: hadoop.hdfs.namenode
+    - role: hadoop.hdfs.namenode
 
 - name: Setup HDFS datanodes
   hosts: datanodes
   gather_facts: true
   roles:
-    - name: hadoop.hdfs.datanode
+    - role: hadoop.hdfs.datanode
 
 - name: Check HDFS is running and healthy
   hosts: namenode1
   become: true
   become_user: "hdfs"
   roles:
-    - name: hadoop.hdfs.check
+    - role: hadoop.hdfs.check

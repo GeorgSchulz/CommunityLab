@@ -4,7 +4,7 @@ _CommunityLab_ is an Open-Source ready to use configuration system like Amazon E
 
 Build your own high available and scalable Open-Source IDE using Ansible. The relevant Ansible Collections of the IDE are tested using [Ansible Molecule](https://ansible.readthedocs.io/projects/molecule/).
 
-Following components are used:
+_CommunityLab_ consists of following components:
 
 | Component        | Version |
 |------------------|---------|
@@ -17,7 +17,7 @@ Following components are used:
 
 Each component can be deployed with Ansible Molecule on your local notebook using Docker Container and self signed certificates (see step 2).
 
-If you want to setup your own VMs for the IDE, you can use Terraform (Hetzner Cloud). The deployment process for Terraform is also tested using [Terratest](https://terratest.gruntwork.io/) (see step 3). 
+If you want to setup your own VMs for the IDE, you can use Terraform (Hetzner Cloud). The deployment process for Terraform is also tested with [Terratest](https://terratest.gruntwork.io/) (see step 3).
 
 If you want to use a different Cloud provider or On-Premises machines you can specify a custom Ansible inventory file (see step 4). 
 

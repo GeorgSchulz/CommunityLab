@@ -85,7 +85,7 @@ provisioner:
       postgres:
         tls_user: "root"
         tls_group: "root"
-        certs_source: 
+        certs_source:
           - "/opt/selfsigned/{{ ansible_fqdn }}/cert.pem"
           - "/opt/selfsigned/{{ ansible_fqdn }}/RootCA.pem"
           - "/opt/selfsigned/{{ ansible_fqdn }}/key.pem"

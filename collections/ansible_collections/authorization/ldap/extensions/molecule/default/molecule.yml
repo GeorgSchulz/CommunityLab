@@ -39,7 +39,6 @@ provisioner:
         tls_group: "{{ ldap_group }}"
         self_signed_certificates: true
         domain: "example.com"
-        ldap_organization: "dc=example,dc=com"
         keystore_file: "/etc/ssl/private/{{ ansible_fqdn }}.jks"
         keystore_password: "changeit"
         truststore_file: "/etc/ssl/certs/truststore.jks"
@@ -51,9 +50,9 @@ provisioner:
         ldap_bind_user: "cn=admin,{{ ldap_organization }}"
         ldap_password: "changeit"
         ldap_bind_dn_template: "uid={username},{{ ldap_user_search_base }}"
-        ide_users_group: "ide_services"
-        ide_users_gid: "4002"
-        ldap_users: 
+        ide_users_group: "ide_users"
+        ide_users_gid: "5001"
+        ldap_users:
           - name: "teppler"
             uid_number: 6000
             gid_number: "{{ ide_users_gid }}"

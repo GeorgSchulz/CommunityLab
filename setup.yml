@@ -25,7 +25,7 @@
   tasks:
     - name: Set hostnames and fqdn for all hosts on global level
       ansible.builtin.shell: "hostnamectl set-hostname {{ inventory_hostname }}"
-      when: 
+      when:
         - custom_inventory_file is defined
         - custom_inventory_file == false
 
@@ -91,7 +91,7 @@
     - ldap_server
   roles:
     - name: authorization.ldap.setup
-      when: 
+      when:
         - ldap_external is defined
         - ldap_external == false
 
@@ -103,7 +103,7 @@
     - ldap_client
   roles:
     - name: authorization.ldap.client
-      when: 
+      when:
         - ldap_external is defined
         - ldap_external == false
 
@@ -122,7 +122,7 @@
     - kerberos
   roles:
     - name: authentication.kerberos.setup
-      when: 
+      when:
         - kerberos_external is defined
         - kerberos_external == false
 

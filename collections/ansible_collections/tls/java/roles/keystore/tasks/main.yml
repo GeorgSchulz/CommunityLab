@@ -19,7 +19,7 @@
         -out /etc/ssl/private/{{ tls_hostname }}.p12 -name {{ tls_hostname }} \
         -CAfile /etc/ssl/private/chain.pem \
         -caname \"Let's Encrypt Authority X3\" -password pass:{{ keystore_password }}"
-    
+
     - name: Generate PKCS 12 archive for building java keystore if CA name is not Let's Encrypt
       when: self_signed_certificates == true
       ansible.builtin.shell: "openssl pkcs12 -export -in /etc/ssl/private/cert.pem -inkey /etc/ssl/private/key.pem \

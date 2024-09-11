@@ -85,7 +85,6 @@ provisioner:
         yarn_group: "hadoop"
         self_signed_certificates: true
         domain: "example.com"
-        ldap_organization: "dc=example,dc=com"
         keystore_file: "/etc/ssl/private/{{ ansible_fqdn }}.jks"
         keystore_password: "changeit"
         truststore_file: "/etc/ssl/certs/truststore.jks"
@@ -107,7 +106,7 @@ provisioner:
         ldap_password: "changeit"
         ldap_bind_dn_template: "uid={username},{{ ldap_user_search_base }}"
         jupyterhub_user_password: "changeit"
-        ldap_users: 
+        ldap_users:
           - name: "teppler"
             uid_number: 6000
             gid_number: "{{ ide_users_gid }}"
@@ -163,7 +162,7 @@ provisioner:
         tls_user: "yarn"
         tls_group: "hadoop"
       postgres:
-        certs_source: 
+        certs_source:
           - "/opt/selfsigned/{{ ansible_fqdn }}/cert.pem"
           - "/opt/selfsigned/{{ ansible_fqdn }}/RootCA.pem"
           - "/opt/selfsigned/{{ ansible_fqdn }}/key.pem"

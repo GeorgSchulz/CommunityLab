@@ -9,13 +9,13 @@
         molecule: {}
   tasks:
     - name: Create docker network
-      docker_network:
+      community.docker.docker_network:
         name: example.com
         ipam_config:
           - subnet: "172.23.27.0/24"
             gateway: "172.23.27.2"
             iprange: "172.23.27.0/26"
-    
+
     - name: Create container
       become: true
       community.docker.docker_container:

@@ -3,4 +3,4 @@
   hosts: kerberos
   gather_facts: true
   roles:
-    - name: authentication.kerberos.setup
+    - role: authentication.kerberos.setup

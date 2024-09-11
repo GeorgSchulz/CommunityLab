@@ -3,4 +3,4 @@
   hosts: spark
   gather_facts: true
   roles:
-    - name: bigdata.spark.common
+    - role: bigdata.spark.common
