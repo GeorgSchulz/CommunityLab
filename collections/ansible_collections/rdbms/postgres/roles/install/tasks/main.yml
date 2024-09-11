@@ -18,13 +18,14 @@
       ansible.builtin.get_url:
         url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
         dest: "/etc/apt/trusted.gpg.d/postgresql.asc"
+        mode: "0644"
 
-    - name:  Add PostgreSQL 16 repository
+    - name: Add PostgreSQL 16 repository
       ansible.builtin.apt_repository:
-        repo:  "deb [signed-by=/etc/apt/trusted.gpg.d/postgresql.asc] http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
+        repo: "deb [signed-by=/etc/apt/trusted.gpg.d/postgresql.asc] http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
         state: present
-        update_cache: yes
-    
+        update_cache: true
+
     - name: Install PostgreSQL 16
       ansible.builtin.apt:
         name: "postgresql-16"
@@ -68,7 +69,7 @@
     group: "postgres"
     mode: "0400"
 
-- name: change ownership of /etc/ssl/private to postgres
+- name: Change ownership of /etc/ssl/private to postgres
   ansible.builtin.file:
     path: "/etc/ssl/private"
     owner: "postgres"

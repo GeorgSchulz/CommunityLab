@@ -1,7 +1,7 @@
 self_signed_certificates: true
 
 # Location of issued self signed certificate and key on localhost - available after Ansible Role tls.certs.issue
-certs_source: 
+certs_source:
   - "/opt/selfsigned/{{ ansible_fqdn }}/cert.pem"
   - "/opt/selfsigned/{{ ansible_fqdn }}/RootCA.pem"
   - "/opt/selfsigned/{{ ansible_fqdn }}/key.pem"

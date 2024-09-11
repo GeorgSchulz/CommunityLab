@@ -2,7 +2,7 @@
 my_email: "communitylab@example.com"
 
 # LDAP users to create for IDE usage
-ldap_users: 
+ldap_users:
   - name: "teppler"
     uid_number: 6000
     gid_number: "{{ ide_users_gid }}"

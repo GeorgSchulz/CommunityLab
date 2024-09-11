@@ -4,7 +4,7 @@
     <name>minimum</name>
   <resource>
     <name>yarn.io/memory</name>
-    <value>1024</value>
+    <value>512</value>
   </resource>
   <resource>
     <name>yarn.io/cpu</name>
@@ -26,18 +26,18 @@
     <name>default</name>
   <resource>
     <name>yarn.io/memory</name>
-    <value>2048</value>
+    <value>512</value>
   </resource>
   <resource>
     <name>yarn.io/cpu</name>
-    <value>2</value>
+    <value>1</value>
   </resource>
   </profile>
     <profile>
     <name>small</name>
   <resource>
     <name>yarn.io/memory</name>
-    <value>1024</value>
+    <value>512</value>
   </resource>
   <resource>
     <name>yarn.io/cpu</name>

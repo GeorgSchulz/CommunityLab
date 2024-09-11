@@ -66,11 +66,11 @@
   </properties>
   <properties>
     <name>yarn.scheduler.minimum-allocation-mb</name>
-    <value>1024</value>
+    <value>512</value>
   </properties>
   <properties>
     <name>yarn.nodemanager.resource.memory-mb</name>
-    <value>8192</value>
+    <value>2048</value>
   </properties>
   <properties>
     <name>yarn.nodemanager.vmem-check-enabled</name>

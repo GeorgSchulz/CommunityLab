@@ -71,33 +71,18 @@ provisioner:
         hdfs_group: "hadoop"
         self_signed_certificates: true
         domain: "example.com"
-        ldap_organization: "dc=example,dc=com"
         keytab_folder: "/etc/keytabs"
         realm: "COMMUNITY.LAB"
         ldap_organization: "dc=example,dc=com"
         ldap_server_address: "{% for host in groups.ldap | shuffle %}ldaps://{{ host }}.example.com:636{% if not loop.last %},{% endif %}{% endfor %}"
-        ldap_organization: "dc=example,dc=com"
         ldap_user_search_base: "ou=people,{{ ldap_organization }}"
         ldap_group_search_base: "ou=groups,{{ ldap_organization }}"
         ldap_bind_user: "cn=admin,{{ ldap_organization }}"
         ldap_password: "changeit"
         ldap_bind_dn_template: "uid={username},{{ ldap_user_search_base }}"
-        ide_users_group: "ide_services"
-        ide_users_gid: "4002"
-        ldap_users: 
-          - name: "teppler"
-            uid_number: 6000
-            gid_number: "{{ ide_users_gid }}"
-            password: albstadt
-          - name: "anolle"
-            uid_number: 6001
-            gid_number: "{{ ide_users_gid }}"
-            password: sigmaringen
-          - name: "gschulz"
-            uid_number: 6002
-            gid_number: "{{ ide_users_gid }}"
-            password: datascience
-        ldap_users: 
+        ide_users_group: "ide_users"
+        ide_users_gid: "5001"
+        ldap_users:
           - name: "teppler"
             uid_number: 6000
             gid_number: "{{ ide_users_gid }}"

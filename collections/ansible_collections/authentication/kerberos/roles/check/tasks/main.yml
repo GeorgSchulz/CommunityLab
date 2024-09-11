@@ -7,7 +7,7 @@
   block:
     - name: Create test kerberos principal on primary KDC
       ansible.builtin.command: "kadmin.local -q \"addprinc -randkey {{ check_kerberos_propagation_principal }}\""
-    
+
     - name: Get principals of Kerberos primary KDC
       ansible.builtin.command: "kadmin.local -q \"listprincs\""
       register: kerberos_primary_principals

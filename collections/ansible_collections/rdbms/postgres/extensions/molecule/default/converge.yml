@@ -4,28 +4,28 @@
   hosts: zookeeper
   gather_facts: true
   roles:
-    - name: ide.environment.user_and_groups
+    - role: ide.environment.user_and_groups
 
 - name: Setup TLS preparation
   hosts: all
   gather_facts: true
   roles:
-    - name: tls.certs.setup
+    - role: tls.certs.setup
 
 - name: Setup Zookeeper
   hosts: zookeeper
   gather_facts: true
   roles:
-    - name: bigdata.zookeeper.setup
+    - role: bigdata.zookeeper.setup
 
 - name: Setup loadbalancer
   hosts: loadbalancers
   gather_facts: true
   roles:
-    - name: loadbalancing.haproxy.setup
+    - role: loadbalancing.haproxy.setup
 
 - name: Setup PostgreSQL
   hosts: postgres
   gather_facts: true
   roles:
-    - name: rdbms.postgres.setup
+    - role: rdbms.postgres.setup

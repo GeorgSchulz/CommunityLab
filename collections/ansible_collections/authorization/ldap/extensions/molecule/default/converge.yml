@@ -3,7 +3,7 @@
   hosts: ldap
   gather_facts: true
   roles:
-    - name: ide.environment.user_and_groups
-    - name: tls.certs.issue
-    - name: tls.certs.distribute
-    - name: authorization.ldap.setup
+    - role: ide.environment.user_and_groups
+    - role: tls.certs.issue
+    - role: tls.certs.distribute
+    - role: authorization.ldap.setup

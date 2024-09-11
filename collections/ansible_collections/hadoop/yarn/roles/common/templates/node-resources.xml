@@ -1,7 +1,7 @@
 <configuration>
   <resource>
     <name>yarn.io/memory</name>
-    <value>8192</value>
+    <value>2048</value>
     <units>MB</units>
   <type>countable</type>
   </resource>
@@ -9,6 +9,6 @@
     <name>yarn.io/cpu</name>
     <units>vcores</units>
     <type>countable</type>
-    <value>8</value>
+    <value>2</value>
   </resource>
 </configuration>

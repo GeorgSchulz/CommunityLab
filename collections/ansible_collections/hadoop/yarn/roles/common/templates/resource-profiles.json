@@ -1,10 +1,10 @@
 {
   "default": {
-  "memory-mb": 2048,
-  "vcores": 2
+  "memory-mb": 512,
+  "vcores": 1
   },
   "small": {
-  "memory-mb": 1024,
+  "memory-mb": 512,
   "vcores": 1
   },
   "medium": {

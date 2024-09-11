@@ -1,5 +1,6 @@
 - name: Get valid keytab for YARN user
-  ansible.builtin.command: "kinit -k yarn/{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}@{{ realm }} -t {{ keytab_folder }}/yarn.keytab"
+  ansible.builtin.command: "kinit -k yarn/{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}@{{ realm }} \
+                            -t {{ keytab_folder }}/yarn.keytab"
 
 - name: Block for IDE HA setup
   when:

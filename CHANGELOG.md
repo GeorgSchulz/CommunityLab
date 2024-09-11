@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - communitylab#26: Error handling in Conda Package Manager
 
+### Added
+
+- communitylab#48: Downgrading OpenJDK and updating documentation images
+
 ## [v1.4.0] - 2024-08-27
 
 ### Added
