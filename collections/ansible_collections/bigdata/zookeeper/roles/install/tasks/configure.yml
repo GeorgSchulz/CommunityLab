@@ -1,3 +1,4 @@
+---
 - name: Create zookeeper data and log folder
   become: true
   ansible.builtin.file:
@@ -23,17 +24,17 @@
   become: true
   ansible.builtin.template:
     src: "{{ item }}"
-    dest: "/opt/apache-zookeeper/zookeeper/conf/{{ item }}"
+    dest: /opt/apache-zookeeper/zookeeper/conf/{{ item }}
     mode: "0644"
     owner: "{{ setup_zookeeper_user }}"
     group: "{{ setup_zookeeper_group }}"
   loop:
-    - "zoo.cfg"
-    - "zookeeper-env.sh"
+    - zoo.cfg
+    - zookeeper-env.sh
 
 - name: Create system unit
   become: true
   ansible.builtin.template:
-    src: "zookeeper.service"
-    dest: "/lib/systemd/system/zookeeper.service"
+    src: zookeeper.service
+    dest: /lib/systemd/system/zookeeper.service
     mode: "0644"

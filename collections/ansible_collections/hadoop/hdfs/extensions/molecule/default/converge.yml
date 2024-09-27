@@ -1,5 +1,4 @@
 ---
-
 - name: Setup environment
   hosts: all
   gather_facts: true
@@ -46,6 +45,6 @@
 - name: Check HDFS is running and healthy
   hosts: namenode1
   become: true
-  become_user: "hdfs"
+  become_user: hdfs
   roles:
     - role: hadoop.hdfs.check

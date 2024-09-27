@@ -1,3 +1,4 @@
+---
 - name: Create relevant environment folders
   ansible.builtin.file:
     path: "{{ item }}"

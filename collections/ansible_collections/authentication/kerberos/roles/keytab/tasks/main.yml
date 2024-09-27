@@ -1,3 +1,4 @@
+---
 - name: Create keytab looping over kerberos_keytabs list
   ansible.builtin.include_tasks: create-keytab.yml
   loop: "{{ kerberos_keytabs }}"

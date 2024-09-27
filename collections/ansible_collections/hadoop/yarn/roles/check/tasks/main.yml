@@ -1,6 +1,10 @@
+---
+- name: Set fact for kerberos principal hostname
+  ansible.builtin.set_fact:
+    keytab_principal_hostname: "{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}"
+
 - name: Get valid keytab for YARN user
-  ansible.builtin.command: "kinit -k yarn/{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}@{{ realm }} \
-                            -t {{ keytab_folder }}/yarn.keytab"
+  ansible.builtin.command: kinit -k yarn/{{ keytab_principal_hostname }}@{{ realm }} -t {{ keytab_folder }}/yarn.keytab
 
 - name: Block for IDE HA setup
   when:
@@ -8,17 +12,17 @@
     - ide_ha_setup
   block:
     - name: Check if YARN resourcemanagers are running
-      ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/yarn rmadmin -getAllServiceState"
+      ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/yarn rmadmin -getAllServiceState
       register: ha_resourcemanagers
 
     - name: Print message depending on yarn rmadmin -getAllServiceState output
       ansible.builtin.assert:
         that: "'active' in ha_resourcemanagers.stdout"
-        fail_msg: "YARN resourcemanagers failed to start, check Logs for more information"
-        success_msg: "YARN resourcemanagers are running"
+        fail_msg: YARN resourcemanagers failed to start, check Logs for more information
+        success_msg: YARN resourcemanagers are running
 
 - name: Check if YARN nodemanagers are running
-  ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/yarn node -list"
+  ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/yarn node -list
   register: nodemanagers
   until: nodemanagers.rc == 0
   retries: 3
@@ -28,5 +32,5 @@
 - name: Print message depending on yarn node -list output
   ansible.builtin.assert:
     that: "'Total Nodes:{{ groups.nodemanagers | length | int }}' in nodemanagers.stdout"
-    fail_msg: "Not all {{ groups.nodemanagers | length | int }} nodemanagers started, check Logs for details"
-    success_msg: "All {{ groups.nodemanagers | length | int }} nodemanagers started successfully"
+    fail_msg: Not all {{ groups.nodemanagers | length | int }} nodemanagers started, check Logs for details
+    success_msg: All {{ groups.nodemanagers | length | int }} nodemanagers started successfully

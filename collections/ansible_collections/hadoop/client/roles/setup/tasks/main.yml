@@ -1,6 +1,7 @@
+---
 - name: Create hadoop configuration folder
   ansible.builtin.file:
-    path: "/opt/apache-hadoop"
+    path: /opt/apache-hadoop
     state: directory
     owner: "{{ hadoop_client_user }}"
     group: "{{ hadoop_client_group }}"
@@ -8,23 +9,23 @@
 
 - name: Get hadoop tarball
   ansible.builtin.get_url:
-    url: "https://archive.apache.org/dist/hadoop/common/hadoop-{{ setup_hadoop_version }}/hadoop-{{ setup_hadoop_version }}.tar.gz"
-    dest: "/var/tmp/hadoop-{{ setup_hadoop_version }}.tar.gz"
+    url: https://archive.apache.org/dist/hadoop/common/hadoop-{{ setup_hadoop_version }}/hadoop-{{ setup_hadoop_version }}.tar.gz
+    dest: /var/tmp/hadoop-{{ setup_hadoop_version }}.tar.gz
     mode: "0644"
 
 - name: Unpack hadoop tarball
   ansible.builtin.unarchive:
     copy: false
-    src: "/var/tmp/hadoop-{{ setup_hadoop_version }}.tar.gz"
-    dest: "/opt/apache-hadoop"
+    src: /var/tmp/hadoop-{{ setup_hadoop_version }}.tar.gz
+    dest: /opt/apache-hadoop
     owner: "{{ hadoop_client_user }}"
     group: "{{ hadoop_client_group }}"
-    creates: "/opt/apache-hadoop/hadoop-{{ setup_hadoop_version }}"
+    creates: /opt/apache-hadoop/hadoop-{{ setup_hadoop_version }}
 
 - name: Create symbolic link
   ansible.builtin.file:
-    src: "/opt/apache-hadoop/hadoop-{{ setup_hadoop_version }}"
-    dest: "/opt/apache-hadoop/hadoop"
+    src: /opt/apache-hadoop/hadoop-{{ setup_hadoop_version }}
+    dest: /opt/apache-hadoop/hadoop
     state: link
     owner: "{{ hadoop_client_user }}"
     group: "{{ hadoop_client_group }}"
@@ -32,26 +33,26 @@
 - name: Copy important hadoop client files
   ansible.builtin.template:
     src: "{{ item }}"
-    dest: "/opt/apache-hadoop/hadoop/etc/hadoop/{{ item }}"
+    dest: /opt/apache-hadoop/hadoop/etc/hadoop/{{ item }}
     owner: "{{ hadoop_client_user }}"
     group: "{{ hadoop_client_group }}"
     mode: "0644"
   loop:
-    - "ssl-server.xml"
-    - "ssl-client.xml"
-    - "hadoop-env.sh"
+    - ssl-server.xml
+    - ssl-client.xml
+    - hadoop-env.sh
 
 - name: Template core-site.xml, hdfs-site.xml and yarn-site.xml
   ansible.builtin.template:
     src: "{{ item.src }}"
-    dest: "/opt/apache-hadoop/hadoop/etc/hadoop/{{ item.dest }}"
+    dest: /opt/apache-hadoop/hadoop/etc/hadoop/{{ item.dest }}
     owner: "{{ hadoop_client_user }}"
     group: "{{ hadoop_client_group }}"
     mode: "0644"
   loop:
     - src: "{{ setup_core_site_name }}"
-      dest: "core-site.xml"
+      dest: core-site.xml
     - src: "{{ setup_hdfs_site_name }}"
-      dest: "hdfs-site.xml"
+      dest: hdfs-site.xml
     - src: "{{ setup_yarn_site_name }}"
-      dest: "yarn-site.xml"
+      dest: yarn-site.xml

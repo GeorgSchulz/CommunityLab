@@ -121,7 +121,7 @@ georg@notebook:~/git/CommunityLab/collections/ansible_collections/jupyter/hub/ex
 ```
 
 ### 2.7 Login to JupyterHub here using credentials of variable [ldap_users](./collections/ansible_collections/jupyter/hub/extensions/molecule/default/molecule.yml):
-https://172.23.27.3
+https://172.23.27.3:8443
 
 ![IDE Docker](https://github.com/GeorgSchulz/CommunityLab/blob/master/images/ide_in_docker.bmp?raw=True)
 
@@ -196,7 +196,7 @@ georg@notebook:~/git/CommunityLab$ ansible-playbook setup.yml
 ### 3.4 Access IDE via JupyterHub
 #### (e.g. using domain: example.com)
 #### 3.4.1 Non-HA IDE
-Use credentials of variable [ldap_users](./group_vars/all.yml) and login here: https://hub1.example.com
+Use credentials of variable [ldap_users](./group_vars/all.yml) and login here: https://hub1.example.com:8443
 
 #### 3.4.2 HA IDE
 Use credentials of variable [ldap_users](./group_vars/all.yml) and login here: https://jupyterhub.example.com

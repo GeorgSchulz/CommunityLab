@@ -1,7 +1,10 @@
+---
+- name: Set fact for kerberos principal hostname
+  ansible.builtin.set_fact:
+    keytab_principal_hostname: "{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}"
+
 - name: Get valid keytab for HDFS user
-  ansible.builtin.command: "kinit -k \
-                            hdfs/{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}@{{ realm }} -t \
-                            {{ keytab_folder }}/hdfs.keytab"
+  ansible.builtin.command: kinit -k hdfs/{{ keytab_principal_hostname }}@{{ realm }} -t {{ keytab_folder }}/hdfs.keytab
 
 - name: Block for IDE HA setup
   when:
@@ -9,24 +12,24 @@
     - ide_ha_setup
   block:
     - name: Check if HDFS namenodes are running
-      ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs haadmin -getAllServiceState"
+      ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs haadmin -getAllServiceState
       register: ha_namenodes
 
     - name: Print message depending on hdfs haadmin -getAllServiceState output
       ansible.builtin.assert:
         that: "'active' in ha_namenodes.stdout"
-        fail_msg: "HDFS namenodes failed to start, check Logs for more information"
-        success_msg: "HDFS namenodes are running"
+        fail_msg: HDFS namenodes failed to start, check Logs for more information
+        success_msg: HDFS namenodes are running
 
 - name: Check if HDFS Datanodes are running
-  ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs dfsadmin -report"
+  ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs dfsadmin -report
   register: hdfs_report
 
 - name: Print message depending on hdfs dfsadmin -report output
   ansible.builtin.assert:
     that: "'Live datanodes ({{ groups.datanodes | length | int }})' in hdfs_report.stdout"
-    fail_msg: "Not all {{ groups.datanodes | length | int }} HDFS datanodes are running successfully, check Logs for more information"
-    success_msg: "All {{ groups.datanodes | length | int }} HDFS datanodes are running"
+    fail_msg: Not all {{ groups.datanodes | length | int }} HDFS datanodes are running successfully, check Logs for more information
+    success_msg: All {{ groups.datanodes | length | int }} HDFS datanodes are running
 
 - name: Check if HDFS is writable as HDFS user
   ansible.builtin.shell: |
@@ -37,5 +40,5 @@
 - name: Print message depending on hdfs writable commands
   ansible.builtin.assert:
     that: hdfs_writable.rc == 0
-    fail_msg: "HDFS is not writable as HDFS user, check Logs for more information"
-    success_msg: "HDFS is writable as HDFS user"
+    fail_msg: HDFS is not writable as HDFS user, check Logs for more information
+    success_msg: HDFS is writable as HDFS user

@@ -1,3 +1,4 @@
+---
 - name: Install necessary packages
   environment:
     DEBIAN_FRONTEND: noninteractive
@@ -10,7 +11,7 @@
 
 - name: Configure ldap server
   ansible.builtin.debconf:
-    name: "slapd"
+    name: slapd
     question: "{{ item.question }}"
     value: "{{ item.value }}"
     vtype: select
@@ -19,85 +20,85 @@
 
 - name: Reconfigure slapd
   failed_when: false
-  ansible.builtin.command: "dpkg-reconfigure -f noninteractive slapd --force"
+  ansible.builtin.command: dpkg-reconfigure -f noninteractive slapd --force
 
 - name: Change ownership of ldap folders
-  ansible.builtin.command: "chown -R {{ ldap_user }}:{{ ldap_group }} {{ item }}"
+  ansible.builtin.command: chown -R {{ ldap_user }}:{{ ldap_group }} {{ item }}
   loop:
-    - "/etc/ldap/slapd.d"
-    - "/var/lib/ldap"
-    - "/var/run/slapd"
+    - /etc/ldap/slapd.d
+    - /var/lib/ldap
+    - /var/run/slapd
 
 - name: Copy ssl.ldif to ldap server
   ansible.builtin.template:
-    src: "ssl.ldif"
-    dest: "/tmp/ssl.ldif"
+    src: ssl.ldif
+    dest: /tmp/ssl.ldif
     mode: "0644"
 
 - name: Stop slapd service
   ansible.builtin.systemd_service:
-    name: "slapd"
+    name: slapd
     state: stopped
 
 - name: Start slapd service
   ansible.builtin.systemd_service:
-    name: "slapd"
+    name: slapd
     state: started
 
 - name: Configure ldap server for TLS
   failed_when: ldapmodify.rc not in [20,0]
-  ansible.builtin.command: "ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/ssl.ldif"
+  ansible.builtin.command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/ssl.ldif
   register: ldapmodify
 
 - name: Copy update-module.ldif
   ansible.builtin.copy:
-    src: "update-module.ldif"
-    dest: "/tmp/update-module.ldif"
+    src: update-module.ldif
+    dest: /tmp/update-module.ldif
     mode: "0644"
 
 - name: Load ldap module memberOf
   failed_when: ldapadd.rc not in [20,0]
-  ansible.builtin.command: "ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/update-module.ldif"
+  ansible.builtin.command: ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/update-module.ldif
   register: ldapadd
 
 - name: Copy memberof-overlay.ldif
   ansible.builtin.copy:
-    src: "add-memberof-overlay.ldif"
-    dest: "/tmp/add-memberof-overlay.ldif"
+    src: add-memberof-overlay.ldif
+    dest: /tmp/add-memberof-overlay.ldif
     mode: "0644"
 
 - name: Add overlay to database
-  ansible.builtin.command: "ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/add-memberof-overlay.ldif"
+  ansible.builtin.command: ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/add-memberof-overlay.ldif
 
 - name: Copy add-refint.ldif
   ansible.builtin.copy:
-    src: "add-refint.ldif"
-    dest: "/tmp/add-refint.ldif"
+    src: add-refint.ldif
+    dest: /tmp/add-refint.ldif
     mode: "0644"
 
 - name: Ldapadd add-refint.ldif
   failed_when: ldapadd.rc not in [20,0]
-  ansible.builtin.command: "ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/add-refint.ldif"
+  ansible.builtin.command: ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/add-refint.ldif
   register: ldapadd
 
 - name: Configure ldap.conf
   ansible.builtin.template:
-    src: "ldap.conf"
-    dest: "/etc/ldap/ldap.conf"
+    src: ldap.conf
+    dest: /etc/ldap/ldap.conf
     mode: "0644"
 
 - name: Configure slapd service
   ansible.builtin.copy:
-    src: "slapd"
-    dest: "/etc/default/slapd"
+    src: slapd
+    dest: /etc/default/slapd
     mode: "0644"
 
 - name: Stop slapd service
   ansible.builtin.systemd_service:
-    name: "slapd"
+    name: slapd
     state: stopped
 
 - name: Start slapd service
   ansible.builtin.systemd_service:
-    name: "slapd"
+    name: slapd
     state: started

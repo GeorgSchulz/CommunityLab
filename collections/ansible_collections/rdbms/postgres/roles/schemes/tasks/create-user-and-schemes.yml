@@ -1,11 +1,21 @@
+---
 - name: Create postgres user and schemes
   become: true
-  become_user: "postgres"
+  become_user: postgres
   run_once: true
   when: item.scheme is defined
   block:
-    - name: Check if PostgreSQL is available
-      ansible.builtin.shell: "psql -h {{ postgres_host }} -c \"SELECT 1\""
+    - name: Check if PostgreSQL is available - localhost
+      when: groups.postgres | length == 1
+      ansible.builtin.command: psql -c "SELECT 1"
+      register: psql_check
+      until: psql_check.rc == 0
+      retries: 10
+      delay: 5
+
+    - name: Check if PostgreSQL is available - Patroni Cluster
+      when: groups.postgres | length == 3
+      ansible.builtin.command: psql -h {{ postgres_host }} -c "SELECT 1"
       register: psql_check
       until: psql_check.rc == 0
       retries: 10

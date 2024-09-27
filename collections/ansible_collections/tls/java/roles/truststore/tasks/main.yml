@@ -1,44 +1,48 @@
+---
 - name: Execute as root user
   become: true
   block:
     - name: Delete present Java truststore
       ansible.builtin.file:
-        path: "/etc/ssl/certs/truststore.jks"
+        path: /etc/ssl/certs/truststore.jks
         state: absent
 
     - name: Copy JRE internal truststore to /etc/ssl/certs/truststore.jks
       ansible.builtin.copy:
         src: "{{ java_home }}/lib/security/cacerts"
-        dest: "/etc/ssl/certs/truststore.jks"
+        dest: /etc/ssl/certs/truststore.jks
         mode: "0644"
         remote_src: true
 
     - name: Copy temporary all certs of hosts to /var/tmp of each host
       ansible.builtin.copy:
         src: "{{ local_cert_path }}/{{ item + '.' + domain if molecule_deployment is defined and molecule_deployment else item }}/{{ cert_name }}"
-        dest: "/var/tmp/{{ item }}_cert.pem"
+        dest: /var/tmp/{{ item }}_cert.pem
         mode: "0644"
       loop: "{{ groups.all }}"
 
     - name: Import all certs from hosts into /etc/ssl/certs/truststore.jks
-      ansible.builtin.shell: "keytool -import -alias {{ item + '.' + domain if molecule_deployment is defined and molecule_deployment else item }} \
-                              -keystore /etc/ssl/certs/truststore.jks \
-                              -file /var/tmp/{{ item }}_cert.pem -storepass {{ truststore_password }} -noprompt"
+      ansible.builtin.command: keytool -import \
+        -alias {{ item + '.' + domain if molecule_deployment is defined and molecule_deployment else item }} \
+        -keystore /etc/ssl/certs/truststore.jks \
+        -file /var/tmp/{{ item }}_cert.pem -storepass {{ truststore_password }} -noprompt
       loop: "{{ groups.all }}"
 
     - name: Import chain.pem into /etc/ssl/certs/truststore.jks
-      ansible.builtin.shell: "keytool -import -alias {{ domain }}_chain -keystore /etc/ssl/certs/truststore.jks \
-                              -file /etc/ssl/private/chain.pem -storepass {{ truststore_password }} -noprompt"
-
+      ansible.builtin.command: keytool -import \
+        -alias {{ domain }}_chain \
+        -keystore /etc/ssl/certs/truststore.jks \
+        -file /etc/ssl/private/chain.pem \
+        -storepass {{ truststore_password }} -noprompt
     - name: Give access to created Java truststore
       ansible.builtin.file:
-        path: "/etc/ssl/certs/truststore.jks"
+        path: /etc/ssl/certs/truststore.jks
         owner: "{{ tls_user }}"
         group: "{{ tls_group }}"
         mode: "0644"
 
     - name: Delete all certs in /var/tmp
       ansible.builtin.file:
-        path: "/var/tmp/{{ item }}_cert.pem"
+        path: /var/tmp/{{ item }}_cert.pem
         state: absent
       loop: "{{ groups.all }}"

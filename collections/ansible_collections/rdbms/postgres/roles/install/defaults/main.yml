@@ -1,3 +1,4 @@
+---
 install_ssl_files:
   - "{{ chain_file_postgres }}"
   - "{{ cert_file_postgres }}"

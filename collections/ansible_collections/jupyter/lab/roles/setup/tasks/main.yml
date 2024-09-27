@@ -1,12 +1,13 @@
+---
 - name: Install git
   ansible.builtin.apt:
-    name: "git"
+    name: git
     state: present
     update_cache: true
 
 - name: Check if jupyterlab environment is already present
   ansible.builtin.stat:
-    path: "/opt/miniforge/miniforge/envs/jupyterlab/bin/python"
+    path: /opt/miniforge/miniforge/envs/jupyterlab/bin/python
   register: jupyterlab_env
 
 - name: Install jupyterlab environment if not present
@@ -39,16 +40,16 @@
 
     - name: Copy updated jupyter_labhub.py due to https://discourse.jupyter.org/t/notebook-spawned-in-yarn-but-killed-after-timeout/20333/64
       ansible.builtin.copy:
-        src: "jupyter_labhub.py"
-        dest: "{{ setup_miniforge_base_path }}/envs/jupyterlab/lib/\
-               python{{ setup_environment_python_version_short }}/site-packages/yarnspawner/jupyter_labhub.py"
+        src: jupyter_labhub.py
+        dest: "{{ setup_miniforge_base_path }}/envs/jupyterlab/lib/python{{ setup_environment_python_version_short }}/\
+               site-packages/yarnspawner/jupyter_labhub.py"
         mode: "0644"
 
     - name: Change mode of environment - use shell module because of better performance
-      ansible.builtin.command: "chmod -R 755 {{ setup_miniforge_base_path }}"
+      ansible.builtin.command: chmod -R 755 {{ setup_miniforge_base_path }}
 
     - name: Change owner to yarn user and group in environment - use shell module because of better performance
-      ansible.builtin.command: "chown -R {{ yarn_user }}:{{ yarn_group }} -R {{ setup_miniforge_base_path }}"
+      ansible.builtin.command: chown -R {{ yarn_user }}:{{ yarn_group }} -R {{ setup_miniforge_base_path }}
 
 - name: Create folders for environment variables in jupyterlab environment
   ansible.builtin.file:
@@ -58,42 +59,46 @@
     group: "{{ yarn_group }}"
     mode: "0755"
   loop:
-    - "activate.d"
-    - "deactivate.d"
+    - activate.d
+    - deactivate.d
 
 - name: Copy script for environment variables to jupyterlab environment
   ansible.builtin.template:
-    src: "env_vars.sh"
+    src: env_vars.sh
     dest: "{{ setup_miniforge_base_path }}/envs/jupyterlab/etc/conda/{{ item }}/env_vars.sh"
     owner: "{{ yarn_user }}"
     group: "{{ yarn_group }}"
     mode: "0644"
   loop:
-    - "activate.d"
-    - "deactivate.d"
+    - activate.d
+    - deactivate.d
 
 - name: Only run on one HDFS data node
   run_once: true
   become: true
   become_user: "{{ hdfs_user }}"
   block:
+    - name: Set fact for kerberos principal
+      ansible.builtin.set_fact:
+        keytab_principal_host: "{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}"
+
     - name: Get valid keytab for HDFS user
-      ansible.builtin.command: "kinit -k \
-                                {{ hdfs_user }}/{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}@{{ realm }} -t \
-                                {{ keytab_folder }}/{{ hdfs_user }}.keytab"
+      ansible.builtin.command: kinit \
+        -k {{ hdfs_user }}/{{ keytab_principal_host }}@{{ realm }} \
+        -t {{ keytab_folder }}/{{ hdfs_user }}.keytab
 
     - name: Set ACL in root folder of HDFS
-      ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs dfs -setfacl -m \"group:{{ ide_users_group }}:rwx\" /"
+      ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs dfs -setfacl -m "group:{{ ide_users_group }}:rwx" /
 
     - name: Create HDFS folder /user
-      ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs dfs -mkdir -p /user"
+      ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs dfs -mkdir -p /user
 
     - name: Set ACL in /user folder of HDFS
-      ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs dfs -setfacl -m \"group:{{ ide_users_group }}:rwx\" /user"
+      ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs dfs -setfacl -m "group:{{ ide_users_group }}:rwx" /user
 
     - name: Create HDFS folder /share
-      ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs dfs -mkdir -p /share"
+      ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs dfs -mkdir -p /share
 
     - name: Set ACL in /share folder of HDFS
-      ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs dfs -setfacl \
-        -m \"group:{{ ide_users_group }}:rwx,default:group:{{ ide_users_group }}:rwx\" /share"
+      ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs dfs \
+        -setfacl -m "group:{{ ide_users_group }}:rwx,default:group:{{ ide_users_group }}:rwx" /share

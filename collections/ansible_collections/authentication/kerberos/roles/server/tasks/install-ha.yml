@@ -1,3 +1,4 @@
+---
 - name: Install necessary packages on primary KDC
   ansible.builtin.apt:
     name: "{{ item }}"

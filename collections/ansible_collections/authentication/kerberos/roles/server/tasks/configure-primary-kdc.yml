@@ -1,6 +1,7 @@
+---
 - name: Check if Kerberos schema file is already copied
   ansible.builtin.stat:
-    path: "/etc/ldap/schema/kerberos.schema.gz"
+    path: /etc/ldap/schema/kerberos.schema.gz
   register: kerberos_schema_file
 
 - name: Copy and unarchive Kerberos schema file
@@ -8,57 +9,56 @@
   block:
     - name: Copy Kerberos schema file to path /etc/ldap/schema
       ansible.builtin.copy:
-        src: "/usr/share/doc/krb5-kdc-ldap/kerberos.schema.gz"
-        dest: "/etc/ldap/schema/kerberos.schema.gz"
+        src: /usr/share/doc/krb5-kdc-ldap/kerberos.schema.gz
+        dest: /etc/ldap/schema/kerberos.schema.gz
         mode: "0644"
         remote_src: true
 
     - name: Decompress Kerberos schema file using gunzip
-      ansible.builtin.command: "gunzip /etc/ldap/schema/kerberos.schema.gz"
+      ansible.builtin.command: gunzip /etc/ldap/schema/kerberos.schema.gz
 
 - name: Import Kerberos schema
-  ansible.builtin.command: "ldap-schema-manager -i kerberos.schema"
+  ansible.builtin.command: ldap-schema-manager -i kerberos.schema
 
 - name: Copy krb5_principal_name.ldif to /tmp
   ansible.builtin.copy:
-    src: "krb5_principal_name.ldif"
-    dest: "/tmp/krb5_principal_name.ldif"
+    src: krb5_principal_name.ldif
+    dest: /tmp/krb5_principal_name.ldif
     mode: "0644"
 
 - name: Import index krbPrincipalName to LDAP database
   failed_when: ldap_modify.rc not in [0,20]
-  ansible.builtin.command: "ldapmodify -Q -Y EXTERNAL -H ldapi:/// -w {{ ldap_password }} -f /tmp/krb5_principal_name.ldif"
+  ansible.builtin.command: ldapmodify -Q -Y EXTERNAL -H ldapi:/// -w {{ ldap_password }} -f /tmp/krb5_principal_name.ldif
   register: ldap_modify
 
 - name: Copy krb5_administrative_entities.ldif to /tmp
   ansible.builtin.template:
-    src: "krb5_administrative_entities.ldif"
-    dest: "/tmp/krb5_administrative_entities.ldif"
+    src: krb5_administrative_entities.ldif
+    dest: /tmp/krb5_administrative_entities.ldif
     mode: "0644"
 
 - name: Create LDAP entries for the Kerberos administrative entities that will contact the OpenLDAP server
   failed_when: ldap_add.rc not in [0,68]
-  ansible.builtin.command: "ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
-                            -f /tmp/krb5_administrative_entities.ldif"
+  ansible.builtin.command: ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/krb5_administrative_entities.ldif
   register: ldap_add
 
 - name: Set password for 'uid=kdc-service,{{ ldap_organization }}'
-  ansible.builtin.command: "ldappasswd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
-                            -s {{ ldap_kdc_service_password }} uid=kdc-service,{{ ldap_organization }}"
+  ansible.builtin.command: ldappasswd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
+    -s {{ ldap_kdc_service_password }} uid=kdc-service,{{ ldap_organization }}
 
 - name: Set password for 'uid=kadmin-service,{{ ldap_organization }}'
-  ansible.builtin.command: "ldappasswd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
-                            -s {{ ldap_kadmin_service_password }} uid=kadmin-service,{{ ldap_organization }}"
+  ansible.builtin.command: ldappasswd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
+    -s {{ ldap_kadmin_service_password }} uid=kadmin-service,{{ ldap_organization }}
 
 - name: Copy kerberos_ldap_acls.ldif to /tmp
   ansible.builtin.template:
-    src: "kerberos_ldap_acls.ldif"
-    dest: "/tmp/kerberos_ldap_acls.ldif"
+    src: kerberos_ldap_acls.ldif
+    dest: /tmp/kerberos_ldap_acls.ldif
     mode: "0644"
 
 - name: Add Kerberos ACLs to LDAP database
   failed_when: ldap_modify.rc not in [0,20]
-  ansible.builtin.command: "ldapmodify -Q -Y EXTERNAL -H ldapi:/// -w {{ ldap_password }} -f /tmp/kerberos_ldap_acls.ldif"
+  ansible.builtin.command: ldapmodify -Q -Y EXTERNAL -H ldapi:/// -w {{ ldap_password }} -f /tmp/kerberos_ldap_acls.ldif
   register: ldap_modify
 
 - name: Copy kerberos configuration files
@@ -67,17 +67,17 @@
     dest: "{{ item.path }}/{{ item.file }}"
     mode: "0644"
   loop:
-    - file: "kadm5.acl"
-      path: "/etc/krb5kdc"
-    - file: "krb5.conf"
-      path: "/etc"
+    - file: kadm5.acl
+      path: /etc/krb5kdc
+    - file: krb5.conf
+      path: /etc
   loop_control:
     label: "{{ item.file }}"
 
 - name: Create Kerberos LDAP database
   failed_when: false
-  ansible.builtin.command: "kdb5_ldap_util -D cn=admin,{{ ldap_organization }} create -subtrees {{ ldap_organization }} \
-                            -r {{ realm }} -s -H ldapi:/// -w {{ ldap_password }} -P {{ realm_password }}"
+  ansible.builtin.command: kdb5_ldap_util -D cn=admin,{{ ldap_organization }} create \
+    -subtrees {{ ldap_organization }} -r {{ realm }} -s -H ldapi:/// -w {{ ldap_password }} -P {{ realm_password }}
 
 - name: Copy script to create password stash file
   ansible.builtin.template:
@@ -86,29 +86,28 @@
     mode: "0555"
 
 - name: Create a stash of the password used to bind to the LDAP server
-  ansible.builtin.shell: "/tmp/create_stash_file.sh"
-
+  ansible.builtin.command: /tmp/create_stash_file.sh
 - name: Stop Kerberos services
   ansible.builtin.systemd:
     name: "{{ item }}"
     state: stopped
   loop:
-    - "krb5-kdc"
-    - "krb5-admin-server"
+    - krb5-kdc
+    - krb5-admin-server
 
 - name: Start Kerberos services
   ansible.builtin.systemd:
     name: "{{ item }}"
     state: started
   loop:
-    - "krb5-kdc"
-    - "krb5-admin-server"
+    - krb5-kdc
+    - krb5-admin-server
 
 - name: Fetch stash and service.keyfile to ansible server
   ansible.posix.synchronize:
-    src: "/etc/krb5kdc/{{ item }}"
-    dest: "/tmp/"
+    src: /etc/krb5kdc/{{ item }}
+    dest: /tmp/
     mode: pull
   loop:
-    - ".k5.{{ realm }}"
-    - "service.keyfile"
+    - .k5.{{ realm }}
+    - service.keyfile

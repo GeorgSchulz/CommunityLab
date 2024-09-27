@@ -1,17 +1,19 @@
-# E-mail address that will be used by Certbot for issuing all Let's Encrypt certificates, this is just an example must be a valid address in order for Certbot to issue certificates successfully
-my_email: "communitylab@example.com"
+---
+# E-mail address that will be used by Certbot for issuing all Let's Encrypt certificates.
+# This is just an example must be a valid address in order for Certbot to issue certificates successfully
+my_email: communitylab@example.com
 
 # LDAP users to create for IDE usage
 ldap_users:
-  - name: "teppler"
+  - name: teppler
     uid_number: 6000
     gid_number: "{{ ide_users_gid }}"
     password: albstadt
-  - name: "anolle"
+  - name: anolle
     uid_number: 6001
     gid_number: "{{ ide_users_gid }}"
     password: sigmaringen
-  - name: "gschulz"
+  - name: gschulz
     uid_number: 6002
     gid_number: "{{ ide_users_gid }}"
     password: datascience

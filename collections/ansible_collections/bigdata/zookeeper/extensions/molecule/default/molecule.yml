@@ -25,23 +25,23 @@ provisioner:
     group_vars:
       all:
         molecule_deployment: true
-        zookeeper_user: "zookeeper"
+        zookeeper_user: zookeeper
         zookeeper_uid: "5001"
-        zookeeper_group: "zookeeper"
+        zookeeper_group: zookeeper
         zookeeper_gid: "4001"
         service_user: "{{ zookeeper_user }}"
-        service_name: "Apache Zookeeper"
+        service_name: Apache Zookeeper
         service_uid: "{{ zookeeper_uid }}"
         service_group: "{{ zookeeper_group }}"
         service_gid: "{{ zookeeper_gid }}"
         tls_user: "{{ zookeeper_user }}"
         tls_group: "{{ zookeeper_group }}"
         self_signed_certificates: true
-        domain: "example.com"
-        keystore_file: "/etc/ssl/private/{{ ansible_fqdn }}.jks"
-        keystore_password: "changeit"
-        truststore_file: "/etc/ssl/certs/truststore.jks"
-        truststore_password: "changeit"
+        domain: example.com
+        keystore_file: /etc/ssl/private/{{ ansible_fqdn }}.jks
+        keystore_password: changeit
+        truststore_file: /etc/ssl/certs/truststore.jks
+        truststore_password: changeit
     host_vars:
       instance-1:
         zookeeper_id: 0

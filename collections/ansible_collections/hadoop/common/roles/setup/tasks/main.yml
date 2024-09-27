@@ -1,3 +1,4 @@
+---
 - name: Create hadoop group
   become: true
   ansible.builtin.group:
@@ -9,7 +10,7 @@
   become: true
   ansible.builtin.user:
     name: "{{ setup_hdfs_user }}"
-    comment: "User for Apache Hadoop"
+    comment: User for Apache Hadoop
     uid: "{{ setup_hdfs_uid }}"
     group: "{{ setup_hdfs_gid }}"
     state: present
@@ -22,7 +23,7 @@
     - ide_ha_setup
   ansible.builtin.user:
     name: "{{ journalnode_user }}"
-    comment: "User for Apache Hadoop"
+    comment: User for Apache Hadoop
     uid: "{{ journalnode_uid }}"
     group: "{{ setup_hdfs_gid }}"
     state: present
@@ -31,7 +32,7 @@
 - name: Create HDFS keytab
   when:
     - kerberos_external is defined
-    - kerberos_external == false
+    - not kerberos_external
   ansible.builtin.include_role:
     name: authentication.kerberos.keytab
 
@@ -52,18 +53,18 @@
 
 - name: Get hadoop tarball
   ansible.builtin.get_url:
-    url: "https://archive.apache.org/dist/hadoop/common/hadoop-{{ setup_hadoop_version }}/hadoop-{{ setup_hadoop_version }}.tar.gz"
-    dest: "/var/tmp/hadoop-{{ setup_hadoop_version }}.tar.gz"
+    url: https://archive.apache.org/dist/hadoop/common/hadoop-{{ setup_hadoop_version }}/hadoop-{{ setup_hadoop_version }}.tar.gz
+    dest: /var/tmp/hadoop-{{ setup_hadoop_version }}.tar.gz
     mode: "0644"
 
 - name: Unpack hadoop tarball
   ansible.builtin.unarchive:
     copy: false
-    src: "/var/tmp/hadoop-{{ setup_hadoop_version }}.tar.gz"
+    src: /var/tmp/hadoop-{{ setup_hadoop_version }}.tar.gz
     dest: "{{ setup_hadoop_conf_dir }}"
     owner: "{{ setup_hdfs_user }}"
     group: "{{ setup_hdfs_group }}"
-    creates: "/opt/apache-hadoop/hadoop-{{ setup_hadoop_version }}"
+    creates: /opt/apache-hadoop/hadoop-{{ setup_hadoop_version }}
 
 - name: Create symbolic link
   ansible.builtin.file:
@@ -76,32 +77,32 @@
 - name: Copy relevant sites
   ansible.builtin.template:
     src: "{{ item }}"
-    dest: "/opt/apache-hadoop/hadoop/etc/hadoop/{{ item }}"
+    dest: /opt/apache-hadoop/hadoop/etc/hadoop/{{ item }}
     owner: "{{ setup_hdfs_user }}"
     group: "{{ setup_hdfs_group }}"
     mode: "0644"
   loop:
-    - "ssl-server.xml"
-    - "ssl-client.xml"
+    - ssl-server.xml
+    - ssl-client.xml
 
 - name: Template core-site.xml
   ansible.builtin.template:
     src: "{{ setup_core_site_name }}"
-    dest: "/opt/apache-hadoop/hadoop/etc/hadoop/core-site.xml"
+    dest: /opt/apache-hadoop/hadoop/etc/hadoop/core-site.xml
     owner: "{{ setup_hdfs_user }}"
     group: "{{ setup_hdfs_group }}"
     mode: "0644"
 
 - name: Copy hadoop-env.sh
   ansible.builtin.template:
-    src: "hadoop-env.sh"
-    dest: "/opt/apache-hadoop/hadoop/etc/hadoop/hadoop-env.sh"
+    src: hadoop-env.sh
+    dest: /opt/apache-hadoop/hadoop/etc/hadoop/hadoop-env.sh
     owner: "{{ setup_hdfs_user }}"
     group: "{{ setup_hdfs_group }}"
     mode: "0644"
 
 - name: Generate secret key used for signing authentication tokens
-  ansible.builtin.command: "dd if=/dev/urandom of={{ keytab_folder }}/hadoop_secret bs=1024 count=1"
+  ansible.builtin.command: dd if=/dev/urandom of={{ keytab_folder }}/hadoop_secret bs=1024 count=1
 
 - name: Change permissions of generated secret key
   ansible.builtin.file:

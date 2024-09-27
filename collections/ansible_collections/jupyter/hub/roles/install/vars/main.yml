@@ -1,3 +1,4 @@
+---
 miniforge_user: "{{ jupyterhub_user }}"
 miniforge_group: "{{ jupyterhub_group }}"
 

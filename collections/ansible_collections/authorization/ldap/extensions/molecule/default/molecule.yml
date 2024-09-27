@@ -26,42 +26,42 @@ provisioner:
       all:
         molecule_deployment: true
         ldap_external: false
-        ldap_user: "openldap"
+        ldap_user: openldap
         ldap_uid: "5001"
-        ldap_group: "openldap"
+        ldap_group: openldap
         ldap_gid: "4001"
         service_user: "{{ ldap_user }}"
-        service_name: "Open LDAP"
+        service_name: Open LDAP
         service_uid: "{{ ldap_uid }}"
         service_group: "{{ ldap_group }}"
         service_gid: "{{ ldap_gid }}"
         tls_user: "{{ ldap_user }}"
         tls_group: "{{ ldap_group }}"
         self_signed_certificates: true
-        domain: "example.com"
-        keystore_file: "/etc/ssl/private/{{ ansible_fqdn }}.jks"
-        keystore_password: "changeit"
-        truststore_file: "/etc/ssl/certs/truststore.jks"
-        truststore_password: "changeit"
+        domain: example.com
+        keystore_file: /etc/ssl/private/{{ ansible_fqdn }}.jks
+        keystore_password: changeit
+        truststore_file: /etc/ssl/certs/truststore.jks
+        truststore_password: changeit
         ldap_server_address: "{% for host in groups.ldap | shuffle %}ldaps://{{ host }}.example.com:636{% if not loop.last %},{% endif %}{% endfor %}"
-        ldap_organization: "dc=example,dc=com"
-        ldap_user_search_base: "ou=people,{{ ldap_organization }}"
-        ldap_group_search_base: "ou=groups,{{ ldap_organization }}"
-        ldap_bind_user: "cn=admin,{{ ldap_organization }}"
-        ldap_password: "changeit"
-        ldap_bind_dn_template: "uid={username},{{ ldap_user_search_base }}"
-        ide_users_group: "ide_users"
+        ldap_organization: dc=example,dc=com
+        ldap_user_search_base: ou=people,{{ ldap_organization }}
+        ldap_group_search_base: ou=groups,{{ ldap_organization }}
+        ldap_bind_user: cn=admin,{{ ldap_organization }}
+        ldap_password: changeit
+        ldap_bind_dn_template: uid={username},{{ ldap_user_search_base }}
+        ide_users_group: ide_users
         ide_users_gid: "5001"
         ldap_users:
-          - name: "teppler"
+          - name: teppler
             uid_number: 6000
             gid_number: "{{ ide_users_gid }}"
             password: albstadt
-          - name: "anolle"
+          - name: anolle
             uid_number: 6001
             gid_number: "{{ ide_users_gid }}"
             password: sigmaringen
-          - name: "gschulz"
+          - name: gschulz
             uid_number: 6002
             gid_number: "{{ ide_users_gid }}"
             password: datascience

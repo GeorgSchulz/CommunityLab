@@ -1,3 +1,4 @@
+---
 - name: Create folders for jupyterhub
   ansible.builtin.file:
     path: "{{ item }}"
@@ -6,64 +7,64 @@
     group: "{{ jupyterhub_group }}"
     mode: "0755"
   loop:
-    - "/opt/jupyterhub"
-    - "/etc/jupyterhub"
-    - "/var/jupyterhub"
-    - "/var/log/jupyterhub"
+    - /opt/jupyterhub
+    - /etc/jupyterhub
+    - /var/jupyterhub
+    - /var/log/jupyterhub
 
 - name: Copy config files to /etc/jupyterhub
   ansible.builtin.template:
     src: "{{ item }}"
-    dest: "/etc/jupyterhub/{{ item }}"
+    dest: /etc/jupyterhub/{{ item }}
     owner: "{{ jupyterhub_user }}"
     group: "{{ jupyterhub_group }}"
     mode: "0660"
   loop:
-    - "jupyterhub_config.py"
-    - "env"
+    - jupyterhub_config.py
+    - env
 
 - name: Copy start-jupyterhub to /opt/jupyterhub
   ansible.builtin.template:
-    src: "start-jupyterhub"
-    dest: "/opt/jupyterhub/start-jupyterhub"
+    src: start-jupyterhub
+    dest: /opt/jupyterhub/start-jupyterhub
     owner: "{{ jupyterhub_user }}"
     group: "{{ jupyterhub_group }}"
     mode: "0755"
 
 - name: Check if jupyterhub cookie secret is already present
   ansible.builtin.stat:
-    path: "/etc/jupyterhub/jupyterhub_cookie_secret"
+    path: /etc/jupyterhub/jupyterhub_cookie_secret
   register: jupyterhub_cookie_secret
 
 - name: Generate jupyterhub cookie secret
-  ansible.builtin.shell: "openssl rand -hex 32 > /etc/jupyterhub/jupyterhub_cookie_secret"
+  ansible.builtin.shell: openssl rand -hex 32 > /etc/jupyterhub/jupyterhub_cookie_secret
   when: not jupyterhub_cookie_secret.stat.exists
 
 - name: Change permissions for jupyterhub cookie secret
   ansible.builtin.file:
-    path: "/etc/jupyterhub/jupyterhub_cookie_secret"
+    path: /etc/jupyterhub/jupyterhub_cookie_secret
     owner: "{{ jupyterhub_user }}"
     group: "{{ jupyterhub_group }}"
     mode: "0600"
 
 - name: Create system service for JupyterHub
   ansible.builtin.template:
-    src: "jupyterhub.service"
-    dest: "/etc/systemd/system/jupyterhub.service"
+    src: jupyterhub.service
+    dest: /etc/systemd/system/jupyterhub.service
     mode: "0644"
 
 - name: Enable jupyterhub service
   ansible.builtin.systemd:
-    name: "jupyterhub.service"
+    name: jupyterhub.service
     enabled: true
     daemon_reload: true
 
 - name: Stop jupyterhub service
   ansible.builtin.systemd:
-    name: "jupyterhub.service"
+    name: jupyterhub.service
     state: stopped
 
 - name: Start jupyterhub service
   ansible.builtin.systemd:
-    name: "jupyterhub.service"
+    name: jupyterhub.service
     state: started

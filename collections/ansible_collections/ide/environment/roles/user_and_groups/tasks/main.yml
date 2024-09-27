@@ -1,3 +1,4 @@
+---
 - name: Create service group
   become: true
   ansible.builtin.group:
@@ -5,12 +6,17 @@
     gid: "{{ service_gid }}"
     state: present
 
-- name: Create service user
+- name: Gather available local users
+  ansible.builtin.getent:
+    database: passwd
+
+- name: Create service user when not already present
   become: true
   ansible.builtin.user:
     name: "{{ service_user }}"
-    comment: "User for {{ service_name }}"
+    comment: User for {{ service_name }}
     uid: "{{ service_uid }}"
     group: "{{ service_gid }}"
     state: present
     shell: /bin/bash
+  when: service_user not in getent_passwd.keys()

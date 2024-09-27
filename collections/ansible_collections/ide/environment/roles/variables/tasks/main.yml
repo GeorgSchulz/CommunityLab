@@ -1,5 +1,6 @@
+---
 - name: Get Java Home
-  ansible.builtin.shell: "dirname $(dirname $(readlink -f $(which java)))"
+  ansible.builtin.shell: dirname $(dirname $(readlink -f $(which java)))
   register: java_home
 
 - name: Set Java Home variable

@@ -1,13 +1,14 @@
+---
 - name: Create folder /usr/share/man/man1
   become: true
   ansible.builtin.file:
-    path: "/usr/share/man/man1"
+    path: /usr/share/man/man1
     state: directory
     mode: "0755"
 
 - name: Install OpenJDK
   become: true
   ansible.builtin.apt:
-    name: "openjdk-8-jdk"
+    name: openjdk-8-jdk
     state: present
     update_cache: true

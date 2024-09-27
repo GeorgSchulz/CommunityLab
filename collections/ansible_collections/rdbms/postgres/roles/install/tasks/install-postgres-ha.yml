@@ -1,0 +1,158 @@
+---
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Install PostgreSQL
+  when: "'postgresql-16' not in ansible_facts.packages"
+  block:
+    - name: Install required packages
+      ansible.builtin.apt:
+        name:
+          - wget
+          - python3-psycopg2
+          - acl
+        state: present
+        update_cache: true
+
+    - name: Install PostgreSQL 16 key
+      ansible.builtin.get_url:
+        url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        dest: /etc/apt/trusted.gpg.d/postgresql.asc
+        mode: "0644"
+
+    - name: Add PostgreSQL 16 repository
+      ansible.builtin.apt_repository:
+        repo: deb [signed-by=/etc/apt/trusted.gpg.d/postgresql.asc] http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main
+        state: present
+        update_cache: true
+
+    - name: Install PostgreSQL 16
+      ansible.builtin.apt:
+        name: postgresql-16
+        state: present
+        update_cache: true
+
+- name: Install virtualenv
+  ansible.builtin.apt:
+    name: virtualenv
+    state: present
+
+- name: Copy requirements.txt
+  ansible.builtin.copy:
+    src: requirements.txt
+    dest: /tmp/requirements.txt
+    owner: postgres
+    mode: "0644"
+
+- name: Install requirements for patroni in virtualenv
+  ansible.builtin.pip:
+    requirements: /tmp/requirements.txt
+    virtualenv: /usr/lib/postgresql/16/venv
+
+- name: Change owner of virtualenv to postgres user
+  ansible.builtin.file:
+    path: /usr/lib/postgresql/16/venv
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: "0755"
+    recurse: true
+
+- name: Copy .pgpass file to postgres home directory
+  ansible.builtin.copy:
+    content: |
+      {% for item in postgres_schemes %}
+      {{ item.hostname }}:{{ item.port }}:{{ item.database }}:{{ item.username }}:{{ item.password }}
+      {% endfor %}
+    dest: /var/lib/postgresql/.pgpass
+    owner: postgres
+    group: postgres
+    mode: "0400"
+
+- name: Change ownership of /etc/ssl/private to postgres
+  ansible.builtin.file:
+    path: /etc/ssl/private
+    owner: postgres
+    group: postgres
+    state: directory
+    mode: "0750"
+  when: (custom_inventory_file is defined and not custom_inventory_file) or (tls_external is defined and not tls_external)
+
+- name: Copy cert, fullchain and private key for PostgreSQL cluster
+  ansible.builtin.copy:
+    src: "{{ item.0 }}"
+    dest: /etc/ssl/private/{{ item.1 }}
+    owner: postgres
+    group: postgres
+    mode: "{{ item.2 }}"
+  with_together:
+    - "{{ certs_source }}"
+    - "{{ certs_dest_postgres }}"
+    - "{{ certs_mode }}"
+  loop_control:
+    label: "{{ item.1 }}"
+  when: (custom_inventory_file is defined and not custom_inventory_file) or (tls_external is defined and not tls_external)
+
+- name: Change ownership and mode if external TLS is provided
+  ansible.builtin.file:
+    path: "{{ item.0 }}"
+    owner: postgres
+    group: postgres
+    mode: "{{ item.1 }}"
+  with_together:
+    - "{{ install_ssl_files }}"
+    - "{{ install_ssl_mode }}"
+  loop_control:
+    label: "{{ item.0 }}"
+  when:
+    - custom_inventory_file is defined
+    - custom_inventory_file
+    - tls_external is defined
+    - tls_external
+
+- name: Copy patroni.yml
+  ansible.builtin.template:
+    src: patroni.yml
+    dest: /etc/patroni.yml
+    owner: postgres
+    group: postgres
+    mode: "0644"
+
+- name: Delete present PostgreSQL data
+  when: "'postgresql-16' not in ansible_facts.packages"
+  block:
+    - name: Delete PostgreSQL data for Patroni to initialize
+      ansible.builtin.file:
+        path: /var/lib/postgresql/16/main
+        state: absent
+
+    - name: Create PostgreSQL data folder
+      ansible.builtin.file:
+        path: /var/lib/postgresql/16/main
+        state: directory
+        owner: postgres
+        group: postgres
+        mode: "0700"
+
+- name: Copy systemd unit for patroni
+  ansible.builtin.template:
+    src: patroni.service
+    dest: /etc/systemd/system/patroni.service
+    mode: "0644"
+
+- name: Enable patroni service
+  ansible.builtin.systemd:
+    name: patroni.service
+    enabled: true
+    daemon_reload: true
+
+- name: Stop patroni service
+  ansible.builtin.systemd:
+    name: patroni.service
+    state: stopped
+
+- name: Start patroni service
+  ansible.builtin.systemd:
+    name: patroni.service
+    state: started

@@ -1,37 +1,38 @@
+---
 server_ldap_packages:
-  - "ldap-utils"
-  - "slapd"
+  - ldap-utils
+  - slapd
 
 server_ldap_slapd_debconf:
-  - question: "slapd/password1"
+  - question: slapd/password1
     value: "{{ ldap_password }}"
-  - question: "slapd/internal/adminpw"
+  - question: slapd/internal/adminpw
     value: "{{ ldap_password }}"
-  - question: "slapd/internal/generated_adminpw"
+  - question: slapd/internal/generated_adminpw
     value: "{{ ldap_password }}"
-  - question: "slapd/password2"
+  - question: slapd/password2
     value: "{{ ldap_password }}"
-  - question: "slapd/unsafe_selfwrite_acl"
-    value: "note"
-  - question: "slapd/purge_database"
+  - question: slapd/unsafe_selfwrite_acl
+    value: note
+  - question: slapd/purge_database
     value: "true"
-  - question: "slapd/domain"
+  - question: slapd/domain
     value: "{{ domain }}"
-  - question: "slapd/ppolicy_schema_needs_update"
-    value: "abort installation"
-  - question: "slapd/invalid_config"
+  - question: slapd/ppolicy_schema_needs_update
+    value: abort installation
+  - question: slapd/invalid_config
     value: "true"
-  - question: "slapd/move_old_database"
+  - question: slapd/move_old_database
     value: "false"
-  - question: "slapd/backend"
-    value: "MDB"
-  - question: "shared/organization"
+  - question: slapd/backend
+    value: MDB
+  - question: shared/organization
     value: "{{ ldap_organization }}"
-  - question: "slapd/dump_database_destdir"
-    value: "/var/backups/slapd-VERSION"
-  - question: "slapd/no_configuration"
+  - question: slapd/dump_database_destdir
+    value: /var/backups/slapd-VERSION
+  - question: slapd/no_configuration
     value: "false"
-  - question: "slapd/dump_database"
-    value: "when needed"
-  - question: "slapd/password_mismatch"
-    value: "note"
+  - question: slapd/dump_database
+    value: when needed
+  - question: slapd/password_mismatch
+    value: note

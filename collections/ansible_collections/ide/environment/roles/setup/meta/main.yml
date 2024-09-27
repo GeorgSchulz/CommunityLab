@@ -1,3 +1,4 @@
+---
 dependencies:
   - name: ide.environment.user_and_groups
   - name: ide.environment.folders

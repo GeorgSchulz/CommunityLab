@@ -1,3 +1,4 @@
+---
 - name: Check that group_vars/all.yml exists
   ansible.builtin.stat:
     path: "{{ playbook_dir }}/group_vars/all.yml"
@@ -5,15 +6,15 @@
 
 - name: Print message depending on group_vars/all.yml check
   ansible.builtin.assert:
-    that: "all_yml.stat.exists"
-    fail_msg: "File group_vars/all.yml is not present, please define it for IDE setup. See {{ playbook_dir }}/examples/all.yml for examples."
-    success_msg: "File group_vars/all.yml is present."
+    that: all_yml.stat.exists
+    fail_msg: File group_vars/all.yml is not present, please define it for IDE setup. See {{ playbook_dir }}/examples/all.yml for examples.
+    success_msg: File group_vars/all.yml is present.
 
 - name: Print message depending on variable check
   ansible.builtin.assert:
     that: "{{ item }} is defined"
-    fail_msg: "Variable {{ item }} is not defined in group_vars/all.yml, please define it for IDE setup."
-    success_msg: "Variable {{ item }} is defined."
+    fail_msg: Variable {{ item }} is not defined in group_vars/all.yml, please define it for IDE setup.
+    success_msg: Variable {{ item }} is defined.
   loop:
     - domain
     - realm
@@ -34,5 +35,5 @@
 - name: Print message depending on domain check
   ansible.builtin.assert:
     that: domain_reachable.state is defined and domain_reachable.state == "started"
-    fail_msg: "Configured domain {{ domain }} is not reachable, check your network settings."
-    success_msg: "Configured domain {{ domain }} is reachable and will be used for installation."
+    fail_msg: Configured domain {{ domain }} is not reachable, check your network settings.
+    success_msg: Configured domain {{ domain }} is reachable and will be used for installation.

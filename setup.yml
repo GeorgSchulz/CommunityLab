@@ -1,3 +1,4 @@
+---
 ################################################################################################################
 ##########                Check mandatory variables for installation and configuration                ##########
 ################################################################################################################
@@ -7,7 +8,7 @@
   tags:
     - preflight
   roles:
-    - name: preflight.check.run
+    - role: preflight.check.run
 
 ################################################################################################################
 ##########                Check mandatory variables for installation and configuration                ##########
@@ -24,14 +25,14 @@
     - hostname
   tasks:
     - name: Set hostnames and fqdn for all hosts on global level
-      ansible.builtin.shell: "hostnamectl set-hostname {{ inventory_hostname }}"
+      ansible.builtin.command: hostnamectl set-hostname {{ inventory_hostname }}
       when:
         - custom_inventory_file is defined
-        - custom_inventory_file == false
+        - not custom_inventory_file
 
     - name: Reboot all servers
       ansible.builtin.reboot:
-        msg: "Reboot initiated by Ansible"
+        msg: Reboot initiated by Ansible
         connect_timeout: 5
         reboot_timeout: 600
         pre_reboot_delay: 0
@@ -39,7 +40,7 @@
         test_command: whoami
       when:
         - custom_inventory_file is defined
-        - custom_inventory_file == false
+        - not custom_inventory_file
 
 #################################################################################################################
 ###########                    Set hostnames for all hosts in Hetzner Cloud                            ##########
@@ -55,7 +56,7 @@
   tags:
     - environment
   roles:
-    - name: ide.environment.setup
+    - role: ide.environment.setup
 
 ################################################################################################################
 ##########                              Setup environment for hosts                                   ##########
@@ -70,10 +71,10 @@
   tags:
     - tls
   roles:
-    - name: tls.certs.setup
+    - role: tls.certs.setup
       when:
         - tls_external is defined
-        - tls_external == false
+        - not tls_external
 
 ################################################################################################################
 ##########                              Setup TLS preparation                                         ##########
@@ -90,10 +91,10 @@
     - ldap
     - ldap_server
   roles:
-    - name: authorization.ldap.setup
+    - role: authorization.ldap.setup
       when:
         - ldap_external is defined
-        - ldap_external == false
+        - not ldap_external
 
 - name: Install and configure LDAP client
   hosts: all,!ldap
@@ -102,12 +103,12 @@
     - ldap
     - ldap_client
   roles:
-    - name: authorization.ldap.client
+    - role: authorization.ldap.client
       when:
         - ldap_external is defined
-        - ldap_external == false
+        - not ldap_external
 
-##########################I######################################################################################
+################################################################################################################
 ##########                                   Setup LDAP                                               ##########
 ################################################################################################################
 
@@ -121,10 +122,10 @@
   tags:
     - kerberos
   roles:
-    - name: authentication.kerberos.setup
+    - role: authentication.kerberos.setup
       when:
         - kerberos_external is defined
-        - kerberos_external == false
+        - not kerberos_external
 
 ################################################################################################################
 ##########                              Setup Kerberos server                                         ##########
@@ -140,7 +141,7 @@
   tags:
     - zookeeper
   roles:
-    - name: bigdata.zookeeper.setup
+    - role: bigdata.zookeeper.setup
 
 ################################################################################################################
 ##########                              Setup Zookeeper cluster                                       ##########
@@ -157,13 +158,13 @@
     - hadoop
     - hdfs
   roles:
-    - name: hadoop.common.setup
-    - name: hadoop.hdfs.common
-    - name: hadoop.hdfs.journalnode
+    - role: hadoop.common.setup
+    - role: hadoop.hdfs.common
+    - role: hadoop.hdfs.journalnode
       when:
         - ide_ha_setup is defined
         - ide_ha_setup
-    - name: hadoop.hdfs.namenode
+    - role: hadoop.hdfs.namenode
 
 - name: Install and configure HDFS Datanodes
   hosts: datanodes
@@ -172,9 +173,9 @@
     - hadoop
     - hdfs
   roles:
-    - name: hadoop.common.setup
-    - name: hadoop.hdfs.common
-    - name: hadoop.hdfs.datanode
+    - role: hadoop.common.setup
+    - role: hadoop.hdfs.common
+    - role: hadoop.hdfs.datanode
 
 - name: Check HDFS is running and healthy
   hosts: namenode1
@@ -185,7 +186,7 @@
     - hdfs
     - check
   roles:
-    - name: hadoop.hdfs.check
+    - role: hadoop.hdfs.check
 
 ################################################################################################################
 ##########                              Install and configure HDFS cluster                            ##########
@@ -202,8 +203,8 @@
     - hadoop
     - yarn
   roles:
-    - name: hadoop.yarn.common
-    - name: hadoop.yarn.resourcemanager
+    - role: hadoop.yarn.common
+    - role: hadoop.yarn.resourcemanager
 
 - name: Install and configure YARN nodemanager
   hosts: nodemanagers
@@ -212,8 +213,8 @@
     - hadoop
     - yarn
   roles:
-    - name: hadoop.yarn.common
-    - name: hadoop.yarn.nodemanager
+    - role: hadoop.yarn.common
+    - role: hadoop.yarn.nodemanager
 
 - name: Check YARN is running and healthy
   hosts: resourcemanager1
@@ -224,7 +225,7 @@
     - yarn
     - check
   roles:
-    - name: hadoop.yarn.check
+    - role: hadoop.yarn.check
 
 ################################################################################################################
 ##########                              Install and configure YARN cluster                            ##########
@@ -240,7 +241,7 @@
   tags:
     - spark
   roles:
-    - name: bigdata.spark.common
+    - role: bigdata.spark.common
 
 ################################################################################################################
 ##########                                    Install Spark                                           ##########
@@ -251,15 +252,18 @@
 ################################################################################################################
 
 - name: Install HAProxy and Keepalived for PostgreSQL access
-  hosts: hubs
+  hosts: loadbalancers
   become: true
   tags:
     - jupyter
     - haproxy
     - keepalived
   roles:
-    - name: loadbalancing.haproxy.setup
-    - name: loadbalancing.keepalived.setup
+    - role: loadbalancing.haproxy.setup
+      when:
+        - groups.hubs | length == 2
+        - jupyterhub_domain_ip is defined
+    - role: loadbalancing.keepalived.setup
       when:
         - groups.hubs | length == 2
         - jupyterhub_domain_ip is defined
@@ -271,7 +275,7 @@
     - jupyter
     - postgres
   roles:
-    - name: rdbms.postgres.setup
+    - role: rdbms.postgres.setup
 
 - name: Install JupyterHub
   hosts: hubs
@@ -280,7 +284,7 @@
     - jupyter
     - jupyterhub
   roles:
-    - name: jupyter.hub.setup
+    - role: jupyter.hub.setup
 
 - name: Install JupyterLab
   hosts: jupyterlab
@@ -289,7 +293,7 @@
     - jupyter
     - jupyterlab
   roles:
-    - name: jupyter.lab.setup
+    - role: jupyter.lab.setup
 
 ################################################################################################################
 ##########                     Install and configure JupyterHub and JupyterLab                        ##########

@@ -1,3 +1,4 @@
+---
 - name: Check if JupyterHub GUI is reachable
   ansible.builtin.uri:
     url: "{% if jupyterhub_domain_ip is defined %}{{ jupyterhub_domain }}{% else %}https://{{ inventory_hostname }}{% endif %}"

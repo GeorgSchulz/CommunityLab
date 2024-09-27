@@ -1,35 +1,36 @@
+---
 - name: Delete existing test kerberos principal
-  ansible.builtin.command: "kadmin.local -q \"delprinc -force {{ check_kerberos_propagation_principal }}\""
+  ansible.builtin.command: kadmin.local -q "delprinc -force {{ check_kerberos_propagation_principal }}"
   when: "'kerberos1' in group_names"
 
 - name: Block for Kerberos primary KDC
   when: "'kerberos1' in group_names"
   block:
     - name: Create test kerberos principal on primary KDC
-      ansible.builtin.command: "kadmin.local -q \"addprinc -randkey {{ check_kerberos_propagation_principal }}\""
+      ansible.builtin.command: kadmin.local -q "addprinc -randkey {{ check_kerberos_propagation_principal }}"
 
     - name: Get principals of Kerberos primary KDC
-      ansible.builtin.command: "kadmin.local -q \"listprincs\""
+      ansible.builtin.command: kadmin.local -q "listprincs"
       register: kerberos_primary_principals
 
     - name: Print message depending on listprincs output
       ansible.builtin.assert:
         that: "'{{ check_kerberos_propagation_principal }}@{{ setup_realm }}' in kerberos_primary_principals.stdout"
-        fail_msg: "Kerberos Principal was not created, see Logs for details"
-        success_msg: "Kerberos Principal was successfully created"
+        fail_msg: Kerberos Principal was not created, see Logs for details
+        success_msg: Kerberos Principal was successfully created
 
 - name: Block for Kerberos secondary KDC
   when: "'kerberos2' in group_names"
   block:
     - name: Get principals of Kerberos secondary KDC
-      ansible.builtin.command: "kadmin.local -q \"listprincs\""
+      ansible.builtin.command: kadmin.local -q "listprincs"
       register: kerberos_secondary_principals
 
     - name: Print message depending on listprincs output
       ansible.builtin.assert:
         that: "'{{ check_kerberos_propagation_principal }}@{{ setup_realm }}' in kerberos_secondary_principals.stdout"
-        fail_msg: "Kerberos database replication failed, see Logs for details"
-        success_msg: "Kerberos primary and secondary KDC running and Kerberos database replication successfull"
+        fail_msg: Kerberos database replication failed, see Logs for details
+        success_msg: Kerberos primary and secondary KDC running and Kerberos database replication successfull
 
 - name: Delete test kerberos principal
-  ansible.builtin.command: "kadmin.local -q \"delprinc -force {{ check_kerberos_propagation_principal }}\""
+  ansible.builtin.command: kadmin.local -q "delprinc -force {{ check_kerberos_propagation_principal }}"
