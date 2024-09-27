@@ -1,1 +1,2 @@
-journalnode_hdfs_data_dir: "/var/hadoop/hdfs/journalnode"
+---
+journalnode_hdfs_data_dir: /var/hadoop/hdfs/journalnode

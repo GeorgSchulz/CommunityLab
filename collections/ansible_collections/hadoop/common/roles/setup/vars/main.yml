@@ -1,13 +1,14 @@
+---
 kerberos_keytabs_non_ha:
   - principal: "{{ hdfs_user }}"
-  - principal: "HTTP"
+  - principal: HTTP
     keytab_user: "{{ hdfs_user }}"
 
 kerberos_keytabs_ha:
   - principal: "{{ hdfs_user }}"
   - principal: "{{ journalnode_user }}"
     keytab_user: "{{ journalnode_user }}"
-  - principal: "HTTP"
+  - principal: HTTP
     keytab_user: "{{ hdfs_user }}"
 
 kerberos_keytabs: "{% if ide_ha_setup is defined and ide_ha_setup %}{{ kerberos_keytabs_ha }}{% else %}{{ kerberos_keytabs_non_ha }}{% endif %}"

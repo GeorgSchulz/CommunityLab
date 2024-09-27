@@ -1,21 +1,22 @@
+---
 - name: Create system unit for HDFS datanode
   ansible.builtin.template:
-    src: "hdfs-datanode.service"
-    dest: "/etc/systemd/system/hdfs-datanode.service"
+    src: hdfs-datanode.service
+    dest: /etc/systemd/system/hdfs-datanode.service
     mode: "0644"
 
 - name: Enable hdfs-datanode service
   ansible.builtin.systemd:
-    name: "hdfs-datanode.service"
+    name: hdfs-datanode.service
     enabled: true
     daemon_reload: true
 
 - name: Stop hdfs-datanode service
   ansible.builtin.systemd:
-    name: "hdfs-datanode.service"
+    name: hdfs-datanode.service
     state: stopped
 
 - name: Start hdfs-datanode service
   ansible.builtin.systemd:
-    name: "hdfs-datanode.service"
+    name: hdfs-datanode.service
     state: started

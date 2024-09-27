@@ -11,9 +11,9 @@
       community.docker.docker_network:
         name: example.com
         ipam_config:
-          - subnet: "172.23.27.0/24"
-            gateway: "172.23.27.2"
-            iprange: "172.23.27.0/26"
+          - subnet: 172.23.27.0/24
+            gateway: 172.23.27.2
+            iprange: 172.23.27.0/26
 
     - name: Create container
       become: true
@@ -42,7 +42,7 @@
         item.container.State.ExitCode != 0 or
         not item.container.State.Running
       ansible.builtin.include_tasks:
-        file: create-fail.yml
+        file: tasks/create-fail.yml
       loop: "{{ result.results }}"
       loop_control:
         label: "{{ item.container.Name }}"
@@ -57,7 +57,7 @@
               hub1:
                 hosts:
                   instance-1:
-              loadbalancer1:
+              postgres1:
                 hosts:
                   instance-1:
               kerberos1:
@@ -93,21 +93,9 @@
               nodemanager3:
                 hosts:
                   instance-6:
-              postgres1:
-                hosts:
-                  instance-4:
-              postgres2:
-                hosts:
-                  instance-5:
-              postgres3:
-                hosts:
-                  instance-6:
               hubs:
                 children:
                   hub1:
-              loadbalancers:
-                children:
-                  loadbalancer1:
               ldap:
                 children:
                   ldap1:
@@ -146,8 +134,6 @@
               postgres:
                 children:
                   postgres1:
-                  postgres2:
-                  postgres3:
       ansible.builtin.set_fact:
         molecule_inventory: >
           {{ molecule_inventory | combine(inventory_partial_yaml | from_yaml, recursive=true) }}

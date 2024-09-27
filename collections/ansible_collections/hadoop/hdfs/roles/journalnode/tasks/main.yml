@@ -1,3 +1,4 @@
+---
 - name: Create configurations folder
   ansible.builtin.file:
     path: "{{ journalnode_hdfs_data_dir }}"
@@ -8,22 +9,22 @@
 
 - name: Create system service
   ansible.builtin.template:
-    src: "hdfs-journalnode.service"
-    dest: "/etc/systemd/system/hdfs-journalnode.service"
+    src: hdfs-journalnode.service
+    dest: /etc/systemd/system/hdfs-journalnode.service
     mode: "0644"
 
 - name: Enable hdfs-journalnode service
   ansible.builtin.systemd:
-    name: "hdfs-journalnode.service"
+    name: hdfs-journalnode.service
     enabled: true
     daemon_reload: true
 
 - name: Stop hdfs-journalnode service
   ansible.builtin.systemd:
-    name: "hdfs-journalnode.service"
+    name: hdfs-journalnode.service
     state: stopped
 
 - name: Start hdfs-journalnode service
   ansible.builtin.systemd:
-    name: "hdfs-journalnode.service"
+    name: hdfs-journalnode.service
     state: started

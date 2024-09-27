@@ -1,3 +1,4 @@
+---
 - name: Execute as root user
   become: true
   block:
@@ -10,30 +11,32 @@
         path: "{{ item }}"
         state: absent
       loop:
-        - "/etc/ssl/private/{{ tls_hostname }}.jks"
-        - "/etc/ssl/private/{{ tls_hostname }}.p12"
+        - /etc/ssl/private/{{ tls_hostname }}.jks
+        - /etc/ssl/private/{{ tls_hostname }}.p12
 
     - name: Generate PKCS 12 archive for building java keystore if CA name is Let's Encrypt
-      when: self_signed_certificates == false
-      ansible.builtin.shell: "openssl pkcs12 -export -in /etc/ssl/private/cert.pem -inkey /etc/ssl/private/key.pem \
-        -out /etc/ssl/private/{{ tls_hostname }}.p12 -name {{ tls_hostname }} \
+      when: not self_signed_certificates
+      ansible.builtin.command: openssl pkcs12 -export -in /etc/ssl/private/cert.pem \
+        -inkey /etc/ssl/private/key.pem \
+        -out /etc/ssl/private/{{ tls_hostname }}.p12 \
+        -name {{ tls_hostname }} \
         -CAfile /etc/ssl/private/chain.pem \
-        -caname \"Let's Encrypt Authority X3\" -password pass:{{ keystore_password }}"
-
+        -caname "Let's Encrypt Authority X3" -password pass:{{ keystore_password }}
     - name: Generate PKCS 12 archive for building java keystore if CA name is not Let's Encrypt
-      when: self_signed_certificates == true
-      ansible.builtin.shell: "openssl pkcs12 -export -in /etc/ssl/private/cert.pem -inkey /etc/ssl/private/key.pem \
-        -out /etc/ssl/private/{{ tls_hostname }}.p12 -name {{ tls_hostname }} \
+      when: self_signed_certificates
+      ansible.builtin.command: openssl pkcs12 -export -in /etc/ssl/private/cert.pem \
+        -inkey /etc/ssl/private/key.pem \
+        -out /etc/ssl/private/{{ tls_hostname }}.p12 \
+        -name {{ tls_hostname }} \
         -CAfile /etc/ssl/private/chain.pem \
-        -caname \"Self Signed Authority X3\" -password pass:{{ keystore_password }}"
-
+        -caname "Self Signed Authority X3" -password pass:{{ keystore_password }}
     - name: Create java keystore
-      ansible.builtin.shell: "keytool -importkeystore -deststorepass {{ keystore_password }} \
-                              -destkeypass {{ keystore_password }} -deststoretype pkcs12 \
-                              -srckeystore /etc/ssl/private/{{ tls_hostname }}.p12 -srcstoretype PKCS12 \
-                              -srcstorepass {{ keystore_password }} \
-                              -destkeystore /etc/ssl/private/{{ tls_hostname }}.jks -alias {{ tls_hostname }}"
-
+      ansible.builtin.command: keytool -importkeystore -deststorepass {{ keystore_password }} \
+        -destkeypass {{ keystore_password }} -deststoretype pkcs12 \
+        -srckeystore /etc/ssl/private/{{ tls_hostname }}.p12 \
+        -srcstoretype PKCS12 -srcstorepass {{ keystore_password }} \
+        -destkeystore /etc/ssl/private/{{ tls_hostname }}.jks \
+        -alias {{ tls_hostname }}
     - name: Give access to created java keystore
       ansible.builtin.file:
         path: "{{ item }}"
@@ -41,5 +44,5 @@
         group: "{{ tls_group }}"
         mode: "0440"
       loop:
-        - "/etc/ssl/private/{{ tls_hostname }}.jks"
-        - "/etc/ssl/private/{{ tls_hostname }}.p12"
+        - /etc/ssl/private/{{ tls_hostname }}.jks
+        - /etc/ssl/private/{{ tls_hostname }}.p12

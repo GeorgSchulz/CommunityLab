@@ -1,5 +1,6 @@
+---
 - name: Create system service
   ansible.builtin.template:
-    src: "hdfs-zkfc.service"
-    dest: "/etc/systemd/system/hdfs-zkfc.service"
+    src: hdfs-zkfc.service
+    dest: /etc/systemd/system/hdfs-zkfc.service
     mode: "0644"

@@ -1,10 +1,11 @@
+---
 - name: Copy consumer_simple_sync.ldif to ldap consumer
   ansible.builtin.template:
-    src: "consumer_simple_sync.ldif"
-    dest: "/tmp/consumer_simple_sync.ldif"
+    src: consumer_simple_sync.ldif
+    dest: /tmp/consumer_simple_sync.ldif
     mode: "0644"
 
 - name: Add consumer_simple_sync.ldif to ldap consumer
   failed_when: ldapadd.rc not in [0,20]
-  ansible.builtin.command: "ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/consumer_simple_sync.ldif"
+  ansible.builtin.command: ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/consumer_simple_sync.ldif
   register: ldapadd

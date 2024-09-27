@@ -1,3 +1,4 @@
+---
 - name: Install packages on Kerberos primary and secondary KDC
   ansible.builtin.include_tasks: install-ha.yml
 

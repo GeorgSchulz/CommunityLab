@@ -1,3 +1,4 @@
+---
 - name: Configure HDFS ZKFC
   ansible.builtin.include_tasks: configure-zkfc.yml
   when:
@@ -14,7 +15,7 @@
 
 - name: Enable HDFS ZKFC
   ansible.builtin.systemd_service:
-    name: "hdfs-zkfc.service"
+    name: hdfs-zkfc.service
     enabled: true
   when:
     - ide_ha_setup is defined
@@ -22,17 +23,17 @@
 
 - name: Enable HDFS namenode
   ansible.builtin.systemd_service:
-    name: "hdfs-namenode.service"
+    name: hdfs-namenode.service
     enabled: true
 
 - name: Stop HDFS namenode
   ansible.builtin.systemd_service:
-    name: "hdfs-namenode.service"
+    name: hdfs-namenode.service
     state: stopped
 
 - name: Stop HDFS ZKFC
   ansible.builtin.systemd_service:
-    name: "hdfs-zkfc.service"
+    name: hdfs-zkfc.service
     state: stopped
   when:
     - ide_ha_setup is defined
@@ -41,7 +42,7 @@
 - name: Format HDFS ZKFC
   become: true
   become_user: "{{ hdfs_user }}"
-  ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs zkfc -formatZK -force"
+  ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs zkfc -formatZK -force
   when:
     - "'namenode1' in group_names"
     - not namenode_initialized_dir.stat.exists
@@ -51,14 +52,14 @@
 - name: Format HDFS namenode
   become: true
   become_user: "{{ hdfs_user }}"
-  ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs namenode -format -force"
+  ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs namenode -format -force
   when:
     - "'namenode1' in group_names"
     - not namenode_initialized_dir.stat.exists
 
 - name: Start HDFS ZKFC
   ansible.builtin.systemd_service:
-    name: "hdfs-zkfc.service"
+    name: hdfs-zkfc.service
     state: started
   when:
     - ide_ha_setup is defined
@@ -66,14 +67,14 @@
 
 - name: Start HDFS namenode
   ansible.builtin.systemd_service:
-    name: "hdfs-namenode.service"
+    name: hdfs-namenode.service
     state: started
   when: "'namenode1' in group_names"
 
 - name: Bootstrap HDFS namenode
   become: true
   become_user: "{{ hdfs_user }}"
-  ansible.builtin.command: "/opt/apache-hadoop/hadoop/bin/hdfs namenode -bootstrapStandby -nonInteractive -force"
+  ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs namenode -bootstrapStandby -nonInteractive -force
   when:
     - "'master1' not in group_names"
     - not namenode_initialized_dir.stat.exists
@@ -82,7 +83,7 @@
 
 - name: Start HDFS namenode
   ansible.builtin.systemd_service:
-    name: "hdfs-namenode.service"
+    name: hdfs-namenode.service
     state: started
   when:
     - "'namenode1' not in group_names"

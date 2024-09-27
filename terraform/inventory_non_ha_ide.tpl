@@ -8,16 +8,10 @@ all:
         zookeeper_id: 1
     worker1:
       hosts: "worker1.${domain}"
-      vars:
-        patroni_id: 1
     worker2:
       hosts: "worker2.${domain}"
-      vars:
-        patroni_id: 2
     worker3:
       hosts: "worker3.${domain}"
-      vars:
-        patroni_id: 3
     security1:
       hosts: "security1.${domain}"
     hubs:
@@ -32,12 +26,17 @@ all:
         tls_user: "{{ jupyterhub_user }}"
         tls_group: "{{ jupyterhub_group }}"
         keytab_group: "{{ jupyterhub_group }}"
-    loadbalancers:
+    postgres:
       children:
         hub1:
       vars:
-        haproxy_admin_password: "changeit"
-        haproxy_pem_file: "/etc/ssl/private/haproxy.pem"
+        postgres_schemes:
+          - username: "jupyterhub"
+            database: "jupyterhub"
+            password: "{{ jupyterhub_user_password }}"
+            port: 5432
+            hostname: "*"
+            scheme: "jupyterhub"
     namenode1:
       children:
         master1:
@@ -84,33 +83,6 @@ all:
         worker1:
         worker2:
         worker3:
-    postgres:
-      children:
-        worker1:
-        worker2:
-        worker3:
-      vars:
-        cert_file_postgres: "/etc/ssl/private/cert_postgres.pem"
-        key_file_postgres: "/etc/ssl/private/key_postgres.pem"
-        chain_file_postgres: "/etc/ssl/private/chain_postgres.pem"
-        certs_dest_postgres:
-          - "cert_postgres.pem"
-          - "chain_postgres.pem"
-          - "key_postgres.pem"
-        postgres_user_password: "changeit"
-        repl_user_password: "changeit"
-        postgres_schemes:
-          - username: "postgres"
-            database: "postgres"
-            password: "{{ postgres_user_password }}"
-            port: 5432
-            hostname: "*"
-          - username: "jupyterhub"
-            database: "jupyterhub"
-            password: "{{ jupyterhub_user_password }}"
-            port: 5432
-            hostname: "*"
-            scheme: "jupyterhub"
     jupyterlab:
       children:
         worker1:
@@ -191,4 +163,4 @@ all:
     realm: "COMMUNITY.LAB"
     keytab_folder: "/etc/keytabs"
     hadoop_nameservice: "communitylab"
-    postgres_host: "{{ groups.hub1[0] }}"
+    postgres_host: ""

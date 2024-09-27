@@ -1,3 +1,4 @@
+---
 dependencies:
   - name: authentication.kerberos.get_facts
   - name: authentication.kerberos.server

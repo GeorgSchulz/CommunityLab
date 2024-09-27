@@ -1,3 +1,4 @@
+---
 - name: Install Apache Zookeeper
   ansible.builtin.include_tasks: install.yml
 
@@ -6,15 +7,15 @@
 
 - name: Enable Apache Zookeeper service
   ansible.builtin.systemd_service:
-    name: "zookeeper.service"
+    name: zookeeper.service
     enabled: true
 
 - name: Stop Apache Zookeeper service
   ansible.builtin.systemd_service:
-    name: "zookeeper.service"
+    name: zookeeper.service
     state: stopped
 
 - name: Start Apache Zookeeper service
   ansible.builtin.systemd_service:
-    name: "zookeeper.service"
+    name: zookeeper.service
     state: started

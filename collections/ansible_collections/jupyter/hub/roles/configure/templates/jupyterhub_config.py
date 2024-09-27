@@ -5,7 +5,12 @@ c.Authenticator.allow_all = True
 c.JupyterHub.authenticator_class = 'ldapauthenticator.LDAPAuthenticator'
 c.LDAPAuthenticator.use_ssl =  True
 c.LDAPAuthenticator.server_port = 636
+{% if groups.ldap | length == 1 %}
+c.LDAPAuthenticator.server_address =  "{{ groups.ldap1[0] }}"
+{% endif %}
+{% if groups.ldap | length == 2 %}
 c.LDAPAuthenticator.server_address =  "127.0.0.1" # HAProxy that routes to one or multipe LDAP servers, reason is that multiple LDAP servers can not be configured here
+{% endif %}
 c.LDAPAuthenticator.lookup_dn_search_user = '{{ ldap_bind_user }}'
 c.LDAPAuthenticator.lookup_dn_search_password = '{{ ldap_password }}'
 c.LDAPAuthenticator.bind_dn_template = '{{ ldap_bind_dn_template }}'
@@ -17,7 +22,7 @@ c.LDAPAuthenticator.user_attribute = 'uid'
 c.LDAPAuthenticator.escape_userdn = False
 c.LDAPAuthenticator.user_search_base = '{{ ldap_user_search_base }}'
 
-c.JupyterHub.db_url = 'postgresql://{{ jupyterhub_user }}:{{ jupyterhub_user_password }}@{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}:5432/jupyterhub'
+c.JupyterHub.db_url = 'postgresql://{{ jupyterhub_user }}:{{ jupyterhub_user_password }}@localhost:5432/jupyterhub'
 c.JupyterHub.cookie_secret_file = '/etc/jupyterhub/jupyterhub_cookie_secret'
 c.JupyterHub.bind_url = "https://{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}:8443"
 c.JupyterHub.hub_ip = ''

@@ -1,9 +1,10 @@
+---
 - name: Execute as root user
   become: true
   block:
     - name: Change owner of /etc/ssl/private to certificate user
       ansible.builtin.file:
-        path: "/etc/ssl/private"
+        path: /etc/ssl/private
         state: directory
         owner: "{{ tls_user }}"
         group: "{{ tls_group }}"
@@ -12,7 +13,7 @@
     - name: Copy cert, fullchain and private key to server
       ansible.builtin.copy:
         src: "{{ item.0 }}"
-        dest: "/etc/ssl/private/{{ item.1 }}"
+        dest: /etc/ssl/private/{{ item.1 }}
         owner: "{{ tls_user }}"
         group: "{{ tls_group }}"
         mode: "{{ item.2 }}"

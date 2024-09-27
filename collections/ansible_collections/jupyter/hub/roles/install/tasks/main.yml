@@ -1,12 +1,13 @@
+---
 - name: Install git
   ansible.builtin.apt:
-    name: "git"
+    name: git
     state: present
     update_cache: true
 
 - name: Check if jupyterhub environment is already present
   ansible.builtin.stat:
-    path: "/opt/miniforge/miniforge/envs/jupyterhub/bin/python"
+    path: /opt/miniforge/miniforge/envs/jupyterhub/bin/python
   register: jupyterhub_env
 
 - name: Install jupyterhub environment if not present
@@ -32,4 +33,4 @@
         executable: /bin/bash
 
     - name: Change owner to jupyterhub user and group - use shell module because of better performance
-      ansible.builtin.command: "chown {{ jupyterhub_user }}:{{ jupyterhub_group }} -R {{ install_miniforge_base_path }}/envs/jupyterhub"
+      ansible.builtin.command: chown {{ jupyterhub_user }}:{{ jupyterhub_group }} -R {{ install_miniforge_base_path }}/envs/jupyterhub

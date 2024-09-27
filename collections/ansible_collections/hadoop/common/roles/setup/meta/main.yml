@@ -1,3 +1,4 @@
+---
 dependencies:
   - name: ide.environment.variables
   - name: authentication.kerberos.client

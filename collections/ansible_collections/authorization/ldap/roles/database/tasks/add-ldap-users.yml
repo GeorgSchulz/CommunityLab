@@ -1,20 +1,21 @@
+---
 - name: Copy user.ldif to ldap server
   ansible.builtin.template:
-    src: "user.ldif"
-    dest: "/tmp/user.ldif"
+    src: user.ldif
+    dest: /tmp/user.ldif
     mode: "0644"
 
 - name: Copy add-to-group.ldif to ldap server
   ansible.builtin.template:
-    src: "add-to-group.ldif"
-    dest: "/tmp/add-to-group.ldif"
+    src: add-to-group.ldif
+    dest: /tmp/add-to-group.ldif
     mode: "0644"
 
 - name: Add specific IDE user
   failed_when: ldapadd.rc not in [0,68]
-  ansible.builtin.command: "ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/user.ldif"
+  ansible.builtin.command: ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/user.ldif
   register: ldapadd
 
 - name: Set password for specific IDE user
-  ansible.builtin.command: "ldappasswd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
-                            -s {{ item.password }} uid={{ item.name }},ou=people,{{ ldap_organization }}"
+  ansible.builtin.command: ldappasswd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
+    -s {{ item.password }} uid={{ item.name }},ou=people,{{ ldap_organization }}

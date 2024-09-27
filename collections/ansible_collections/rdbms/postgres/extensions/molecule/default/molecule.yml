@@ -14,39 +14,6 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - /var/lib/containerd
-  - name: instance-2
-    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
-    command: /usr/lib/systemd/systemd
-    pre_build_image: true
-    cgroupns_mode: host
-    ipv4_address: 172.23.27.4
-    privileged: true
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:rw
-      - /lib/modules:/lib/modules:rw
-      - /var/lib/containerd
-  - name: instance-3
-    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
-    command: /usr/lib/systemd/systemd
-    pre_build_image: true
-    cgroupns_mode: host
-    ipv4_address: 172.23.27.5
-    privileged: true
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:rw
-      - /lib/modules:/lib/modules:rw
-      - /var/lib/containerd
-  - name: instance-4
-    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
-    command: /usr/lib/systemd/systemd
-    pre_build_image: true
-    cgroupns_mode: host
-    ipv4_address: 172.23.27.6
-    privileged: true
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:rw
-      - /lib/modules:/lib/modules:rw
-      - /var/lib/containerd
 provisioner:
   name: ansible
   log: false
@@ -60,65 +27,30 @@ provisioner:
         molecule_deployment: true
         self_signed_certificates: true
         tls_external: false
-        domain: "example.com"
-      loadbalancers:
-        haproxy_admin_password: "changeit"
-        haproxy_pem_file: "/etc/ssl/private/haproxy.pem"
-        tls_user: "root"
-        tls_group: "root"
-      zookeeper:
-        zookeeper_user: "zookeeper"
-        zookeeper_group: "zookeeper"
-        service_user: "zookeeper"
-        service_name: "Apache Zookeeper"
-        service_uid: "5001"
-        service_group: "zookeeper"
-        service_gid: "4001"
-        tls_user: "zookeeper"
-        tls_group: "zookeeper"
-        keystore_file: "/etc/ssl/private/{{ ansible_fqdn }}.jks"
-        keystore_password: "changeit"
-        truststore_file: "/etc/ssl/certs/truststore.jks"
-        truststore_password: "changeit"
-      zookeeper1:
-        zookeeper_id: 1
+        domain: example.com
       postgres:
-        tls_user: "root"
-        tls_group: "root"
+        tls_user: root
+        tls_group: root
         certs_source:
-          - "/opt/selfsigned/{{ ansible_fqdn }}/cert.pem"
-          - "/opt/selfsigned/{{ ansible_fqdn }}/RootCA.pem"
-          - "/opt/selfsigned/{{ ansible_fqdn }}/key.pem"
+          - /opt/selfsigned/{{ ansible_fqdn }}/cert.pem
+          - /opt/selfsigned/{{ ansible_fqdn }}/RootCA.pem
+          - /opt/selfsigned/{{ ansible_fqdn }}/key.pem
         certs_mode:
           - "0660"
           - "0660"
           - "0400"
         certs_dest_postgres:
-          - "cert_postgres.pem"
-          - "chain_postgres.pem"
-          - "key_postgres.pem"
-        cert_file_postgres: "/etc/ssl/private/cert_postgres.pem"
-        key_file_postgres: "/etc/ssl/private/key_postgres.pem"
-        chain_file_postgres: "/etc/ssl/private/chain_postgres.pem"
-        jupyterhub_user_password: "changeit"
-        postgres_user_password: "changeit"
-        repl_user_password: "changeit"
-        postgres_host: "{{ groups.loadbalancer1[0] + '.' + domain }}"
+          - cert_postgres.pem
+          - chain_postgres.pem
+          - key_postgres.pem
+        cert_file_postgres: /etc/ssl/private/cert_postgres.pem
+        key_file_postgres: /etc/ssl/private/key_postgres.pem
+        chain_file_postgres: /etc/ssl/private/chain_postgres.pem
+        postgres_host: ""
         postgres_schemes:
-          - username: "postgres"
-            database: "postgres"
-            password: "{{ postgres_user_password }}"
+          - username: jupyterhub
+            database: jupyterhub
+            password: changeit
             port: 5432
             hostname: "*"
-          - username: "jupyterhub"
-            database: "jupyterhub"
-            password: "{{ jupyterhub_user_password }}"
-            port: 5432
-            hostname: "*"
-            scheme: "jupyterhub"
-      postgres1:
-        patroni_id: 1
-      postgres2:
-        patroni_id: 2
-      postgres3:
-        patroni_id: 3
+            scheme: jupyterhub

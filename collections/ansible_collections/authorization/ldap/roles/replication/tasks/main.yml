@@ -1,3 +1,4 @@
+---
 - name: Configure ldap provider
   ansible.builtin.include_tasks: configure-ldap-provider.yml
   when: "'security1' in group_names"

@@ -1,27 +1,28 @@
+---
 - name: Download miniforge installation script
   failed_when: false
   ansible.builtin.get_url:
-    url: "https://github.com/conda-forge/miniforge/releases/latest/download/{{ install_miniforge_version }}.sh"
-    dest: "/var/tmp/{{ install_miniforge_version }}.sh"
+    url: https://github.com/conda-forge/miniforge/releases/latest/download/{{ install_miniforge_version }}.sh
+    dest: /var/tmp/{{ install_miniforge_version }}.sh
     mode: "0644"
 
 - name: Check if miniforge is already installed
   ansible.builtin.stat:
-    path: "/opt/miniforge/{{ install_miniforge_version }}"
+    path: /opt/miniforge/{{ install_miniforge_version }}
   register: miniforge_install
 
 - name: Install miniforge using miniforge installation script when not already present
-  ansible.builtin.shell: "bash /var/tmp/{{ install_miniforge_version }}.sh -b -p /opt/miniforge/{{ install_miniforge_version }}"
+  ansible.builtin.command: bash /var/tmp/{{ install_miniforge_version }}.sh -b -p /opt/miniforge/{{ install_miniforge_version }}
   when: not miniforge_install.stat.exists
 
 - name: Change ownership to miniforge user and group
-  ansible.builtin.shell: "chown -R {{ miniforge_user }}:{{ miniforge_group }} /opt/miniforge"
+  ansible.builtin.command: chown -R {{ miniforge_user }}:{{ miniforge_group }} /opt/miniforge
   when: not miniforge_install.stat.exists
 
 - name: Create symbolic link
   ansible.builtin.file:
-    dest: "/opt/miniforge/miniforge"
-    src: "/opt/miniforge/{{ install_miniforge_version }}"
+    dest: /opt/miniforge/miniforge
+    src: /opt/miniforge/{{ install_miniforge_version }}
     state: link
     owner: "{{ miniforge_user }}"
     group: "{{ miniforge_group }}"

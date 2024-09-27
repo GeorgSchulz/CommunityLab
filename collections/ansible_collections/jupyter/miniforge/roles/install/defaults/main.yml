@@ -1,1 +1,2 @@
-install_miniforge_version: "Miniforge3-Linux-x86_64"
+---
+install_miniforge_version: Miniforge3-Linux-x86_64

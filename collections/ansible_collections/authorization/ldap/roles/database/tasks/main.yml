@@ -1,15 +1,16 @@
+---
 - name: Copy ldifs for organization and group creation to ldap server
   ansible.builtin.template:
     src: "{{ item }}"
-    dest: "/tmp/{{ item }}"
+    dest: /tmp/{{ item }}
     mode: "0644"
   loop:
-     - "org_people.ldif"
-     - "org_groups.ldif"
-     - "group.ldif"
+    - org_people.ldif
+    - org_groups.ldif
+    - group.ldif
 
 - name: Create organization unit for IDE users
-  ansible.builtin.command: "ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/org_people.ldif"
+  ansible.builtin.command: ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/org_people.ldif
   register: ldapadd
   until: ldapadd.rc in [0,68]
   retries: 5
@@ -17,12 +18,12 @@
   failed_when: ldapadd.rc not in [0,68]
 
 - name: Create organization unit for IDE groups
-  ansible.builtin.command: "ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/org_groups.ldif"
+  ansible.builtin.command: ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/org_groups.ldif
   register: ldapadd
   failed_when: ldapadd.rc not in [0,68]
 
 - name: Create group for IDE users
-  ansible.builtin.command: "ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/group.ldif"
+  ansible.builtin.command: ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/group.ldif
   register: ldapadd
   failed_when: ldapadd.rc not in [0,68]
 

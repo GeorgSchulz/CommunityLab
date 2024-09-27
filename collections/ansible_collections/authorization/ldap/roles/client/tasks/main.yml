@@ -1,50 +1,51 @@
+---
 - name: Install relevant apt packages for sssd
   ansible.builtin.apt:
     name: "{{ item }}"
     state: present
     update_cache: true
   loop:
-    - "sssd"
-    - "libpam-sss"
-    - "libnss-sss"
+    - sssd
+    - libpam-sss
+    - libnss-sss
 
 - name: Create directory /etc/ldap if not present
   ansible.builtin.file:
-    path: "/etc/ldap"
+    path: /etc/ldap
     state: directory
-    owner: "root"
-    group: "root"
+    owner: root
+    group: root
     mode: "0755"
 
 - name: Configure ldap.conf
   ansible.builtin.template:
-    src: "ldap.conf"
-    dest: "/etc/ldap/ldap.conf"
+    src: ldap.conf
+    dest: /etc/ldap/ldap.conf
     mode: "0644"
 
 - name: Configure /etc/nsswitch and pam files for sssd
-  ansible.builtin.command: "pam-auth-update --enable mkhomedir"
+  ansible.builtin.command: pam-auth-update --enable mkhomedir
 
 - name: Configure sssd with main configuration file sssd.conf
   ansible.builtin.template:
-    src: "sssd.conf"
-    dest: "/etc/sssd/sssd.conf"
-    owner: "root"
-    group: "root"
+    src: sssd.conf
+    dest: /etc/sssd/sssd.conf
+    owner: root
+    group: root
     mode: "0600"
 
 - name: Enable sssd service
   ansible.builtin.systemd_service:
-    name: "sssd.service"
+    name: sssd.service
     enabled: true
     daemon_reload: true
 
 - name: Stop sssd service
   ansible.builtin.systemd_service:
-    name: "sssd.service"
+    name: sssd.service
     state: stopped
 
 - name: Start sssd service
   ansible.builtin.systemd_service:
-    name: "sssd.service"
+    name: sssd.service
     state: started
