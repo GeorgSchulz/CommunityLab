@@ -16,19 +16,6 @@
     state: present
     shell: /bin/bash
 
-- name: Create journalnode user
-  become: true
-  when:
-    - ide_ha_setup is defined
-    - ide_ha_setup
-  ansible.builtin.user:
-    name: "{{ journalnode_user }}"
-    comment: User for Apache Hadoop
-    uid: "{{ journalnode_uid }}"
-    group: "{{ setup_hdfs_gid }}"
-    state: present
-    shell: /bin/bash
-
 - name: Create HDFS keytab
   when:
     - kerberos_external is defined

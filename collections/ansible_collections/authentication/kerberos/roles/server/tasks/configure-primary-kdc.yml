@@ -104,10 +104,10 @@
     - krb5-admin-server
 
 - name: Fetch stash and service.keyfile to ansible server
-  ansible.posix.synchronize:
+  ansible.builtin.fetch:
     src: /etc/krb5kdc/{{ item }}
     dest: /tmp/
-    mode: pull
+    flat: true
   loop:
     - .k5.{{ realm }}
     - service.keyfile

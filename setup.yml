@@ -162,8 +162,7 @@
     - role: hadoop.hdfs.common
     - role: hadoop.hdfs.journalnode
       when:
-        - ide_ha_setup is defined
-        - ide_ha_setup
+        - groups.namenodes | length == 3
     - role: hadoop.hdfs.namenode
 
 - name: Install and configure HDFS Datanodes

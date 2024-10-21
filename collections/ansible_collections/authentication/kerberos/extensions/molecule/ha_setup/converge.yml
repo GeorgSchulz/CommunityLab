@@ -1,0 +1,10 @@
+---
+- name: Setup Kerberos server
+  hosts: kerberos
+  gather_facts: true
+  roles:
+    - role: ide.environment.user_and_groups
+    - role: tls.certs.issue
+    - role: tls.certs.distribute
+    - role: authorization.ldap.setup
+    - role: authentication.kerberos.setup

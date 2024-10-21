@@ -7,9 +7,7 @@
   ansible.builtin.command: kinit -k hdfs/{{ keytab_principal_hostname }}@{{ realm }} -t {{ keytab_folder }}/hdfs.keytab
 
 - name: Block for IDE HA setup
-  when:
-    - ide_ha_setup is defined
-    - ide_ha_setup
+  when: groups.namenodes | length == 3
   block:
     - name: Check if HDFS namenodes are running
       ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs haadmin -getAllServiceState

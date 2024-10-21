@@ -2,15 +2,19 @@
 - name: Configure HDFS ZKFC
   ansible.builtin.include_tasks: configure-zkfc.yml
   when:
-    - ide_ha_setup is defined
-    - ide_ha_setup
+    - groups.namenodes | length == 3
 
 - name: Configure HDFS namenode
   ansible.builtin.include_tasks: configure-namenode.yml
 
+- name: Set fact for initializing process
+  ansible.builtin.set_fact:
+    namenode_hdfs_data_dir_current: "{{ namenode_hdfs_data_dir + '/namenode/storage1/current' if groups.namenodes | length == 3 else namenode_hdfs_data_dir + '/namenode/current'
+      }}"
+
 - name: Check HDFS is already initialized
   ansible.builtin.stat:
-    path: "{{ namenode_hdfs_data_dir }}/namenode/current"
+    path: "{{ namenode_hdfs_data_dir_current }}"
   register: namenode_initialized_dir
 
 - name: Enable HDFS ZKFC
@@ -18,8 +22,7 @@
     name: hdfs-zkfc.service
     enabled: true
   when:
-    - ide_ha_setup is defined
-    - ide_ha_setup
+    - groups.namenodes | length == 3
 
 - name: Enable HDFS namenode
   ansible.builtin.systemd_service:
@@ -36,8 +39,7 @@
     name: hdfs-zkfc.service
     state: stopped
   when:
-    - ide_ha_setup is defined
-    - ide_ha_setup
+    - groups.namenodes | length == 3
 
 - name: Format HDFS ZKFC
   become: true
@@ -46,8 +48,7 @@
   when:
     - "'namenode1' in group_names"
     - not namenode_initialized_dir.stat.exists
-    - ide_ha_setup is defined
-    - ide_ha_setup
+    - groups.namenodes | length == 3
 
 - name: Format HDFS namenode
   become: true
@@ -62,8 +63,7 @@
     name: hdfs-zkfc.service
     state: started
   when:
-    - ide_ha_setup is defined
-    - ide_ha_setup
+    - groups.namenodes | length == 3
 
 - name: Start HDFS namenode
   ansible.builtin.systemd_service:
@@ -71,21 +71,19 @@
     state: started
   when: "'namenode1' in group_names"
 
-- name: Bootstrap HDFS namenode
+- name: Bootstrap HDFS secondary and tertiary namenode
   become: true
   become_user: "{{ hdfs_user }}"
   ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs namenode -bootstrapStandby -nonInteractive -force
   when:
-    - "'master1' not in group_names"
+    - "'namenode1' not in group_names"
     - not namenode_initialized_dir.stat.exists
-    - ide_ha_setup is defined
-    - ide_ha_setup
+    - groups.namenodes | length == 3
 
-- name: Start HDFS namenode
+- name: Start HDFS secondary and tertiary namenode
   ansible.builtin.systemd_service:
     name: hdfs-namenode.service
     state: started
   when:
     - "'namenode1' not in group_names"
-    - ide_ha_setup is defined
-    - ide_ha_setup
+    - groups.namenodes | length == 3

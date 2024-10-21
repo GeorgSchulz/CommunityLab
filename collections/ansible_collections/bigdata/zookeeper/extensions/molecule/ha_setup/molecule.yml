@@ -1,0 +1,83 @@
+---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yml
+platforms:
+  - name: instance-1
+    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
+    command: /usr/lib/systemd/systemd
+    pre_build_image: true
+    cgroupns_mode: host
+    ipv4_address: 172.23.27.3
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
+  - name: instance-2
+    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
+    command: /usr/lib/systemd/systemd
+    pre_build_image: true
+    cgroupns_mode: host
+    ipv4_address: 172.23.27.4
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
+  - name: instance-3
+    image: docker.io/geerlingguy/docker-ubuntu2404-ansible
+    command: /usr/lib/systemd/systemd
+    pre_build_image: true
+    cgroupns_mode: host
+    ipv4_address: 172.23.27.5
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
+provisioner:
+  name: ansible
+  log: false
+  options:
+    vvv: false
+  playbooks:
+    converge: converge.yml
+  inventory:
+    group_vars:
+      all:
+        molecule_deployment: true
+        zookeeper_user: zookeeper
+        zookeeper_uid: "5001"
+        zookeeper_group: zookeeper
+        zookeeper_gid: "4001"
+        service_user: "{{ zookeeper_user }}"
+        service_name: Apache Zookeeper
+        service_uid: "{{ zookeeper_uid }}"
+        service_group: "{{ zookeeper_group }}"
+        service_gid: "{{ zookeeper_gid }}"
+        tls_user: "{{ zookeeper_user }}"
+        tls_group: "{{ zookeeper_group }}"
+        self_signed_certificates: true
+        certs_source:
+          - /tmp/selfsigned_certs/{{ ansible_fqdn }}/cert.pem
+          - /tmp/selfsigned_certs/{{ ansible_fqdn }}/chain.pem
+          - /tmp/selfsigned_certs/{{ ansible_fqdn }}/key.pem
+        certs_dest:
+          - cert.pem
+          - chain.pem
+          - key.pem
+        certs_mode:
+          - "0660"
+          - "0660"
+          - "0400"
+        domain: example.com
+        keystore_file: /etc/ssl/private/{{ ansible_fqdn }}.jks
+        keystore_password: changeit
+        truststore_file: /etc/ssl/certs/truststore.jks
+        truststore_password: changeit
+    host_vars:
+      instance-1:
+        zookeeper_id: 0
+      instance-2:
+        zookeeper_id: 1
+      instance-3:
+        zookeeper_id: 2

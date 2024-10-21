@@ -7,11 +7,11 @@
 
 - name: Add replication user '{{ ldap_replication_user }}'
   failed_when: ldapadd.rc not in [0,68]
-  ansible.builtin.command: ldapadd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/replicator.ldif
+  ansible.builtin.command: ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/replicator.ldif
   register: ldapadd
 
 - name: Set password for IDE user '{{ ldap_replication_user }}'
-  ansible.builtin.command: ldappasswd -x -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
+  ansible.builtin.command: ldappasswd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
     -s {{ ldap_replication_password }} {{ ldap_replication_user }}
 
 - name: Copy replicator-acl-limits.ldif to ldap provider

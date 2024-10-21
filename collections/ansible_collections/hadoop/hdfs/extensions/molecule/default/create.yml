@@ -81,9 +81,6 @@
               namenodes:
                 children:
                   namenode1:
-              zookeeper:
-                children:
-                  namenode1:
               datanodes:
                 children:
                   datanode1:

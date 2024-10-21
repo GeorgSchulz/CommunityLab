@@ -8,8 +8,7 @@
 
 - name: Block for IDE HA setup
   when:
-    - ide_ha_setup is defined
-    - ide_ha_setup
+    - groups.resourcemanagers | length == 3
   block:
     - name: Check if YARN resourcemanagers are running
       ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/yarn rmadmin -getAllServiceState

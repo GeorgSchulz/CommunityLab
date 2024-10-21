@@ -10,10 +10,9 @@ olcDbIndex: entryUUID eq
 -
 add: olcSyncrepl
 olcSyncrepl: rid=0
-  provider=ldap://security1.{{ domain }}
+  provider=ldap://{{ groups.ldap1[0] + '.' + domain if molecule_deployment is defined and molecule_deployment else groups.ldap1[0] }}
   bindmethod=simple
   binddn="{{ ldap_replication_user }}" credentials={{ ldap_replication_password }}
   searchbase="{{ ldap_organization }}"
   schemachecking=on
   type=refreshAndPersist retry="60 +"
-  starttls=critical tls_reqcert=demand

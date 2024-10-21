@@ -59,11 +59,11 @@ If you are german speaking you may be interested in my related academic work: [T
 ## 1. Prerequisites
 ### required
 - Ubuntu (was tested on Ubuntu 24.04 LTS)
-- Ansible (was tested on Ansible version 2.17.3)
-- Python (was tested on Python version 3.12.5)
+- Ansible (was tested on Ansible version 2.17.4)
+- Python (was tested on Python version 3.12.6)
 
 ### optional
-- Molecule (was tested on Molecule version 24.7.0)
+- Molecule (was tested on Molecule version 24.9.0)
 - Docker (was tested on Docker version 27.1.2, required for Ansible Molecule)
 - Terraform (was tested on Terraform version v1.9.3)
 - Go (was tested on Go version go1.18.1)
@@ -80,24 +80,30 @@ georg@notebook:~/git/CommunityLab$ bash requirements.sh
 
 ### 2.2 Ansible Molecule is available for following Ansible Collections
 ```console
-georg@notebook:~/git/CommunityLab$ find . -name extensions
-./collections/ansible_collections/jupyter/hub/extensions
-./collections/ansible_collections/authentication/kerberos/extensions
-./collections/ansible_collections/hadoop/hdfs/extensions
-./collections/ansible_collections/hadoop/yarn/extensions
-./collections/ansible_collections/bigdata/spark/extensions
-./collections/ansible_collections/bigdata/zookeeper/extensions
-./collections/ansible_collections/rdbms/postgres/extensions
-./collections/ansible_collections/authorization/ldap/extensions
+georg@notebook:~/git/CommunityLab$ find . -name molecule
+./collections/ansible_collections/jupyter/hub/extensions/molecule
+./collections/ansible_collections/authentication/kerberos/extensions/molecule
+./collections/ansible_collections/hadoop/hdfs/extensions/molecule
+./collections/ansible_collections/hadoop/yarn/extensions/molecule
+./collections/ansible_collections/bigdata/spark/extensions/molecule
+./collections/ansible_collections/bigdata/zookeeper/extensions/molecule
+./collections/ansible_collections/rdbms/postgres/extensions/molecule
+./collections/ansible_collections/authorization/ldap/extensions/molecule
 ```
 
-### 2.3 The IDE can be installed using Ansible Molecule like this (Docker is required)
+### 2.3 Each Ansible Collection has two Ansible Molecule scenarios - default and ha_setup
+##### (The Ansible Collection bigdata.spark is an exception since the only purpose is the installation of common Apache Spark libraries)
+
+- default (Simple installation process of the Ansible Collection without High Availability)
+- ha_setup (More complex installation process of the Ansible Collection with High Availability)
+
+### 2.4 The IDE can be installed using Ansible Molecule like this (Docker is required) - Non-HA IDE
 ```console
 georg@notebook:~/git/CommunityLab$ cd collections/ansible_collections/jupyter/hub/extensions/
-georg@notebook:~/git/CommunityLab/collections/ansible_collections/jupyter/hub/extensions$ molecule converge
+georg@notebook:~/git/CommunityLab/collections/ansible_collections/jupyter/hub/extensions$ molecule converge -s default
 ```
 
-### 2.4 Check container created by Ansible Molecule
+### 2.5 Check container created by Ansible Molecule
 ```console
 georg@notebook:~/git/CommunityLab/collections/ansible_collections/jupyter/hub/extensions$ docker container ls
 CONTAINER ID   IMAGE                                   COMMAND                  CREATED             STATUS             PORTS     NAMES
@@ -109,25 +115,25 @@ a33331864a0e   geerlingguy/docker-ubuntu2404-ansible   "/usr/lib/systemd/sy…" 
 16591b433003   geerlingguy/docker-ubuntu2404-ansible   "/usr/lib/systemd/sy…"   About an hour ago   Up About an hour             instance-1
 ```
 
-### 2.5 Get IP address of Docker container running JupyterHub
+### 2.6 Get IP address of Docker container running JupyterHub
 ```console
 georg@notebook:~/git/CommunityLab/collections/ansible_collections/jupyter/hub/extensions$ docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' instance-1
 172.23.27.3
 ```
 
-### 2.6 Start Firefox browser
+### 2.7 Start Firefox browser
 ```console
 georg@notebook:~/git/CommunityLab/collections/ansible_collections/jupyter/hub/extensions$ firefox
 ```
 
-### 2.7 Login to JupyterHub here using credentials of variable [ldap_users](./collections/ansible_collections/jupyter/hub/extensions/molecule/default/molecule.yml):
+### 2.8 Login to JupyterHub here using credentials of variable [ldap_users](./collections/ansible_collections/jupyter/hub/extensions/molecule/default/molecule.yml):
 https://172.23.27.3:8443
 
 ![IDE Docker](https://github.com/GeorgSchulz/CommunityLab/blob/master/images/ide_in_docker.bmp?raw=True)
 
-### 2.6 Delete all Docker container using Ansible Molecule
+### 2.9 Delete all Docker container using Ansible Molecule
 ```console
-georg@notebook:~/git/CommunityLab/collections/ansible_collections/jupyter/hub/extensions$ molecule destroy
+georg@notebook:~/git/CommunityLab/collections/ansible_collections/jupyter/hub/extensions$ molecule destroy -s default
 ```
 
 ## 3. Use Hetzner Cloud
