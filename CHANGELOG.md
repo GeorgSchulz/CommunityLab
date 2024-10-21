@@ -8,9 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - communitylab#26: Error handling in Conda Package Manager
+- communitylab#52: Consider usage of Jupyter Enterprise Gateway instead of not maintained Jupyter on Hadoop
+
+## [v1.5.0] - 2024-10-21
 
 ### Added
 
+- communitylab#53: Up to date and maintenance of all Ansible Collections - Non-HA and HA
 - communitylab#50: Simplifying architecture for IDE Non-HA setup
 - communitylab#48: Downgrading OpenJDK and updating documentation images
 

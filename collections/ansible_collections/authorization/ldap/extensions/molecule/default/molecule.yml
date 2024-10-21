@@ -38,6 +38,18 @@ provisioner:
         tls_user: "{{ ldap_user }}"
         tls_group: "{{ ldap_group }}"
         self_signed_certificates: true
+        certs_source:
+          - /tmp/selfsigned_certs/{{ ansible_fqdn }}/cert.pem
+          - /tmp/selfsigned_certs/{{ ansible_fqdn }}/chain.pem
+          - /tmp/selfsigned_certs/{{ ansible_fqdn }}/key.pem
+        certs_dest:
+          - cert.pem
+          - chain.pem
+          - key.pem
+        certs_mode:
+          - "0660"
+          - "0660"
+          - "0400"
         domain: example.com
         keystore_file: /etc/ssl/private/{{ ansible_fqdn }}.jks
         keystore_password: changeit

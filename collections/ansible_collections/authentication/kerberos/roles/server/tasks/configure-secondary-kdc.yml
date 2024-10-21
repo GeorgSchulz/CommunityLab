@@ -61,6 +61,10 @@
     - krb5-kdc
     - krb5-admin-server
 
+- name: Pause 1 minute for krb5-kdc service to start
+  ansible.builtin.pause:
+    minutes: 1
+
 - name: Start Kerberos services
   ansible.builtin.systemd:
     name: "{{ item }}"

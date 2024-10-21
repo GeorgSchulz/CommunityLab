@@ -3,4 +3,4 @@ common_yarn_user: "{{ yarn_user | default('yarn') }}"
 common_yarn_group: "{{ yarn_group | default('yarn') }}"
 hdfs_data_dir: /var/hadoop/hdfs
 yarn_data_dir: /var/hadoop/yarn
-common_yarn_site_name: "{{ 'yarn-site-ha.xml' if (ide_ha_setup is defined and ide_ha_setup) else 'yarn-site.xml' }}"
+common_yarn_site_name: "{{ 'yarn-site-ha.xml' if (groups.resourcemanagers | length == 3) else 'yarn-site.xml' }}"

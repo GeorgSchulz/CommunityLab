@@ -25,31 +25,31 @@
   </property>
   <property>
     <name>yarn.resourcemanager.ha.rm-ids</name>
-    <value>{% for host in groups.resourcemanagers %}{{ host }}{% if not loop.last %},{% endif %}{% endfor %}</value>
+    <value>{% for host in groups.resourcemanagers %}{{ hostvars[host].inventory_hostname_short }}{% if not loop.last %},{% endif %}{% endfor %}</value>
   </property>
 {% for host in groups.resourcemanagers %} <property>
     <name>yarn.resourcemanager.hostname.{{ hostvars[host].inventory_hostname_short }}</name>
-    <value>{{ host }}</value>
+    <value>{{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }}</value>
   </property>
   <property>
     <name>yarn.resourcemanager.webapp.address.{{ hostvars[host].inventory_hostname_short }}</name>
-    <value>{{ host }}:8088</value>
+    <value>{{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }}:8088</value>
   </property>
   <property>
     <name>yarn.resourcemanager.webapp.https.address.{{ hostvars[host].inventory_hostname_short }}</name>
-    <value>{{ host }}:8090</value>
+    <value>{{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }}:8090</value>
   </property>
   <property>
     <name>yarn.resourcemanager.resource-tracker.address.{{ hostvars[host].inventory_hostname_short }}</name>
-    <value>{{ host }}:8031</value>
+    <value>{{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }}:8031</value>
   </property>
   <property>
     <name>yarn.resourcemanager.address.{{ hostvars[host].inventory_hostname_short }}</name>
-    <value>{{ host }}:8032</value>
+    <value>{{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }}:8032</value>
   </property>
   <property>
     <name>yarn.resourcemanager.scheduler.address.{{ hostvars[host].inventory_hostname_short }}</name>
-    <value>{{ host }}:8030</value>
+    <value>{{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }}:8030</value>
   </property>
 {% endfor %} 
   <property>

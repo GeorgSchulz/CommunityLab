@@ -10,7 +10,22 @@
         group: "{{ tls_group }}"
         mode: "0770"
 
+    - name: Change owner of certs and key on remote server
+      when: self_signed_certificates
+      ansible.builtin.file:
+        path: "/etc/ssl/private/{{ item.0 }}"
+        state: file
+        owner: "{{ tls_user }}"
+        group: "{{ tls_group }}"
+        mode: "{{ item.1 }}"
+      with_together:
+        - "{{ certs_dest }}"
+        - "{{ certs_mode }}"
+      loop_control:
+        label: "{{ item.0 }}"
+
     - name: Copy cert, fullchain and private key to server
+      when: not self_signed_certificates
       ansible.builtin.copy:
         src: "{{ item.0 }}"
         dest: /etc/ssl/private/{{ item.1 }}

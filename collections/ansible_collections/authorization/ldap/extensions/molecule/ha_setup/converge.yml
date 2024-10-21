@@ -1,0 +1,8 @@
+---
+- name: Setup LDAP server
+  hosts: ldap
+  gather_facts: true
+  roles:
+    - role: ide.environment.user_and_groups
+    - role: tls.certs.issue
+    - role: authorization.ldap.setup

@@ -86,9 +86,9 @@ provisioner:
         tls_user: root
         tls_group: root
         certs_source:
-          - /opt/selfsigned/{{ ansible_fqdn }}/cert.pem
-          - /opt/selfsigned/{{ ansible_fqdn }}/RootCA.pem
-          - /opt/selfsigned/{{ ansible_fqdn }}/key.pem
+          - /tmp/selfsigned_certs/{{ ansible_fqdn }}/cert.pem
+          - /tmp/selfsigned_certs/{{ ansible_fqdn }}/chain.pem
+          - /tmp/selfsigned_certs/{{ ansible_fqdn }}/key.pem
         certs_mode:
           - "0660"
           - "0660"

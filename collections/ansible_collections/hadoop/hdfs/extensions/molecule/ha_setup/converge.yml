@@ -1,0 +1,57 @@
+---
+- name: Setup environment
+  hosts: all
+  gather_facts: true
+  roles:
+    - role: ide.environment.setup
+
+- name: Setup TLS preparation
+  hosts: all
+  gather_facts: true
+  roles:
+    - role: tls.certs.setup
+
+- name: Setup LDAP server
+  hosts: ldap
+  gather_facts: true
+  roles:
+    - role: authorization.ldap.setup
+
+- name: Setup Kerberos server
+  hosts: kerberos
+  gather_facts: true
+  roles:
+    - role: authentication.kerberos.setup
+
+- name: Setup Zookeeper
+  hosts: zookeeper
+  become: true
+  roles:
+    - role: bigdata.zookeeper.setup
+
+- name: Setup HDFS installation
+  hosts: namenodes:datanodes
+  gather_facts: true
+  roles:
+    - role: hadoop.common.setup
+    - role: hadoop.hdfs.common
+
+- name: Setup HDFS namenode
+  hosts: namenodes
+  gather_facts: true
+  roles:
+    - role: hadoop.hdfs.journalnode
+    - role: hadoop.hdfs.namenode
+
+- name: Setup HDFS datanodes
+  hosts: datanodes
+  gather_facts: true
+  roles:
+    - role: hadoop.hdfs.datanode
+
+- name: Check HDFS is running and healthy
+  hosts: namenode1
+  become: true
+  become_user: hdfs
+  roles:
+    - role: hadoop.hdfs.check

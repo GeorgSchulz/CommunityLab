@@ -27,23 +27,23 @@
     </property>
 {% for host in groups.namenodes %} <property>
         <name>dfs.namenode.rpc-address.{{ hadoop_nameservice }}.{{ hostvars[host].inventory_hostname_short }}</name>
-        <value>{{ host }}:8020</value>
+        <value>{{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }}:8020</value>
     </property>
     <property>
         <name>dfs.namenode.http-address.{{ hadoop_nameservice }}.{{ hostvars[host].inventory_hostname_short }}</name>
-        <value>{{ host }}:9870</value>
+        <value>{{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }}:9870</value>
     </property>
     <property>
         <name>dfs.namenode.https-address.{{ hadoop_nameservice }}.{{ hostvars[host].inventory_hostname_short }}</name>
-        <value>{{ host }}:9871</value>
+        <value>{{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }}:9871</value>
     </property>
     <property>
         <name>dfs.namenode.servicerpc-address.{{ hadoop_nameservice }}.{{ hostvars[host].inventory_hostname_short }}</name>
-        <value>{{ host }}:8022</value>
+        <value>{{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }}:8022</value>
     </property>
 {% endfor %} <property>
         <name>dfs.namenode.name.dir</name>
-	<value>file://{{ hdfs_data_dir }}/namenode</value>
+	<value>file://{{ hdfs_data_dir }}/namenode/storage1,file://{{ hdfs_data_dir }}/namenode/storage2,file://{{ hdfs_data_dir }}/namenode/storage3</value>
     </property>
     <property>
         <name>dfs.client.failover.proxy.provider.{{ hadoop_nameservice }}</name>
@@ -55,15 +55,31 @@
     </property>
     <property>
         <name>dfs.namenode.shared.edits.dir</name>
-        <value>qjournal://{% for host in groups.namenodes %}{{ host }}:8485{% if not loop.last %};{% endif %}{% endfor %}/{{ hadoop_nameservice }}</value>
+        <value>qjournal://{% for host in groups.namenodes %}{{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }}:8485{% if not loop.last %};{% endif %}{% endfor %}/{{ hadoop_nameservice }}</value>
     </property>
     <property>
         <name>dfs.journalnode.edits.dir</name>
 	<value>{{ hdfs_data_dir }}/journalnode</value>
     </property>
     <property>
+        <name>dfs.journalnode.enable.sync</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>dfs.journalnode.rpc-address</name>
+	<value>{{ ansible_fqdn }}:8485</value>
+    </property>
+    <property>
+        <name>dfs.journalnode.http-address</name>
+	<value>{{ ansible_fqdn }}:8480</value>
+    </property>
+    <property>
+        <name>dfs.journalnode.https-address</name>
+	<value>{{ ansible_fqdn }}:8481</value>
+    </property>
+    <property>
         <name>dfs.replication</name>
-	    <value>3</value>
+	<value>3</value>
     </property>
     <property>
         <name>dfs.permissions.enabled</name>
@@ -110,16 +126,28 @@
 	<value>{{ keytab_user_hdfs }}/_HOST@{{ realm }}</value>
     </property>
     <property>
+        <name>dfs.secondary.namenode.keytab.file</name>
+	<value>{{ keytab_folder }}/{{ keytab_user_hdfs }}.keytab</value>
+    </property>
+    <property>
+        <name>dfs.secondary.namenode.kerberos.principal</name>
+	<value>{{ keytab_user_hdfs }}/_HOST@{{ realm }}</value>
+    </property>
+    <property>
+        <name>dfs.namenode.kerberos.internal.spnego.keytab.file</name>
+	<value>{{ keytab_folder }}/{{ keytab_user_http }}.keytab</value>
+    </property>
+    <property>
         <name>dfs.namenode.kerberos.internal.spnego.principal</name>
 	<value>{{ keytab_user_http }}/_HOST@{{ realm }}</value>
     </property>
     <property>
         <name>dfs.journalnode.keytab.file</name>
-	<value>{{ keytab_folder }}/{{ keytab_user_journalnode }}.keytab</value>
+	<value>{{ keytab_folder }}/{{ keytab_user_hdfs }}.keytab</value>
     </property>
     <property>
         <name>dfs.journalnode.kerberos.principal</name>
-	<value>{{ keytab_user_journalnode }}/_HOST@{{ realm }}</value>
+	<value>{{ keytab_user_hdfs }}/_HOST@{{ realm }}</value>
     </property>
     <property>
         <name>dfs.journalnode.kerberos.internal.spnego.principal</name>
@@ -155,7 +183,7 @@
     </property>
     <property>
         <name>dfs.datanode.kerberos.principal</name>
-        <value>hdfs/_HOST@{{ realm }}</value>
+	<value>hdfs/_HOST@{{ realm }}</value>
     </property>
     <property>
         <name>dfs.namenode.datanode.registration.ip-hostname-check</name>
@@ -168,13 +196,5 @@
     <property>
         <name>dfs.client.https.need-auth</name>
         <value>false</value>
-    </property>
-    <property>
-        <name>dfs.web.authentication.kerberos.keytab</name>
-	<value>{{ keytab_folder }}/{{ keytab_user_http }}.keytab</value>
-    </property>
-    <property>
-        <name>dfs.web.authentication.kerberos.principal</name>
-	<value>{{ keytab_user_http }}/_HOST@{{ realm }}</value>
     </property>
 </configuration>

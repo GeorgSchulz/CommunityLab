@@ -58,7 +58,6 @@ all:
         hub1:
         hub2:
       vars:
-        jupyterhub_domain_ip: true
         hetzner_token: "${hetzner_token}"
         hetznerdns_token: "${hetznerdns_token}"
         haproxy_admin_password: "changeit"
@@ -66,7 +65,11 @@ all:
     namenode1:
       children:
         master1:
+    namenode2:
+      children:
         master2:
+    namenode3:
+      children:
         master3:
     namenodes:
       children:
@@ -84,7 +87,11 @@ all:
     resourcemanager1:
       children:
         master1:
+    resourcemanager2:
+      children:
         master2:
+    resourcemanager3:
+      children:
         master3:
     resourcemanagers:
       children:
@@ -182,7 +189,6 @@ all:
       vars:
         realm_password: "changeit"
   vars:
-    ide_ha_setup: true
     molecule_deployment: false
     custom_inventory_file: false
     self_signed_certificates: false
@@ -197,9 +203,6 @@ all:
     hdfs_group: "hadoop"
     yarn_user: "yarn"
     yarn_group: "hadoop"
-    journalnode_user: "journalnode"
-    journalnode_uid: "5006"
-    journalnode_group: "hadoop"
     domain: "${domain}"
     certs_source: 
       - "/opt/letsencrypt/{{ inventory_hostname }}/cert1.pem"
@@ -242,4 +245,5 @@ all:
     realm: "COMMUNITY.LAB"
     keytab_folder: "/etc/keytabs"
     hadoop_nameservice: "communitylab"
-    postgres_host: "{{ groups.hub1[0] }}"
+    jupyterhub_domain_ip: true
+    postgres_host: "{{ jupyterhub_domain_ip_address }}"

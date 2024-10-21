@@ -30,29 +30,24 @@
       <value>privacy</value>
     </property>
     <property>
-      <name>hadoop.security.token.service.use_ip</name>
-      <value>false</value>
-    </property>
-    <property>
       <name>hadoop.security.authorization</name>
       <value>true</value>
     </property>
     <property>
       <name>ha.zookeeper.quorum</name>
-      <value>{% for host in groups.zookeeper %}{{ host }}:2281{% if not loop.last %},{% endif %}{% endfor %}</value>
+      <value>{% for host in groups.zookeeper %}{{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }}:2281{% if not loop.last %},{% endif %}{% endfor %}</value>
     </property>
     <property>
       <name>ha.zookeeper.acl</name>
       <value>world:anyone:cdrwa</value>
     </property>
     <property>
-      <name>hadoop.http.authentication.signature.secret.file</name>
-      <value>{{ keytab_folder }}/hadoop_secret</value>
+      <name>hadoop.http.authentication.type</name>
+      <value>kerberos</value>
     </property>
     <property>
-      <name>hadoop.http.authentication.type</name>
-      <value>simple</value>
-      <value>kerberos</value>
+      <name>hadoop.http.authentication.signature.secret.file</name>
+      <value>{{ keytab_folder }}/hadoop_secret</value>
     </property>
     <property>
       <name>hadoop.http.authentication.kerberos.keytab</name>
@@ -60,6 +55,14 @@
     </property>
     <property>
       <name>hadoop.http.authentication.kerberos.principal</name>
+      <value>{{ keytab_user_http }}/{{ ansible_fqdn }}@{{ realm }}</value>
+    </property>
+    <property>
+      <name>hadoop.web.authentication.kerberos.keytab</name>
+      <value>{{ keytab_folder }}/{{ keytab_user_http }}.keytab</value>
+    </property>
+    <property>
+      <name>hadoop.web.authentication.kerberos.principal</name>
       <value>{{ keytab_user_http }}/_HOST@{{ realm }}</value>
     </property>
     <property>
@@ -75,34 +78,25 @@
       <value>kerberos</value>
     </property>
     <property>
-      <name>dfs.web.authentication.kerberos.keytab</name>
-      <value>{{ keytab_folder }}/{{ keytab_user_http }}.keytab</value>
-    </property>
-    <property>
-      <name>dfs.web.authentication.kerberos.principal</name>
-      <value>{{ keytab_user_http }}/_HOST@{{ realm }}</value>
+      <name>hadoop.security.resolver.impl</name>
+      <value>org.apache.hadoop.net.DNSDomainNameResolver</value>
     </property>
     <property>
       <name>hadoop.http.authentication.cookie.domain</name>
       <value>{{ domain }}</value>
     </property>
     <property>
+      <name>hadoop.http.authentication.cookie.persistent</name>
+      <value>true</value>
+    </property>
+    <property>
       <name>hadoop.security.auth_to_local</name>
       <value>RULE:[1:$1@$0](.*@{{ realm }})s/@.*///L
 	  RULE:[2:$1@$0]({{ keytab_user_hdfs }}@{{ realm }})s/.*/{{ keytab_user_hdfs }}/
-	  RULE:[2:$1@$0]({{ keytab_user_journalnode }}@{{ realm }})s/.*/{{ keytab_user_journalnode }}/
 	  RULE:[2:$1@$0]({{ keytab_user_yarn }}@{{ realm }})s/.*/{{ keytab_user_yarn }}/
-	  RULE:[2:$1@$0]({{ keytab_user_jupyter }}@{{ realm }})s/.*/{{ keytab_user_jupyter }}/
 	  RULE:[2:$1@$0]({{ keytab_user_http }}@{{ realm }})s/.*/{{ keytab_user_http }}/
+	  RULE:[2:$1@$0]({{ keytab_user_jupyter }}@{{ realm }})s/.*/{{ keytab_user_jupyter }}/
           DEFAULT</value>
-    </property>
-    <property>
-      <name>hadoop.proxyuser.HTTP.hosts</name>
-      <value>*</value>
-    </property>
-    <property>
-      <name>hadoop.proxyuser.HTTP.groups</name>
-      <value>*</value>
     </property>
     <property>
       <name>hadoop.proxyuser.yarn.hosts</name>
@@ -110,6 +104,14 @@
     </property>
     <property>
       <name>hadoop.proxyuser.yarn.groups</name>
+      <value>*</value>
+    </property>
+    <property>
+      <name>hadoop.proxyuser.HTTP.hosts</name>
+      <value>*</value>
+    </property>
+    <property>
+      <name>hadoop.proxyuser.HTTP.groups</name>
       <value>*</value>
     </property>
     <property>
@@ -199,6 +201,14 @@
     <property>
         <name>hadoop.security.group.mapping.ldap.ssl.keystore.password</name>
 	<value>{{ keystore_password }}</value>
+    </property>
+    <property>
+        <name>hadoop.security.group.mapping.ldap.ssl.truststore</name>
+	<value>{{ truststore_file }}</value>
+    </property>
+    <property>
+        <name>hadoop.security.group.mapping.ldap.ssl.truststore.password</name>
+	<value>{{ truststore_password }}</value>
     </property>
     <property>
         <name>hadoop.security.group.mapping.provider.ad4users.ldap.bind.user</name>

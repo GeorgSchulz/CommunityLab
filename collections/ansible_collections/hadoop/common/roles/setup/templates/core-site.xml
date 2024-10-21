@@ -37,10 +37,12 @@
       <name>hadoop.security.authorization</name>
       <value>true</value>
     </property>
+{% if groups.zookeeper is defined %}
     <property>
       <name>ha.zookeeper.quorum</name>
       <value>{% for host in groups.zookeeper %}{{ host }}.{{ domain }}:2281{% if not loop.last %},{% endif %}{% endfor %}</value>
     </property>
+{% endif %}
     <property>
       <name>ha.zookeeper.acl</name>
       <value>world:anyone:cdrwa</value>
@@ -51,7 +53,6 @@
     </property>
     <property>
       <name>hadoop.http.authentication.type</name>
-      <value>simple</value>
       <value>kerberos</value>
     </property>
     <property>

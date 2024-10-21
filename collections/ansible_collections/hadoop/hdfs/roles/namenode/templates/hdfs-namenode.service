@@ -1,6 +1,6 @@
 [Unit]
 Description=Hadoop Namenode Service
-{% if ide_ha_setup is defined and ide_ha_setup %}
+{% if groups.namenodes | length == 3 %}
 After=hdfs-zkfc.service
 Wants=hdfs-zkfc.service
 After=hdfs-journalnode.service

@@ -5,9 +5,9 @@ hadoop_client_group: root
 hdfs_data_dir: /var/hadoop/hdfs
 setup_hadoop_conf_dir: /opt/apache-hadoop
 setup_hadoop_log_dir: /var/log/hadoop
-setup_core_site_name: "{{ 'core-site-ha.xml' if (ide_ha_setup is defined and ide_ha_setup) else 'core-site.xml' }}"
-setup_hdfs_site_name: "{{ 'hdfs-site-ha.xml' if (ide_ha_setup is defined and ide_ha_setup) else 'hdfs-site.xml' }}"
-setup_yarn_site_name: "{{ 'yarn-site-ha.xml' if (ide_ha_setup is defined and ide_ha_setup) else 'yarn-site.xml' }}"
+setup_core_site_name: "{{ 'core-site-ha.xml' if (groups.namenodes | length == 3) else 'core-site.xml' }}"
+setup_hdfs_site_name: "{{ 'hdfs-site-ha.xml' if (groups.namenodes | length == 3) else 'hdfs-site.xml' }}"
+setup_yarn_site_name: "{{ 'yarn-site-ha.xml' if (groups.namenodes | length == 3) else 'yarn-site.xml' }}"
 
 keystore_file: /etc/ssl/private/{{ inventory_hostname }}.jks
 keystore_password: changeit

@@ -111,7 +111,6 @@ all:
       vars:
         realm_password: "changeit"
   vars:
-    ide_ha_setup: false
     molecule_deployment: false
     custom_inventory_file: false
     self_signed_certificates: false

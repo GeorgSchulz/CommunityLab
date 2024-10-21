@@ -20,10 +20,10 @@
   ansible.builtin.systemd:
     name: yarn-resourcemanager.service
     state: started
-  when: "'master1' in group_names"
+  when: "'resourcemanager1' in group_names"
 
 - name: Start passive yarn-resourcemanagers
   ansible.builtin.systemd:
     name: yarn-resourcemanager.service
     state: started
-  when: "'master1' not in group_names"
+  when: "'resourcemanager1' not in group_names"

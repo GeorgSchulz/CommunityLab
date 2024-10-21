@@ -1,11 +1,19 @@
 ---
+- name: Ensure kerberos.schema.gz is present after installation
+  when:
+    - molecule_deployment is defined
+    - molecule_deployment
+  ansible.builtin.file:
+    path: /etc/dpkg/dpkg.cfg.d/excludes
+    state: absent
+
 - name: Install necessary packages on primary KDC
   ansible.builtin.apt:
     name: "{{ item }}"
     state: present
     update_cache: true
   loop: "{{ server_primary_kdc_packages }}"
-  when: '"security1" in group_names'
+  when: '"kerberos1" in group_names'
 
 - name: Install necessary packages on secondary KDC
   ansible.builtin.apt:
@@ -13,4 +21,4 @@
     state: present
     update_cache: true
   loop: "{{ server_secondary_kdc_packages }}"
-  when: '"security2" in group_names'
+  when: '"kerberos2" in group_names'

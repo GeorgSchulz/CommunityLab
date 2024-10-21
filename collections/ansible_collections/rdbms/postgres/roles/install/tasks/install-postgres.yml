@@ -34,6 +34,9 @@
         update_cache: true
 
     - name: Add service user to group ssl-cert
+      when:
+        - service_user is defined
+        - service_group is defined
       ansible.builtin.user:
         name: "{{ service_user }}"
         group: "{{ service_group }}"

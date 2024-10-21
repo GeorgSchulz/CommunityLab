@@ -1,77 +1,221 @@
 ---
-- name: Set fact for no root user - use command to avoid ansible_fact_caching for root user
-  become: false
-  ansible.builtin.command: whoami
-  register: no_root_user
-
-- name: Create folder for certificate and key
-  delegate_to: localhost
-  run_once: true
-  become: true
-  ansible.builtin.file:
-    path: /opt/selfsigned
-    state: directory
-    owner: "{{ no_root_user.stdout }}"
-    mode: "0755"
-
-- name: Check if certificate and key are already present on ansible server
-  delegate_to: localhost
+- name: Check if self signed certificates are already present
   ansible.builtin.stat:
-    path: /opt/selfsigned/{{ ansible_fqdn }}
-  register: cert_dir
+    path: /tmp/selfsigned_certs
+  register: selfsigned_remote_path
 
-- name: Issue and fetch certificates only if not present on ansible server
-  become: true
-  when: not cert_dir.stat.exists
+- name: Create self signed certificates if not present
+  when: not selfsigned_remote_path.stat.exists
   block:
-    - name: Create CA Key
-      ansible.builtin.command: openssl genrsa -out /tmp/RootCA.key 4096
+    # https://docs.securosys.com/openssl/osslv3/Use-Cases/self_signed_certificate
+    - name: Create directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - /tmp/selfsigned_certs/myCA/rootCA/certs
+        - /tmp/selfsigned_certs/myCA/rootCA/crl
+        - /tmp/selfsigned_certs/myCA/rootCA/newcerts
+        - /tmp/selfsigned_certs/myCA/rootCA/private
+        - /tmp/selfsigned_certs/myCA/rootCA/csr
+        - /tmp/selfsigned_certs/myCA/intermediateCA/certs
+        - /tmp/selfsigned_certs/myCA/intermediateCA/crl
+        - /tmp/selfsigned_certs/myCA/intermediateCA/newcerts
+        - /tmp/selfsigned_certs/myCA/intermediateCA/private
+        - /tmp/selfsigned_certs/myCA/intermediateCA/csr
 
-    - name: Create Root CA
-      ansible.builtin.command: openssl req -x509 -new -nodes -key /tmp/RootCA.key -sha256 \
-        -days 365 -out /tmp/RootCA.pem -subj '/CN=Root CA/C=GE/ST=Hessen/L=Kassel/O=FreelancerMap'
+    - name: Touch initial files
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: touch
+        mode: "0644"
+        modification_time: preserve
+        access_time: preserve
+      loop:
+        - /tmp/selfsigned_certs/myCA/rootCA/index.txt
+        - /tmp/selfsigned_certs/myCA/intermediateCA/index.txt
 
-    - name: Install ca-certificates
-      ansible.builtin.apt:
-        name: ca-certificates
-        state: present
-        update_cache: true
-
-    - name: Copy Root CA to /usr/local/share/ca-certificates/
+    - name: Create initial files
       ansible.builtin.copy:
-        src: /tmp/RootCA.pem
-        dest: /usr/local/share/ca-certificates/RootCA.crt
-        remote_src: true
-        owner: root
-        group: root
+        content: 1000
+        dest: "{{ item }}"
+        mode: "0644"
+      loop:
+        - /tmp/selfsigned_certs/myCA/rootCA/serial
+        - /tmp/selfsigned_certs/myCA/rootCA/crlnumber
+        - /tmp/selfsigned_certs/myCA/intermediateCA/serial
+        - /tmp/selfsigned_certs/myCA/intermediateCA/crlnumber
+
+    - name: Download configuration for root CA
+      ansible.builtin.get_url:
+        url: https://docs.securosys.com/assets/files/openssl_root-d562bd505a4ae334dfa0664b2b13676b.cnf
+        dest: /tmp/selfsigned_certs/openssl_root.cnf
         mode: "0644"
 
-    - name: Update ca-certificates
-      ansible.builtin.command: update-ca-certificates
+    - name: Download configuration for intermediate CA
+      ansible.builtin.get_url:
+        url: https://docs.securosys.com/assets/files/openssl_intermediate-a244856f0122c19165cd5ed89017588b.cnf
+        dest: /tmp/selfsigned_certs/openssl_intermediate.cnf
+        mode: "0644"
 
-    - name: Create cert for host
-      ansible.builtin.command: openssl req -new -nodes -out /tmp/{{ ansible_fqdn }}.csr -newkey rsa:4096 \
-        -keyout /tmp/{{ ansible_fqdn }}.key -subj '/CN={{ ansible_fqdn }}/C=GE/ST=Hessen/L=Kassel/O=FreelancerMap'
+    - name: Create a key - Root CA certificate
+      args:
+        chdir: /tmp/selfsigned_certs
+      ansible.builtin.command: openssl genpkey \
+                               -algorithm rsa -pkeyopt rsa_keygen_bits:4096 \
+                               -out rootCA.key
 
-    - name: Sign cert for host
-      ansible.builtin.command: openssl x509 -req -in /tmp/{{ ansible_fqdn }}.csr \
-        -CA /tmp/RootCA.pem -CAkey /tmp/RootCA.key -CAcreateserial \
-        -out /tmp/{{ ansible_fqdn }}.crt -days 730 -sha256
+    # The v3_ca extensions defined in the openssl_root.cnf configuration are applied which enable the "CA:true" property
+    - name: Create a self-signed certificate
+      args:
+        chdir: /tmp/selfsigned_certs
+      ansible.builtin.command: openssl req -config openssl_root.cnf \
+                               -key rootCA.key -new -x509 -days 7300 \
+                               -sha256 -extensions v3_ca -out myCA/rootCA/certs/ca.cert.pem \
+                               -subj "/C=GE/ST=Hessen/L=Kassel/O=FreelancerMap/OU=Georg Schulz/CN=Root CA"
 
-    - name: Create folder for host on ansible server
-      delegate_to: localhost
-      ansible.builtin.file:
-        path: /opt/selfsigned/{{ ansible_fqdn }}
-        state: directory
-        owner: "{{ no_root_user.stdout }}"
-        mode: "0777"
+    - name: Create a key - Intermediate CA certificate
+      args:
+        chdir: /tmp/selfsigned_certs
+      ansible.builtin.command: openssl genpkey \
+                               -algorithm rsa -pkeyopt rsa_keygen_bits:4096 \
+                               -out intermediateCA.key
 
-    - name: Fetch self signed certificate and key to ansible server
-      become: true
-      ansible.builtin.fetch:
-        src: /tmp/{{ item.0 }}
-        dest: /opt/selfsigned/{{ ansible_fqdn }}/{{ item.1 }}
-        flat: true
-      with_together:
-        - ["{{ ansible_fqdn }}.crt", RootCA.pem, "{{ ansible_fqdn }}.key"]
-        - [cert.pem, RootCA.pem, key.pem]
+    - name: Create a certificate signing request (CSR)
+      args:
+        chdir: /tmp/selfsigned_certs
+      ansible.builtin.command: openssl req -config openssl_intermediate.cnf \
+                               -key intermediateCA.key \
+                               -new -sha256 \
+                               -out myCA/intermediateCA/certs/intermediate.csr.pem \
+                               -subj "/C=GE/ST=Hessen/L=Kassel/O=FreelancerMap/OU=Georg Schulz/CN=Intermediate CA"
+
+    # The v3_intermediate_ca extensions defined in the openssl_root.cnf configuration are applied
+    - name: As root CA, sign the CSR for the intermediate CA with the root CA key
+      args:
+        chdir: /tmp/selfsigned_certs
+      ansible.builtin.command: openssl ca -batch -config openssl_root.cnf \
+                               -keyfile rootCA.key \
+                               -extensions v3_intermediate_ca -days 750 -notext -md sha256 \
+                               -in myCA/intermediateCA/certs/intermediate.csr.pem \
+                               -out myCA/intermediateCA/certs/intermediate.cert.pem
+
+    - name: Verify the signature on the intermediate certificate
+      args:
+        chdir: /tmp/selfsigned_certs
+      ansible.builtin.command: openssl verify -CAfile myCA/rootCA/certs/ca.cert.pem \
+                               myCA/intermediateCA/certs/intermediate.cert.pem
+
+    - name: Create a key - Server certificate
+      args:
+        chdir: /tmp/selfsigned_certs
+      ansible.builtin.command: openssl genpkey \
+                               -algorithm rsa -pkeyopt rsa_keygen_bits:4096 \
+                               -out {{ ansible_fqdn }}.key
+
+    - name: Create a certificate signing request (CSR)
+      args:
+        chdir: /tmp/selfsigned_certs
+      ansible.builtin.command: openssl req -copy_extensions=copyall \
+                               -key {{ ansible_fqdn }}.key \
+                               -new -sha256 \
+                               -out {{ ansible_fqdn }}.csr.pem \
+                               -subj "/C=GE/ST=Hessen/L=Kassel/O=FreelancerMap/OU=Georg Schulz/CN={{ ansible_fqdn }}" \
+                               -addext "subjectAltName = DNS:example.com, DNS:*.example.com, DNS:{{ inventory_hostname }}"
+
+    - name: As intermediate CA, sign the server CSR with the intermediate CA key
+      args:
+        chdir: /tmp/selfsigned_certs
+      ansible.builtin.command: openssl ca -batch -config openssl_intermediate.cnf \
+                               -extensions v3_server_cert \
+                               -keyfile intermediateCA.key \
+                               -days 40 -notext -md sha256 \
+                               -in {{ ansible_fqdn }}.csr.pem \
+                               -out {{ ansible_fqdn }}.cert.pem
+
+    - name: Verify the certificate by checking the signatures using OpenSSL
+      args:
+        chdir: /tmp/selfsigned_certs
+      ansible.builtin.shell: |
+        cat myCA/intermediateCA/certs/intermediate.cert.pem \
+        myCA/rootCA/certs/ca.cert.pem \
+        > chain.pem
+        openssl verify -show_chain \
+        -trusted myCA/rootCA/certs/ca.cert.pem \
+        --untrusted chain.pem \
+        {{ ansible_fqdn }}.cert.pem
+
+- name: Install ca-certificates
+  ansible.builtin.apt:
+    name: ca-certificates
+    state: present
+    update_cache: true
+
+- name: Copy Root CA to /usr/local/share/ca-certificates/
+  ansible.builtin.copy:
+    src: /tmp/selfsigned_certs/chain.pem
+    dest: /usr/local/share/ca-certificates/RootCA.crt
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Update ca-certificates
+  ansible.builtin.command: update-ca-certificates
+
+- name: Change ownership of /etc/ssl/private
+  ansible.builtin.file:
+    path: /etc/ssl/private
+    state: directory
+    owner: "{{ tls_user }}"
+    group: "{{ tls_group }}"
+    mode: "0770"
+
+- name: Copy server cert.pem to /etc/ssl/private
+  ansible.builtin.copy:
+    src: /tmp/selfsigned_certs/{{ ansible_fqdn }}.cert.pem
+    dest: /etc/ssl/private/cert.pem
+    remote_src: true
+    owner: "{{ tls_user }}"
+    group: "{{ tls_group }}"
+    mode: "0660"
+
+- name: Copy chain.pem to /etc/ssl/private
+  ansible.builtin.copy:
+    src: /tmp/selfsigned_certs/chain.pem
+    dest: /etc/ssl/private/chain.pem
+    remote_src: true
+    owner: "{{ tls_user }}"
+    group: "{{ tls_group }}"
+    mode: "0660"
+
+- name: Copy server key file to /etc/ssl/private
+  ansible.builtin.copy:
+    src: /tmp/selfsigned_certs/{{ ansible_fqdn }}.key
+    dest: /etc/ssl/private/key.pem
+    remote_src: true
+    owner: "{{ tls_user }}"
+    group: "{{ tls_group }}"
+    mode: "0400"
+
+- name: Fetch server cert.pem to ansible server
+  become: true
+  ansible.builtin.fetch:
+    src: /etc/ssl/private/cert.pem
+    dest: /tmp/selfsigned_certs/{{ ansible_fqdn }}/cert.pem
+    flat: true
+
+- name: Fetch server key.pem to ansible server
+  become: true
+  ansible.builtin.fetch:
+    src: /etc/ssl/private/key.pem
+    dest: /tmp/selfsigned_certs/{{ ansible_fqdn }}/key.pem
+    flat: true
+
+- name: Fetch server chain.pem to ansible server
+  become: true
+  ansible.builtin.fetch:
+    src: /etc/ssl/private/chain.pem
+    dest: /tmp/selfsigned_certs/{{ ansible_fqdn }}/chain.pem
+    flat: true
