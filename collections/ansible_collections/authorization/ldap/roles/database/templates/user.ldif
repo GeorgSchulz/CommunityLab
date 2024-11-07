@@ -8,5 +8,5 @@ uid: {{ item.name }}
 uidNumber: {{ item.uid_number }}
 gidNumber: {{ item.gid_number }}
 homeDirectory: /home/{{ item.name }}
-loginShell: /bin/sh
+loginShell: /bin/bash
 gecos: Comments

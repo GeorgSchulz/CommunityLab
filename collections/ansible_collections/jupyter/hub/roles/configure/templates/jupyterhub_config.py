@@ -31,15 +31,10 @@ c.JupyterHub.port = 8443
 c.JupyterHub.spawner_class = "yarnspawner.YarnSpawner"
 c.YarnSpawner.mem_limit = "2 G"
 c.YarnSpawner.cpu_limit = 1
+c.YarnSpawner.environment = {'SHELL': '/bin/bash'}
 c.YarnSpawner.principal = "{{ keytab_user_jupyter }}/{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}"
 c.YarnSpawner.keytab = "{{ keytab_folder }}/{{ keytab_user_jupyter }}.keytab"
 c.YarnSpawner.default_url = "/lab"
 c.YarnSpawner.prologue = 'source /opt/miniforge/miniforge/bin/activate jupyterlab'
 c.YarnSpawner.cmd = 'python -m yarnspawner.jupyter_labhub'
 c.ConfigurableHTTPProxy.command = ['configurable-http-proxy','ssl-protocol','TLSv1_2']
-
-c.Spawner.environment.update(
-    {
-        "JUPYTERHUB_SINGLEUSER_EXTENSION": "0",
-    }
-)
