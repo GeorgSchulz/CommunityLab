@@ -8,7 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - communitylab#26: Error handling in Conda Package Manager
-- communitylab#52: Consider usage of Jupyter Enterprise Gateway instead of not maintained Jupyter on Hadoop
+
+### Added
+
+- communitylab#55: Enable /bin/bash as default shell in JupyterLab
 
 ## [v1.5.0] - 2024-10-21
 
