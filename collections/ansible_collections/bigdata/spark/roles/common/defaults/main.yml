@@ -1,5 +1,5 @@
 ---
-common_spark_version: 3.5.1
+common_spark_version: 3.5.3
 common_spark_hadoop_version: "3"
 common_spark_user: "{{ yarn_user | default('yarn') }}"
 common_spark_uid: "{{ yarn_uid | default('5004') }}"

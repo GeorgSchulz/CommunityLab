@@ -1,5 +1,5 @@
 ---
-setup_hadoop_version: 3.3.4
+setup_hadoop_version: 3.4.1
 hadoop_client_user: root
 hadoop_client_group: root
 hdfs_data_dir: /var/hadoop/hdfs

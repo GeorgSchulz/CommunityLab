@@ -31,10 +31,24 @@
       async: 6800
       poll: 300
 
+    - name: Install jupyterlab pip packages in jupyterlab environment
+      ansible.builtin.shell: |
+        . /opt/miniforge/miniforge/bin/activate jupyterlab
+        pip install {% for pip_package in setup_pip_packages %}{{ pip_package }}{% if not loop.last %} {% endif %}{% endfor %}
+      args:
+        executable: /bin/bash
+
     - name: Install bash kernel in jupyterlab environment
       ansible.builtin.shell: |
         . /opt/miniforge/miniforge/bin/activate jupyterlab
         python -m bash_kernel.install
+      args:
+        executable: /bin/bash
+
+    - name: Install Apache toree kernel in jupyterlab environment
+      ansible.builtin.shell: |
+        . /opt/miniforge/miniforge/bin/activate jupyterlab
+        jupyter toree install --spark_home=/opt/apache-spark/spark --sys-prefix /opt/miniforge/miniforge/envs/jupyterlab
       args:
         executable: /bin/bash
 
@@ -73,6 +87,15 @@
     - activate.d
     - deactivate.d
 
+- name: Copy example notebooks to /tmp
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/tmp/{{ item }}"
+    owner: "{{ yarn_user }}"
+    group: "{{ yarn_group }}"
+    mode: "0644"
+  loop: "{{ setup_jupyter_notebooks }}"
+
 - name: Only run on one HDFS data node
   run_once: true
   become: true
@@ -102,3 +125,7 @@
     - name: Set ACL in /share folder of HDFS
       ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs dfs \
         -setfacl -m "group:{{ ide_users_group }}:rwx,default:group:{{ ide_users_group }}:rwx" /share
+
+    - name: Copy example notebooks to /share folder of HDFS
+      ansible.builtin.include_tasks: copy-example-notebooks.yml
+      loop: "{{ setup_jupyter_notebooks }}"

@@ -5,30 +5,43 @@ setup_environment_python_version_short: "3.10"
 
 setup_conda_packages:
   # JupyterLab packages
-  - conda=24.7.1
   - nb_conda_kernels=2.5.1
-  - jupyterhub=5.1.0
+  - jupyterhub=5.2.0
   - jupyterhub-yarnspawner=0.4.0
-  - jupyterlab=4.2.4
-  - jupyterlab-git=0.50.1
-  - nodejs=22.5.1
+  - jupyterlab=4.3.0
+  - jupyterlab-git=0.50.2
+  - nodejs=22.11.0
+  - protobuf=4.25.3
   - jupyter_conda=5.2.1
+  - jupyter-server-proxy=4.4.0
+  - ipywidgets=8.1.5
   - bash_kernel=0.9.3
+  - r-base=4.4.2
+  - r-essentials=4.4
+  - r-sparklyr=1.8.6
+  - pyspark=3.5.3
+  - dask=2024.11.2
+  - dask-yarn=0.9
   # Data Science packages - https://builtin.com/data-science/python-libraries-data-science
   - numpy=1.26.4
-  - keras=3.4.1
-  - pandas=2.2.2
-  - pytorch=2.3.1
-  - scipy=1.14.0
-  - scikit-learn=1.5.1
-  - tensorflow=2.16.2
-  - matplotlib=3.9.1
+  - keras=3.6.0
+  - pandas=2.2.3
+  - pytorch=2.4.1
+  - scipy=1.14.1
+  - scikit-learn=1.5.2
+  - tensorflow=2.17.0
+  - matplotlib=3.9.2
   - seaborn=0.13.2
   - theano=1.0.5
-  - pillow=10.4.0
+  - pillow=11.0.0
   - requests=2.32.3
-  - selenium=4.23.1
-  - scrapy=2.11.2
-  - pytest=8.3.2
-  # Working with Spark
-  - pyspark=3.5.1
+  - selenium=4.26.1
+  - scrapy=2.12.0
+  - pytest=8.3.3
+setup_pip_packages:
+  - toree==0.5.0
+
+setup_jupyter_notebooks:
+  - apache_toree_scala.ipynb
+  - python_spark.ipynb
+  - r_spark.ipynb

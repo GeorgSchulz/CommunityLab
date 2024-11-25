@@ -142,6 +142,8 @@
     - zookeeper
   roles:
     - role: bigdata.zookeeper.setup
+      when:
+        - groups.namenodes | length == 3
 
 ################################################################################################################
 ##########                              Setup Zookeeper cluster                                       ##########
