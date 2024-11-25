@@ -23,12 +23,6 @@
   roles:
     - role: authentication.kerberos.setup
 
-- name: Setup Zookeeper
-  hosts: zookeeper
-  become: true
-  roles:
-    - role: bigdata.zookeeper.setup
-
 - name: Setup HDFS installation
   hosts: namenodes:datanodes
   gather_facts: true

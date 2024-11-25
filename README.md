@@ -8,11 +8,11 @@ _CommunityLab_ consists of following components:
 
 | Component        | Version |
 |------------------|---------|
-| JupyterHub       | 5.1.0   |
-| JupyterLab       | 4.2.4   |
-| Apache Hadoop    | 3.4.0   |
-| Apache Spark     | 3.5.1   |
-| Apache Zookeeper | 3.9.2   |
+| JupyterHub       | 5.2.0   |
+| JupyterLab       | 4.3.0   |
+| Apache Hadoop    | 3.4.1   |
+| Apache Spark     | 3.5.3   |
+| Apache Zookeeper | 3.9.3   |
 | PostgreSQL       | 16      |
 
 Each component can be deployed with Ansible Molecule on your local notebook using Docker Container and self signed certificates (see step 2).
@@ -244,9 +244,19 @@ Having successfully cloned your repository you can now directly interact with it
 
 ### 5.2 Use Apache Spark in JupyterLab
 
-Besides classical Data Science analysis using Python packages like NumPy, Pandas or scikit-learn you may want to use Apache Spark in JupyterLab. This example code shows how to import the Python library PySpark and write data to HDFS or load data from HDFS in Parquet format.
+Besides classical Data Science analysis using Python packages like NumPy, Pandas or scikit-learn you may want to use Apache Spark in JupyterLab. Since you are already connected to the Hadoop ecosystem when logging into JupyterLab you can use the provided kernels Python 3, R and Apache Toree when interacting with HDFS like follows. The SPARK_HOME environment variable (/opt/apache-spark/spark) is already set for your container after logging into JupyterLab:
 
-![Example Code: Usage of Python library PySpark](examples/spark_example.ipynb)
+Python 3 kernel:
+
+![Example Code: Usage of Python library PySpark](examples/python_spark.ipynb)
+
+R kernel:
+
+![Example Code: Usage of R library sparklyr](examples/r_spark.ipynb)
+
+Apache Toree kernel:
+
+![Example Code: Usage of Scala](examples/apache_toree_scala.ipynb)
 
 ### 5.3 Store all used files in HDFS and make them available for other team members
 

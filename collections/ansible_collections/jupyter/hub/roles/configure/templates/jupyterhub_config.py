@@ -31,7 +31,11 @@ c.JupyterHub.port = 8443
 c.JupyterHub.spawner_class = "yarnspawner.YarnSpawner"
 c.YarnSpawner.mem_limit = "2 G"
 c.YarnSpawner.cpu_limit = 1
-c.YarnSpawner.environment = {'SHELL': '/bin/bash'}
+c.YarnSpawner.environment = {
+        'SHELL': '/bin/bash',
+        'PYSPARK_PYTHON': '/opt/miniforge/miniforge/envs/jupyterlab/bin/python',
+        'SPARK_HOME': '/opt/apache-spark/spark'
+}
 c.YarnSpawner.principal = "{{ keytab_user_jupyter }}/{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}"
 c.YarnSpawner.keytab = "{{ keytab_folder }}/{{ keytab_user_jupyter }}.keytab"
 c.YarnSpawner.default_url = "/lab"
