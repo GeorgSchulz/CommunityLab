@@ -64,7 +64,7 @@ bootstrap:
     - host jupyterhub jupyterhub {{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }} scram-sha-256
 {% endfor %}
 {% for host in groups.hubs %}
-    - hostssl jupyterhub jupyterhub {{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }} scram-sha-256
+    - host jupyterhub jupyterhub {{ host + '.' + domain if molecule_deployment is defined and molecule_deployment else host }} scram-sha-256
 {% endfor %}
 {% endif %}
 
@@ -82,9 +82,9 @@ bootstrap:
 postgresql:
   listen: "{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}:5432"
   connect_address: "{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}:5432"
-  data_dir: "/var/lib/postgresql/16/main"
-  config_dir: "/etc/postgresql/16/main"
-  bin_dir: "/usr/lib/postgresql/16/bin"
+  data_dir: "/var/lib/postgresql/{{ postgresql_major_version }}/main"
+  config_dir: "/etc/postgresql/{{ postgresql_major_version }}/main"
+  bin_dir: "/usr/lib/postgresql/{{ postgresql_major_version }}/bin"
   authentication:
     replication:
       username: repl
