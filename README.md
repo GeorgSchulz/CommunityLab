@@ -13,7 +13,7 @@ _CommunityLab_ consists of following components:
 | Apache Hadoop    | 3.4.1   |
 | Apache Spark     | 3.5.3   |
 | Apache Zookeeper | 3.9.3   |
-| PostgreSQL       | 16      |
+| PostgreSQL       | 17      |
 
 Each component can be deployed with Ansible Molecule on your local notebook using Docker Container and self signed certificates (see step 2).
 
