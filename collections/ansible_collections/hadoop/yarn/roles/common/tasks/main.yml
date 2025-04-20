@@ -1,7 +1,7 @@
 ---
 - name: Create data folder for yarn
   ansible.builtin.file:
-    path: "{{ yarn_data_dir }}"
+    path: "{{ common_yarn_data_dir }}"
     state: directory
     owner: "{{ common_yarn_user }}"
     group: "{{ common_yarn_group }}"

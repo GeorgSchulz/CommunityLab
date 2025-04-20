@@ -22,6 +22,12 @@
     - not kerberos_external
   ansible.builtin.include_role:
     name: authentication.kerberos.keytab
+  vars:
+    kerberos_keytabs:
+      - principal: "{{ hdfs_user }}"
+        keytab_user: "{{ hdfs_user }}"
+      - principal: HTTP
+        keytab_user: "{{ hdfs_user }}"
 
 - name: Create hadoop configuration and log folder
   ansible.builtin.file:
@@ -90,6 +96,7 @@
 
 - name: Generate secret key used for signing authentication tokens
   ansible.builtin.command: dd if=/dev/urandom of={{ keytab_folder }}/hadoop_secret bs=1024 count=1
+  changed_when: false
 
 - name: Change permissions of generated secret key
   ansible.builtin.file:

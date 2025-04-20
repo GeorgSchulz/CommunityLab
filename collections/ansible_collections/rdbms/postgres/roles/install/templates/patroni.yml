@@ -82,9 +82,9 @@ bootstrap:
 postgresql:
   listen: "{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}:5432"
   connect_address: "{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}:5432"
-  data_dir: "/var/lib/postgresql/{{ postgresql_major_version }}/main"
-  config_dir: "/etc/postgresql/{{ postgresql_major_version }}/main"
-  bin_dir: "/usr/lib/postgresql/{{ postgresql_major_version }}/bin"
+  data_dir: "/var/lib/postgresql/{{ install_postgresql_major_version }}/main"
+  config_dir: "/etc/postgresql/{{ install_postgresql_major_version }}/main"
+  bin_dir: "/usr/lib/postgresql/{{ install_postgresql_major_version }}/bin"
   authentication:
     replication:
       username: repl

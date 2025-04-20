@@ -1,3 +1,0 @@
----
-kerberos_keytabs:
-  - principal: "{{ common_yarn_user }}"

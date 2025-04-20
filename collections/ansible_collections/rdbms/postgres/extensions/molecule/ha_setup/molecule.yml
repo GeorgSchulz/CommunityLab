@@ -1,4 +1,17 @@
 ---
+scenario:
+  name: ha_setup
+  test_sequence:
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify
+    - cleanup
+    - converge
+    - destroy
 dependency:
   name: galaxy
   options:
@@ -61,6 +74,10 @@ provisioner:
         self_signed_certificates: true
         tls_external: false
         domain: example.com
+        keystore_file: /etc/ssl/private/{{ ansible_fqdn }}.jks
+        keystore_password: changeit
+        truststore_file: /etc/ssl/certs/truststore.jks
+        truststore_password: changeit
       loadbalancers:
         haproxy_admin_password: changeit
         haproxy_pem_file: /etc/ssl/private/haproxy.pem
@@ -76,10 +93,6 @@ provisioner:
         service_gid: "4001"
         tls_user: zookeeper
         tls_group: zookeeper
-        keystore_file: /etc/ssl/private/{{ ansible_fqdn }}.jks
-        keystore_password: changeit
-        truststore_file: /etc/ssl/certs/truststore.jks
-        truststore_password: changeit
       zookeeper1:
         zookeeper_id: 1
       postgres:
@@ -89,7 +102,7 @@ provisioner:
           - /tmp/selfsigned_certs/{{ ansible_fqdn }}/cert.pem
           - /tmp/selfsigned_certs/{{ ansible_fqdn }}/chain.pem
           - /tmp/selfsigned_certs/{{ ansible_fqdn }}/key.pem
-        certs_mode:
+        distribute_certs_mode:
           - "0660"
           - "0660"
           - "0400"

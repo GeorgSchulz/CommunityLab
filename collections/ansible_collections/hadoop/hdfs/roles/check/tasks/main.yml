@@ -5,6 +5,7 @@
 
 - name: Get valid keytab for HDFS user
   ansible.builtin.command: kinit -k hdfs/{{ keytab_principal_hostname }}@{{ realm }} -t {{ keytab_folder }}/hdfs.keytab
+  changed_when: false
 
 - name: Block for IDE HA setup
   when: groups.namenodes | length == 3
@@ -12,6 +13,7 @@
     - name: Check if HDFS namenodes are running
       ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs haadmin -getAllServiceState
       register: ha_namenodes
+      changed_when: false
 
     - name: Print message depending on hdfs haadmin -getAllServiceState output
       ansible.builtin.assert:
@@ -22,6 +24,7 @@
 - name: Check if HDFS Datanodes are running
   ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs dfsadmin -report
   register: hdfs_report
+  changed_when: false
 
 - name: Print message depending on hdfs dfsadmin -report output
   ansible.builtin.assert:
@@ -34,6 +37,7 @@
     /opt/apache-hadoop/hadoop/bin/hdfs dfs -mkdir /test
     /opt/apache-hadoop/hadoop/bin/hdfs dfs -rm -r /test
   register: hdfs_writable
+  changed_when: false
 
 - name: Print message depending on hdfs writable commands
   ansible.builtin.assert:

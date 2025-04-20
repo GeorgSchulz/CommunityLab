@@ -24,6 +24,7 @@
     mode: "0644"
 
 - name: Configure /etc/nsswitch and pam files for sssd
+  changed_when: false
   ansible.builtin.command: pam-auth-update --enable mkhomedir
 
 - name: Configure sssd with main configuration file sssd.conf

@@ -13,10 +13,12 @@
 
 - name: Install miniforge using miniforge installation script when not already present
   ansible.builtin.command: bash /var/tmp/{{ install_miniforge_version }}.sh -b -p /opt/miniforge/{{ install_miniforge_version }}
+  changed_when: true
   when: not miniforge_install.stat.exists
 
 - name: Change ownership to miniforge user and group
   ansible.builtin.command: chown -R {{ miniforge_user }}:{{ miniforge_group }} /opt/miniforge
+  changed_when: true
   when: not miniforge_install.stat.exists
 
 - name: Create symbolic link

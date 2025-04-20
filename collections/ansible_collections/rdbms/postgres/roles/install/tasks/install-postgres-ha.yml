@@ -4,7 +4,7 @@
     manager: auto
 
 - name: Install PostgreSQL
-  when: "'postgresql-{{ postgresql_major_version }}' not in ansible_facts.packages"
+  when: "'postgresql-17' not in ansible_facts.packages"
   block:
     - name: Install required packages
       ansible.builtin.apt:
@@ -15,21 +15,21 @@
         state: present
         update_cache: true
 
-    - name: Install PostgreSQL {{ postgresql_major_version }} key
+    - name: Install PostgreSQL key
       ansible.builtin.get_url:
         url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
         dest: /etc/apt/trusted.gpg.d/postgresql.asc
         mode: "0644"
 
-    - name: Add PostgreSQL {{ postgresql_major_version }} repository
+    - name: Add PostgreSQL repository
       ansible.builtin.apt_repository:
         repo: deb [signed-by=/etc/apt/trusted.gpg.d/postgresql.asc] http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main
         state: present
         update_cache: true
 
-    - name: Install PostgreSQL {{ postgresql_major_version }}
+    - name: Install PostgreSQL
       ansible.builtin.apt:
-        name: postgresql-{{ postgresql_major_version }}
+        name: postgresql-{{ install_postgresql_major_version }}
         state: present
         update_cache: true
 
@@ -48,11 +48,11 @@
 - name: Install requirements for patroni in virtualenv
   ansible.builtin.pip:
     requirements: /tmp/requirements.txt
-    virtualenv: /usr/lib/postgresql/{{ postgresql_major_version }}/venv
+    virtualenv: /usr/lib/postgresql/{{ install_postgresql_major_version }}/venv
 
 - name: Change owner of virtualenv to postgres user
   ansible.builtin.file:
-    path: /usr/lib/postgresql/{{ postgresql_major_version }}/venv
+    path: /usr/lib/postgresql/{{ install_postgresql_major_version }}/venv
     state: directory
     owner: postgres
     group: postgres
@@ -89,7 +89,7 @@
   with_together:
     - "{{ certs_source }}"
     - "{{ certs_dest_postgres }}"
-    - "{{ certs_mode }}"
+    - "{{ distribute_certs_mode }}"
   loop_control:
     label: "{{ item.1 }}"
   when: (custom_inventory_file is defined and not custom_inventory_file) or (tls_external is defined and not tls_external)
@@ -120,16 +120,16 @@
     mode: "0644"
 
 - name: Delete present PostgreSQL data
-  when: "'postgresql-{{ postgresql_major_version }}' not in ansible_facts.packages"
+  when: "'postgresql-17' not in ansible_facts.packages"
   block:
     - name: Delete PostgreSQL data for Patroni to initialize
       ansible.builtin.file:
-        path: /var/lib/postgresql/{{ postgresql_major_version }}/main
+        path: /var/lib/postgresql/{{ install_postgresql_major_version }}/main
         state: absent
 
     - name: Create PostgreSQL data folder
       ansible.builtin.file:
-        path: /var/lib/postgresql/{{ postgresql_major_version }}/main
+        path: /var/lib/postgresql/{{ install_postgresql_major_version }}/main
         state: directory
         owner: postgres
         group: postgres

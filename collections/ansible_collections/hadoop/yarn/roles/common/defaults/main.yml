@@ -1,6 +1,6 @@
 ---
 common_yarn_user: "{{ yarn_user | default('yarn') }}"
 common_yarn_group: "{{ yarn_group | default('yarn') }}"
-hdfs_data_dir: /var/hadoop/hdfs
-yarn_data_dir: /var/hadoop/yarn
+common_hdfs_data_dir: /var/hadoop/hdfs
+common_yarn_data_dir: /var/hadoop/yarn
 common_yarn_site_name: "{{ 'yarn-site-ha.xml' if (groups.resourcemanagers | length == 3) else 'yarn-site.xml' }}"

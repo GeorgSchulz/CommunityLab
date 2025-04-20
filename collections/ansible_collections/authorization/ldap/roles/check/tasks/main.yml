@@ -15,6 +15,7 @@
       when: ldap_service_status.status.ActiveState == "active"
       block:
         - name: Check if IDE users are added to IDE group
+          changed_when: false
           ansible.builtin.shell:
             cmd: 'set -o pipefail && ldapsearch -H ldapi:/// -Y EXTERNAL -LLL -b "{{ ldap_organization }}" filter uid | grep uid:'
             executable: /bin/bash
@@ -47,6 +48,7 @@
             - molecule_deployment
           block:
             - name: Check if ldap standard replication is active
+              changed_when: false
               ansible.builtin.command: ldapsearch -z1 -LLL -H ldapi:/// -s base -b {{ ldap_organization }} contextCSN
               register: ldap_search_context
 

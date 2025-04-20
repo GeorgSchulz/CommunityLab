@@ -1,2 +1,3 @@
 ---
-self_signed_certificates: true
+issue_serial_number: 1000
+issue_self_signed_certificates: "{{ self_signed_certificates | default('true') }}"

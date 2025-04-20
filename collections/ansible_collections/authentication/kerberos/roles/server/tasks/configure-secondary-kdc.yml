@@ -15,9 +15,11 @@
         remote_src: true
 
     - name: Decompress Kerberos schema file using gunzip
+      changed_when: true
       ansible.builtin.command: gunzip /etc/ldap/schema/kerberos.schema.gz
 
 - name: Import Kerberos schema
+  changed_when: true
   ansible.builtin.command: ldap-schema-manager -i kerberos.schema
 
 - name: Copy krb5_principal_name.ldif to /tmp
@@ -28,6 +30,7 @@
 
 - name: Import index krbPrincipalName to LDAP database
   failed_when: ldap_modify.rc not in [0,20]
+  changed_when: true
   ansible.builtin.command: ldapmodify -Q -Y EXTERNAL -H ldapi:/// -w {{ ldap_password }} -f /tmp/krb5_principal_name.ldif
   register: ldap_modify
 

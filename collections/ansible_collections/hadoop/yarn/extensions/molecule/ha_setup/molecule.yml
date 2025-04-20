@@ -1,4 +1,17 @@
 ---
+scenario:
+  name: ha_setup
+  test_sequence:
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify
+    - cleanup
+    - converge
+    - destroy
 dependency:
   name: galaxy
   options:
@@ -90,16 +103,19 @@ provisioner:
         hdfs_user: hdfs
         hdfs_group: hadoop
         hadoop_nameservice: communitylab
-        keytab_user_journalnode: journalnode
         yarn_user: yarn
         yarn_group: hadoop
         self_signed_certificates: true
         domain: example.com
         keytab_folder: /etc/keytabs
+        hdfs_data_dir: /var/hadoop/hdfs
         realm: COMMUNITY.LAB
         ide_services_group: hadoop
-        keytab_user_yarn: yarn
+        keytab_user_hdfs: hdfs
         keytab_user_http: HTTP
+        keytab_user_yarn: yarn
+        keytab_user_jupyter: jupyterhub
+        keytab_user_journalnode: journalnode
         ldap_organization: dc=example,dc=com
         ldap_server_address: "{% for host in groups.ldap | shuffle %}ldaps://{{ host }}.example.com:636{% if not loop.last %},{% endif %}{% endfor %}"
         ldap_user_search_base: ou=people,{{ ldap_organization }}
@@ -149,6 +165,8 @@ provisioner:
         journalnode_user: journalnode
         journalnode_group: hadoop
         journalnode_uid: "5006"
+        kerberos_keytabs:
+          - principal: "{{ yarn_user }}"
       nodemanagers:
         service_user: yarn
         service_name: Apache Hadoop
@@ -157,6 +175,8 @@ provisioner:
         service_gid: "4001"
         tls_user: yarn
         tls_group: hadoop
+        kerberos_keytabs:
+          - principal: "{{ yarn_user }}"
       zookeeper1:
         zookeeper_id: 1
       zookeeper2:

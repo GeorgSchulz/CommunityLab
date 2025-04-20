@@ -1,4 +1,17 @@
 ---
+scenario:
+  name: default
+  test_sequence:
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify
+    - cleanup
+    - converge
+    - destroy
 dependency:
   name: galaxy
   options:
@@ -42,11 +55,11 @@ provisioner:
           - /tmp/selfsigned_certs/{{ ansible_fqdn }}/cert.pem
           - /tmp/selfsigned_certs/{{ ansible_fqdn }}/chain.pem
           - /tmp/selfsigned_certs/{{ ansible_fqdn }}/key.pem
-        certs_dest:
+        distribute_certs_dest:
           - cert.pem
           - chain.pem
           - key.pem
-        certs_mode:
+        distribute_certs_mode:
           - "0660"
           - "0660"
           - "0400"

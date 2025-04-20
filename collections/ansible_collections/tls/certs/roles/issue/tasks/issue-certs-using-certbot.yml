@@ -2,6 +2,7 @@
 - name: Set fact for no root user - use command to avoid ansible_fact_caching for root user
   become: false
   ansible.builtin.command: whoami
+  changed_when: false
   register: no_root_user
 
 - name: Create folder for certificates and keys
@@ -32,6 +33,7 @@
 
     - name: Issue certificate and key using certbot when shared IP address for JupyterHub frontend is undefined
       ansible.builtin.command: certbot certonly --standalone --preferred-challenges http --agree-tos --email {{ my_email }} -d {{ inventory_hostname }}
+      changed_when: false
       when: jupyterhub_domain_ip is not defined
 
     - name: Issue certificate and key using certbot when shared IP address for JupyterHub frontend is defined
@@ -70,6 +72,7 @@
               --manual-cleanup-hook /usr/local/bin/certbot-hetzner-cleanup.sh \
               -d {{ inventory_hostname }} -d jupyterhub.{{ domain }}
             executable: /bin/bash
+          changed_when: false
 
     - name: Fetch certificate and key to ansible server
       ansible.posix.synchronize:

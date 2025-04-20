@@ -1,5 +1,0 @@
----
-- src: git@github.com:GeorgSchulz/CommunityLab.git
-  scm: git
-  version: master
-  name: CommunityLab

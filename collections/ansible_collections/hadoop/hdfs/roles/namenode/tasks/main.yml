@@ -9,8 +9,8 @@
 
 - name: Set fact for initializing process
   ansible.builtin.set_fact:
-    namenode_hdfs_data_dir_current: "{{ namenode_hdfs_data_dir + '/namenode/storage1/current' if groups.namenodes | length == 3 else namenode_hdfs_data_dir + '/namenode/current'
-      }}"
+    namenode_hdfs_data_dir_current: "{{ namenode_hdfs_data_dir + '/namenode/storage1/current' if groups.namenodes | length == 3 else
+      namenode_hdfs_data_dir + '/namenode/current' }}"
 
 - name: Check HDFS is already initialized
   ansible.builtin.stat:
@@ -43,8 +43,9 @@
 
 - name: Format HDFS ZKFC
   become: true
-  become_user: "{{ hdfs_user }}"
+  become_user: "{{ namenode_hdfs_user }}"
   ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs zkfc -formatZK -force
+  changed_when: true
   when:
     - "'namenode1' in group_names"
     - not namenode_initialized_dir.stat.exists
@@ -52,8 +53,9 @@
 
 - name: Format HDFS namenode
   become: true
-  become_user: "{{ hdfs_user }}"
+  become_user: "{{ namenode_hdfs_user }}"
   ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs namenode -format -force
+  changed_when: true
   when:
     - "'namenode1' in group_names"
     - not namenode_initialized_dir.stat.exists
@@ -73,8 +75,9 @@
 
 - name: Bootstrap HDFS secondary and tertiary namenode
   become: true
-  become_user: "{{ hdfs_user }}"
+  become_user: "{{ namenode_hdfs_user }}"
   ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs namenode -bootstrapStandby -nonInteractive -force
+  changed_when: true
   when:
     - "'namenode1' not in group_names"
     - not namenode_initialized_dir.stat.exists

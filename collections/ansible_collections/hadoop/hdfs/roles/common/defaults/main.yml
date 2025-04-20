@@ -1,10 +1,4 @@
 ---
 common_hdfs_user: "{{ hdfs_user | default('hdfs') }}"
 common_hdfs_group: "{{ hdfs_group | default('hadoop') }}"
-keytab_folder: /etc/keytabs
-hdfs_data_dir: /var/hadoop/hdfs
 common_hdfs_site_name: "{{ 'hdfs-site-ha.xml' if (groups.namenodes | length == 3) else 'hdfs-site.xml' }}"
-
-keytab_user_hdfs: hdfs
-keytab_user_http: HTTP
-setup_realm: COMMUNITY.LAB

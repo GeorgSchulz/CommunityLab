@@ -53,6 +53,13 @@ all:
         tls_user: "{{ jupyterhub_user }}"
         tls_group: "{{ jupyterhub_group }}"
         keytab_group: "{{ jupyterhub_group }}"
+        miniforge_user: "{{ jupyterhub_user }}"
+        miniforge_group: "{{ jupyterhub_group }}"
+        hadoop_client_user: "{{ jupyterhub_user }}"
+        hadoop_client_group: "{{ jupyterhub_group }}"
+        kerberos_keytabs:
+          - principal: "{{ jupyterhub_user }}"
+            keytab_user: "{{ jupyterhub_user }}"
     loadbalancers:
       children:
         hub1:
@@ -98,6 +105,10 @@ all:
         resourcemanager1:
         resourcemanager2:
         resourcemanager3:
+      vars:
+        kerberos_keytabs:
+          - principal: "{{ yarn_user }}"
+            keytab_user: "{{ yarn_user }}"
     zookeeper:
       children:
         master1:
@@ -121,6 +132,10 @@ all:
         worker1:
         worker2:
         worker3:
+      vars:
+        kerberos_keytabs:
+          - principal: "{{ yarn_user }}"
+            keytab_user: "{{ yarn_user }}"
     spark:
       children:
         worker1:
@@ -158,6 +173,9 @@ all:
         worker1:
         worker2:
         worker3:
+      vars:
+        miniforge_user: "{{ yarn_user }}"
+        miniforge_group: "{{ yarn_group }}"
     ldap1:
       children:
         security1:
@@ -208,11 +226,11 @@ all:
       - "/opt/letsencrypt/{{ inventory_hostname }}/cert1.pem"
       - "/opt/letsencrypt/{{ inventory_hostname }}/chain1.pem"
       - "/opt/letsencrypt/{{ inventory_hostname }}/privkey1.pem"
-    certs_dest:
+    distribute_certs_dest:
       - "cert.pem"
       - "chain.pem"
       - "key.pem"
-    certs_mode:
+    distribute_certs_mode:
       - "0660"
       - "0660"
       - "0400"
@@ -247,3 +265,4 @@ all:
     hadoop_nameservice: "communitylab"
     jupyterhub_domain_ip: true
     postgres_host: "{{ jupyterhub_domain_ip_address }}"
+    hdfs_data_dir: /var/hadoop/hdfs

@@ -1,4 +1,17 @@
 ---
+scenario:
+  name: ha_setup
+  test_sequence:
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify
+    - cleanup
+    - converge
+    - destroy
 dependency:
   name: galaxy
   options:
@@ -130,6 +143,7 @@ provisioner:
         truststore_file: /etc/ssl/certs/truststore.jks
         truststore_password: changeit
         keytab_folder: /etc/keytabs
+        hdfs_data_dir: /var/hadoop/hdfs
         ide_services_group: hadoop
         ide_users_group: ide_users
         ide_users_gid: "5001"
@@ -204,6 +218,13 @@ provisioner:
         haproxy_pem_file: /etc/ssl/private/haproxy.pem
         jupyterhub_domain_ip: true
         haproxy_admin_password: changeit
+        miniforge_user: "{{ jupyterhub_user }}"
+        miniforge_group: "{{ jupyterhub_group }}"
+        hadoop_client_user: "{{ jupyterhub_user }}"
+        hadoop_client_group: "{{ jupyterhub_group }}"
+        kerberos_keytabs:
+          - principal: "{{ jupyterhub_user }}"
+            keytab_user: "{{ jupyterhub_user }}"
       ldap:
         ldap_user: openldap
         ldap_uid: "5001"
@@ -224,6 +245,9 @@ provisioner:
         service_gid: "4001"
         tls_user: yarn
         tls_group: hadoop
+        kerberos_keytabs:
+          - principal: "{{ yarn_user }}"
+            keytab_user: "{{ yarn_user }}"
       nodemanagers:
         service_user: yarn
         service_name: Apache Hadoop
@@ -232,16 +256,22 @@ provisioner:
         service_gid: "4001"
         tls_user: yarn
         tls_group: hadoop
+        kerberos_keytabs:
+          - principal: "{{ yarn_user }}"
+            keytab_user: "{{ yarn_user }}"
+      jupyterlab:
+        miniforge_user: "{{ yarn_user }}"
+        miniforge_group: "{{ yarn_group }}"
       postgres:
         certs_source:
           - /tmp/selfsigned_certs/{{ ansible_fqdn }}/cert.pem
           - /tmp/selfsigned_certs/{{ ansible_fqdn }}/chain.pem
           - /tmp/selfsigned_certs/{{ ansible_fqdn }}/key.pem
-        certs_dest:
+        distribute_certs_dest:
           - cert.pem
           - chain.pem
           - key.pem
-        certs_mode:
+        distribute_certs_mode:
           - "0660"
           - "0660"
           - "0400"

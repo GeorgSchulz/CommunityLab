@@ -4,7 +4,7 @@
     manager: auto
 
 - name: Install PostgreSQL
-  when: "'postgresql-{{ postgresql_major_version }}' not in ansible_facts.packages"
+  when: "'postgresql' not in ansible_facts.packages"
   block:
     - name: Install required packages
       ansible.builtin.apt:
@@ -15,21 +15,21 @@
         state: present
         update_cache: true
 
-    - name: Install PostgreSQL {{ postgresql_major_version }} key
+    - name: Install PostgreSQL key
       ansible.builtin.get_url:
         url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
         dest: /etc/apt/trusted.gpg.d/postgresql.asc
         mode: "0644"
 
-    - name: Add PostgreSQL {{ postgresql_major_version }} repository
+    - name: Add PostgreSQL repository
       ansible.builtin.apt_repository:
         repo: deb [signed-by=/etc/apt/trusted.gpg.d/postgresql.asc] http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main
         state: present
         update_cache: true
 
-    - name: Install PostgreSQL {{ postgresql_major_version }}
+    - name: Install PostgreSQL
       ansible.builtin.apt:
-        name: postgresql-{{ postgresql_major_version }}
+        name: postgresql-{{ install_postgresql_major_version }}
         state: present
         update_cache: true
 

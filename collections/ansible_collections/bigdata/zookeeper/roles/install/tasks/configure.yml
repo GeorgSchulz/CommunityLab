@@ -5,8 +5,8 @@
     path: "{{ item }}"
     state: directory
     mode: "0755"
-    owner: "{{ setup_zookeeper_user }}"
-    group: "{{ setup_zookeeper_group }}"
+    owner: "{{ install_zookeeper_user }}"
+    group: "{{ install_zookeeper_group }}"
   loop:
     - "{{ install_zookeeper_data_dir }}"
     - "{{ install_zookeeper_log_dir }}"
@@ -17,8 +17,8 @@
     content: "{{ zookeeper_id }}"
     dest: "{{ install_zookeeper_data_dir }}/myid"
     mode: "0644"
-    owner: "{{ setup_zookeeper_user }}"
-    group: "{{ setup_zookeeper_group }}"
+    owner: "{{ install_zookeeper_user }}"
+    group: "{{ install_zookeeper_group }}"
 
 - name: Configure zookeeper with zoo.cfg and zookeeper-env.sh
   become: true
@@ -26,8 +26,8 @@
     src: "{{ item }}"
     dest: /opt/apache-zookeeper/zookeeper/conf/{{ item }}
     mode: "0644"
-    owner: "{{ setup_zookeeper_user }}"
-    group: "{{ setup_zookeeper_group }}"
+    owner: "{{ install_zookeeper_user }}"
+    group: "{{ install_zookeeper_group }}"
   loop:
     - zoo.cfg
     - zookeeper-env.sh

@@ -1,5 +1,0 @@
----
-setup_zookeeper_user: "{{ zookeeper_user | default('zookeeper') }}"
-setup_zookeeper_uid: "{{ zookeeper_uid | default('5005') }}"
-setup_zookeeper_group: "{{ zookeeper_group | default('hadoop') }}"
-setup_zookeeper_gid: "{{ zookeeper_gid | default('4001') }}"

@@ -37,8 +37,8 @@
         - /tmp/selfsigned_certs/myCA/intermediateCA/index.txt
 
     - name: Create initial files
-      ansible.builtin.copy:
-        content: 1000
+      ansible.builtin.template:
+        src: serialnumber.j2
         dest: "{{ item }}"
         mode: "0644"
       loop:
@@ -62,6 +62,7 @@
     - name: Create a key - Root CA certificate
       args:
         chdir: /tmp/selfsigned_certs
+      changed_when: true
       ansible.builtin.command: openssl genpkey \
                                -algorithm rsa -pkeyopt rsa_keygen_bits:4096 \
                                -out rootCA.key
@@ -70,6 +71,7 @@
     - name: Create a self-signed certificate
       args:
         chdir: /tmp/selfsigned_certs
+      changed_when: true
       ansible.builtin.command: openssl req -config openssl_root.cnf \
                                -key rootCA.key -new -x509 -days 7300 \
                                -sha256 -extensions v3_ca -out myCA/rootCA/certs/ca.cert.pem \
@@ -78,6 +80,7 @@
     - name: Create a key - Intermediate CA certificate
       args:
         chdir: /tmp/selfsigned_certs
+      changed_when: true
       ansible.builtin.command: openssl genpkey \
                                -algorithm rsa -pkeyopt rsa_keygen_bits:4096 \
                                -out intermediateCA.key
@@ -85,6 +88,7 @@
     - name: Create a certificate signing request (CSR)
       args:
         chdir: /tmp/selfsigned_certs
+      changed_when: true
       ansible.builtin.command: openssl req -config openssl_intermediate.cnf \
                                -key intermediateCA.key \
                                -new -sha256 \
@@ -95,6 +99,7 @@
     - name: As root CA, sign the CSR for the intermediate CA with the root CA key
       args:
         chdir: /tmp/selfsigned_certs
+      changed_when: true
       ansible.builtin.command: openssl ca -batch -config openssl_root.cnf \
                                -keyfile rootCA.key \
                                -extensions v3_intermediate_ca -days 750 -notext -md sha256 \
@@ -104,12 +109,14 @@
     - name: Verify the signature on the intermediate certificate
       args:
         chdir: /tmp/selfsigned_certs
+      changed_when: false
       ansible.builtin.command: openssl verify -CAfile myCA/rootCA/certs/ca.cert.pem \
                                myCA/intermediateCA/certs/intermediate.cert.pem
 
     - name: Create a key - Server certificate
       args:
         chdir: /tmp/selfsigned_certs
+      changed_when: true
       ansible.builtin.command: openssl genpkey \
                                -algorithm rsa -pkeyopt rsa_keygen_bits:4096 \
                                -out {{ ansible_fqdn }}.key
@@ -117,6 +124,7 @@
     - name: Create a certificate signing request (CSR)
       args:
         chdir: /tmp/selfsigned_certs
+      changed_when: true
       ansible.builtin.command: openssl req -copy_extensions=copyall \
                                -key {{ ansible_fqdn }}.key \
                                -new -sha256 \
@@ -127,6 +135,7 @@
     - name: As intermediate CA, sign the server CSR with the intermediate CA key
       args:
         chdir: /tmp/selfsigned_certs
+      changed_when: true
       ansible.builtin.command: openssl ca -batch -config openssl_intermediate.cnf \
                                -extensions v3_server_cert \
                                -keyfile intermediateCA.key \
@@ -137,6 +146,7 @@
     - name: Verify the certificate by checking the signatures using OpenSSL
       args:
         chdir: /tmp/selfsigned_certs
+      changed_when: false
       ansible.builtin.shell: |
         cat myCA/intermediateCA/certs/intermediate.cert.pem \
         myCA/rootCA/certs/ca.cert.pem \
@@ -162,6 +172,7 @@
     mode: "0644"
 
 - name: Update ca-certificates
+  changed_when: true
   ansible.builtin.command: update-ca-certificates
 
 - name: Change ownership of /etc/ssl/private

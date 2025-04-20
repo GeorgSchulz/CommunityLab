@@ -6,16 +6,18 @@
   when: item.scheme is defined
   block:
     - name: Check if PostgreSQL is available - localhost
-      when: groups.postgres | length == 1
       ansible.builtin.command: psql -c "SELECT 1"
+      when: groups.postgres | length == 1
+      changed_when: false
       register: psql_check
       until: psql_check.rc == 0
       retries: 10
       delay: 5
 
     - name: Check if PostgreSQL is available - Patroni Cluster
-      when: groups.postgres | length == 3
       ansible.builtin.command: psql -h {{ postgres_host }} -c "SELECT 1"
+      when: groups.postgres | length == 3
+      changed_when: false
       register: psql_check
       until: psql_check.rc == 0
       retries: 10
