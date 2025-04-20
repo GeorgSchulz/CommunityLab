@@ -16,7 +16,8 @@
 
     - name: Copy temporary all certs of hosts to /var/tmp of each host
       ansible.builtin.copy:
-        src: "{{ local_cert_path }}/{{ item + '.' + domain if molecule_deployment is defined and molecule_deployment else item }}/{{ cert_name }}"
+        src: "{{ truststore_local_cert_path }}/{{ item + '.' + domain if molecule_deployment is defined and molecule_deployment else
+          item }}/{{ truststore_cert_name }}"
         dest: /var/tmp/{{ item }}_cert.pem
         mode: "0644"
       loop: "{{ groups.all }}"
@@ -26,6 +27,7 @@
         -alias {{ item + '.' + domain if molecule_deployment is defined and molecule_deployment else item }} \
         -keystore /etc/ssl/certs/truststore.jks \
         -file /var/tmp/{{ item }}_cert.pem -storepass {{ truststore_password }} -noprompt
+      changed_when: true
       loop: "{{ groups.all }}"
 
     - name: Import chain.pem into /etc/ssl/certs/truststore.jks
@@ -34,6 +36,8 @@
         -keystore /etc/ssl/certs/truststore.jks \
         -file /etc/ssl/private/chain.pem \
         -storepass {{ truststore_password }} -noprompt
+      changed_when: true
+
     - name: Give access to created Java truststore
       ansible.builtin.file:
         path: /etc/ssl/certs/truststore.jks

@@ -1,17 +1,14 @@
 ---
-self_signed_certificates: true
+distribute_self_signed_certificates: true
 
 # Names of issued self signed certificate and key on remote hosts - used for Ansible Role tls.certs.distribute
-certs_dest:
+distribute_certs_dest:
   - "{{ ansible_fqdn }}.cert.pem"
   - "{{ ansible_fqdn }}.csr.pem"
   - "{{ ansible_fqdn }}.key"
 
 # Mode of issued self signed certificate and key on remote hosts - used for Ansible Role tls.certs.distribute
-certs_mode:
+distribute_certs_mode:
   - "0660"
   - "0660"
   - "0400"
-
-keystore_password: changeit
-truststore_password: changeit

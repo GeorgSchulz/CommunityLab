@@ -4,8 +4,9 @@
     keytab_hostname: "{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}"
 
 - name: Check if keytab is already present and kinit possible using specific principal
-  ansible.builtin.command: kinit -k {{ keytab.principal }}/{{ keytab_hostname }}@{{ realm }} -t {{ keytab_folder }}/{{ keytab.principal }}.keytab
   failed_when: false
+  changed_when: false
+  ansible.builtin.command: kinit -k {{ keytab.principal }}/{{ keytab_hostname }}@{{ realm }} -t {{ keytab_folder }}/{{ keytab.principal }}.keytab
   register: keytab_possible
 
 - name: Create principal on kerberos primary kdc when kinit not possible and fetch it to localhost
@@ -13,13 +14,16 @@
   when: keytab_possible.rc != 0
   block:
     - name: Add specific principal
+      changed_when: true
       ansible.builtin.command: kadmin.local -q "addprinc -randkey {{ keytab.principal }}/{{ keytab_hostname }}"
 
     - name: Add additional non-fqdn principal if additional_principal true
+      changed_when: true
       ansible.builtin.command: kadmin.local -q "addprinc -randkey {{ keytab.principal }}/{{ keytab.additional_principal_name }}"
       when: keytab.additional_principal_name is defined
 
     - name: Change random principal password for specific principal if set
+      changed_when: true
       ansible.builtin.command: kadmin.local -q "change_password -w {{ keytab.principal_password }} {{ keytab.principal }}/{{ keytab_hostname }}"
       when: keytab.principal_password is defined
 
@@ -29,10 +33,12 @@
         state: absent
 
     - name: Create keytab in /tmp
+      changed_when: true
       ansible.builtin.command: kadmin.local \
         -q "xst -norandkey -k /tmp/{{ keytab.principal }}_{{ keytab_hostname }}.keytab {{ keytab.principal }}/{{ keytab_hostname }}"
 
     - name: Add additional non-fqdn principal to keytab if additional_principal_name is defined
+      changed_when: true
       ansible.builtin.command: kadmin.local \
         -q "ktadd -norandkey -k /tmp/{{ keytab.principal }}_{{ keytab_hostname }}.keytab {{ keytab.principal }}/{{ keytab.additional_principal_name }}"
       when: keytab.additional_principal_name is defined

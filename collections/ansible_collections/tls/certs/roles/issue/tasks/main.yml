@@ -1,8 +1,8 @@
 ---
 - name: Issue certificates using Certbot
   ansible.builtin.include_tasks: issue-certs-using-certbot.yml
-  when: not self_signed_certificates
+  when: not issue_self_signed_certificates
 
 - name: Issue self signed certificates
   ansible.builtin.include_tasks: issue-selfsigned-certs.yml
-  when: self_signed_certificates
+  when: issue_self_signed_certificates

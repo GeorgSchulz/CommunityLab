@@ -1,3 +1,8 @@
 ---
 keytab_user: "{% if keytab.keytab_user is defined %}{{ keytab.keytab_user }}{% else %}{{ keytab.principal }}{% endif %}"
 keytab_group: "{{ ide_services_group | default('root') }}"
+keytab_hdfs:
+  - principal: "{{ hdfs_user }}"
+    keytab_user: "{{ hdfs_user }}"
+  - principal: HTTP
+    keytab_user: "{{ hdfs_user }}"

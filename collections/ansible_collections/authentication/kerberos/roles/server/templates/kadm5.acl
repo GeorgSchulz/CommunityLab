@@ -1,1 +1,1 @@
-kadmin/admin@{{ setup_realm }}        *
+kadmin/admin@{{ realm }}        *

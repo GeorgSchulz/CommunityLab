@@ -7,16 +7,16 @@
 
 - name: Create zookeeper group
   ansible.builtin.group:
-    name: "{{ setup_zookeeper_group }}"
-    gid: "{{ setup_zookeeper_gid }}"
+    name: "{{ install_zookeeper_group }}"
+    gid: "{{ install_zookeeper_gid }}"
     state: present
 
 - name: Create zookeeper user
   ansible.builtin.user:
-    name: "{{ setup_zookeeper_user }}"
+    name: "{{ install_zookeeper_user }}"
     comment: User for Apache Zookeeper
-    uid: "{{ setup_zookeeper_uid }}"
-    group: "{{ setup_zookeeper_gid }}"
+    uid: "{{ install_zookeeper_uid }}"
+    group: "{{ install_zookeeper_gid }}"
     state: present
     shell: /bin/bash
 
@@ -26,8 +26,8 @@
     path: /opt/apache-zookeeper
     state: directory
     mode: "0755"
-    owner: "{{ setup_zookeeper_user }}"
-    group: "{{ setup_zookeeper_group }}"
+    owner: "{{ install_zookeeper_user }}"
+    group: "{{ install_zookeeper_group }}"
 
 - name: Unpack Apache Zookeeper tarball
   become: true
@@ -35,8 +35,8 @@
     copy: false
     src: /var/tmp/apache-zookeeper-{{ install_zookeeper_version }}-bin.tar.gz
     dest: /opt/apache-zookeeper
-    owner: "{{ setup_zookeeper_user }}"
-    group: "{{ setup_zookeeper_group }}"
+    owner: "{{ install_zookeeper_user }}"
+    group: "{{ install_zookeeper_group }}"
     creates: /opt/apache-zookeeper/apache-zookeeper-{{ install_zookeeper_version }}-bin
 
 - name: Create symbolic link
@@ -45,5 +45,5 @@
     src: /opt/apache-zookeeper/apache-zookeeper-{{ install_zookeeper_version }}-bin
     dest: /opt/apache-zookeeper/zookeeper
     state: link
-    owner: "{{ setup_zookeeper_user }}"
-    group: "{{ setup_zookeeper_group }}"
+    owner: "{{ install_zookeeper_user }}"
+    group: "{{ install_zookeeper_group }}"

@@ -13,6 +13,7 @@
 
 - name: Create haproxy.pem
   ansible.builtin.shell: cat /etc/ssl/private/cert.pem /etc/ssl/private/key.pem > /etc/ssl/private/haproxy.pem
+  changed_when: true
 
 - name: Enable haproxy service
   ansible.builtin.systemd:

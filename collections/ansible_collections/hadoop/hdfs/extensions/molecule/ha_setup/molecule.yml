@@ -1,4 +1,17 @@
 ---
+scenario:
+  name: ha_setup
+  test_sequence:
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify
+    - cleanup
+    - converge
+    - destroy
 dependency:
   name: galaxy
   options:
@@ -90,11 +103,11 @@ provisioner:
         hdfs_user: hdfs
         hdfs_group: hadoop
         hadoop_nameservice: communitylab
-        keytab_user_journalnode: journalnode
         ide_services_group: hadoop
         self_signed_certificates: true
         domain: example.com
         keytab_folder: /etc/keytabs
+        hdfs_data_dir: /var/hadoop/hdfs
         realm: COMMUNITY.LAB
         ldap_organization: dc=example,dc=com
         ldap_server_address: "{% for host in groups.ldap | shuffle %}ldaps://{{ host }}.example.com:636{% if not loop.last %},{% endif %}{% endfor %}"
@@ -122,6 +135,11 @@ provisioner:
         keystore_password: changeit
         truststore_file: /etc/ssl/certs/truststore.jks
         truststore_password: changeit
+        keytab_user_hdfs: hdfs
+        keytab_user_http: HTTP
+        keytab_user_yarn: yarn
+        keytab_user_jupyter: jupyterhub
+        keytab_user_journalnode: journalnode
       ldap:
         ldap_user: openldap
         ldap_uid: "5001"
@@ -142,6 +160,11 @@ provisioner:
         service_gid: "4001"
         tls_user: hdfs
         tls_group: hadoop
+        kerberos_keytabs:
+          - principal: "{{ hdfs_user }}"
+            keytab_user: "{{ hdfs_user }}"
+          - principal: HTTP
+            keytab_user: "{{ hdfs_user }}"
       datanodes:
         service_user: hdfs
         service_name: Apache Hadoop
@@ -150,6 +173,11 @@ provisioner:
         service_gid: "4001"
         tls_user: hdfs
         tls_group: hadoop
+        kerberos_keytabs:
+          - principal: "{{ hdfs_user }}"
+            keytab_user: "{{ hdfs_user }}"
+          - principal: HTTP
+            keytab_user: "{{ hdfs_user }}"
       zookeeper1:
         zookeeper_id: 1
       zookeeper2:

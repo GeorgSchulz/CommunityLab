@@ -6,8 +6,8 @@ After=network.target network-online.target
 [Service]
 Type=forking
 WorkingDirectory=/opt/apache-zookeeper/zookeeper
-User={{ setup_zookeeper_user }}
-Group={{ setup_zookeeper_group }}
+User={{ install_zookeeper_user }}
+Group={{ install_zookeeper_group }}
 ExecStart=/opt/apache-zookeeper/zookeeper/bin/zkServer.sh start 
 ExecStop=/opt/apache-zookeeper/zookeeper/bin/zkServer.sh stop 
 TimeoutSec=30

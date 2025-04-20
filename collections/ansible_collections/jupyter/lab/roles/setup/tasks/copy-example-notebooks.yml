@@ -1,10 +1,12 @@
 - name: Check if example notebook is already present in /share of HDFS
   failed_when: example_notebook_present.rc not in [0,1]
   ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs dfs \
-    -test -e /share/{{ item  }}
+    -test -e /share/{{ item }}
+  changed_when: false
   register: example_notebook_present
 
-- name: Copy example notebook to /share of HDFS    
+- name: Copy example notebook to /share of HDFS
   ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs dfs \
-    -copyFromLocal /tmp/{{ item }} /share/{{ item  }}
+    -copyFromLocal /tmp/{{ item }} /share/{{ item }}
+  changed_when: true
   when: example_notebook_present.rc != 0

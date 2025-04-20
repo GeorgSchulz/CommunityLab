@@ -38,6 +38,7 @@
 
 - name: Generate jupyterhub cookie secret
   ansible.builtin.shell: openssl rand -hex 32 > /etc/jupyterhub/jupyterhub_cookie_secret
+  changed_when: true
   when: not jupyterhub_cookie_secret.stat.exists
 
 - name: Change permissions for jupyterhub cookie secret

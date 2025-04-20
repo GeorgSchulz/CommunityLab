@@ -1,0 +1,30 @@
+# .github/workflows/test-molecule.yml
+name: Molecule test (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      collection_path:
+        required: true
+        type: string
+      scenario:
+        required: false
+        type: string
+        default: default
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: pip install ansible molecule molecule-plugins[docker] docker
+      - name: Run Molecule scenario
+        working-directory: collections/ansible_collections/${{ inputs.collection_path }}/extensions
+        env:
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+          ANSIBLE_COLLECTIONS_PATH: ${{ github.workspace }}/collections
+        run: molecule test -s ${{ inputs.scenario }}

@@ -9,14 +9,14 @@
   ansible.builtin.file:
     path: "{{ namenode_hdfs_data_dir }}/namenode"
     state: directory
-    owner: "{{ setup_hdfs_user }}"
-    group: "{{ setup_hdfs_group }}"
+    owner: "{{ namenode_hdfs_user }}"
+    group: "{{ namenode_hdfs_group }}"
     mode: "0775"
 
 - name: Create hosts file
   ansible.builtin.template:
     src: hosts.json.j2
     dest: /opt/apache-hadoop/hadoop/etc/hadoop/hosts.json
-    owner: "{{ setup_hdfs_user }}"
-    group: "{{ setup_hdfs_group }}"
+    owner: "{{ namenode_hdfs_user }}"
+    group: "{{ namenode_hdfs_group }}"
     mode: "0644"

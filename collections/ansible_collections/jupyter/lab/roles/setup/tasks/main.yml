@@ -19,6 +19,7 @@
       ansible.builtin.shell: |
         . /opt/miniforge/miniforge/bin/activate
         conda create -n jupyterlab python={{ setup_environment_python_version }} -y
+      changed_when: true
 
     - name: Install jupyterlab conda packages in jupyterlab environment
       tags:
@@ -26,6 +27,7 @@
       ansible.builtin.shell: |
         . /opt/miniforge/miniforge/bin/activate jupyterlab
         conda install -c conda-forge {% for conda_package in setup_conda_packages %}{{ conda_package }}{% if not loop.last %} {% endif %}{% endfor %} -y
+      changed_when: true
       args:
         executable: /bin/bash
       async: 6800
@@ -35,6 +37,7 @@
       ansible.builtin.shell: |
         . /opt/miniforge/miniforge/bin/activate jupyterlab
         pip install {% for pip_package in setup_pip_packages %}{{ pip_package }}{% if not loop.last %} {% endif %}{% endfor %}
+      changed_when: true
       args:
         executable: /bin/bash
 
@@ -42,6 +45,7 @@
       ansible.builtin.shell: |
         . /opt/miniforge/miniforge/bin/activate jupyterlab
         python -m bash_kernel.install
+      changed_when: true
       args:
         executable: /bin/bash
 
@@ -49,6 +53,7 @@
       ansible.builtin.shell: |
         . /opt/miniforge/miniforge/bin/activate jupyterlab
         jupyter toree install --spark_home=/opt/apache-spark/spark --sys-prefix /opt/miniforge/miniforge/envs/jupyterlab
+      changed_when: true
       args:
         executable: /bin/bash
 
@@ -61,9 +66,11 @@
 
     - name: Change mode of environment - use shell module because of better performance
       ansible.builtin.command: chmod -R 755 {{ setup_miniforge_base_path }}
+      changed_when: true
 
     - name: Change owner to yarn user and group in environment - use shell module because of better performance
       ansible.builtin.command: chown -R {{ yarn_user }}:{{ yarn_group }} -R {{ setup_miniforge_base_path }}
+      changed_when: true
 
 - name: Create folders for environment variables in jupyterlab environment
   ansible.builtin.file:
@@ -109,22 +116,28 @@
       ansible.builtin.command: kinit \
         -k {{ hdfs_user }}/{{ keytab_principal_host }}@{{ realm }} \
         -t {{ keytab_folder }}/{{ hdfs_user }}.keytab
+      changed_when: false
 
     - name: Set ACL in root folder of HDFS
       ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs dfs -setfacl -m "group:{{ ide_users_group }}:rwx" /
+      changed_when: true
 
     - name: Create HDFS folder /user
       ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs dfs -mkdir -p /user
+      changed_when: true
 
     - name: Set ACL in /user folder of HDFS
       ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs dfs -setfacl -m "group:{{ ide_users_group }}:rwx" /user
+      changed_when: true
 
     - name: Create HDFS folder /share
       ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs dfs -mkdir -p /share
+      changed_when: true
 
     - name: Set ACL in /share folder of HDFS
       ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/hdfs dfs \
         -setfacl -m "group:{{ ide_users_group }}:rwx,default:group:{{ ide_users_group }}:rwx" /share
+      changed_when: true
 
     - name: Copy example notebooks to /share folder of HDFS
       ansible.builtin.include_tasks: copy-example-notebooks.yml

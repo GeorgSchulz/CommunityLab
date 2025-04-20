@@ -26,6 +26,7 @@
   tasks:
     - name: Set hostnames and fqdn for all hosts on global level
       ansible.builtin.command: hostnamectl set-hostname {{ inventory_hostname }}
+      changed_when: true
       when:
         - custom_inventory_file is defined
         - not custom_inventory_file

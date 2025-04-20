@@ -15,8 +15,10 @@
     label: "{{ item.file }}"
 
 - name: Delete existing kerberos database
-  ansible.builtin.command: kdb5_util destroy -f
   failed_when: false
+  changed_when: true
+  ansible.builtin.command: kdb5_util destroy -f
 
 - name: Create database
+  changed_when: true
   ansible.builtin.command: kdb5_util create -s -P {{ setup_realm_password }}

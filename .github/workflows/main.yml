@@ -1,0 +1,196 @@
+---
+name: CI
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '**.yml'
+      - '**.yaml'
+  pull_request:
+    paths:
+      - '**.yml'
+      - '**.yaml'
+  schedule:
+    - cron: "0 7 * * 1"
+
+jobs:
+  lint:
+    name: Run Ansible Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Ansible, Ansible-Lint, Molecule and dependencies
+        run: pip3 install ansible ansible-lint
+
+      - name: Run ansible-lint
+        run: ansible-lint
+
+  molecule_zookeeper_default:
+    uses: ./.github/workflows/test-molecule.yml
+    needs: lint
+    with:
+      collection_path: bigdata/zookeeper
+      scenario: default
+
+  molecule_zookeeper_ha_setup:
+    uses: ./.github/workflows/test-molecule.yml
+    needs:
+      - lint
+      - molecule_zookeeper_default
+    with:
+      collection_path: bigdata/zookeeper
+      scenario: ha_setup
+
+  molecule_ldap_default:
+    uses: ./.github/workflows/test-molecule.yml
+    needs:
+      - lint
+      - molecule_zookeeper_default
+      - molecule_zookeeper_ha_setup
+    with:
+      collection_path: authorization/ldap
+      scenario: default
+
+  molecule_ldap_ha_setup:
+    uses: ./.github/workflows/test-molecule.yml
+    needs:
+      - lint
+      - molecule_zookeeper_default
+      - molecule_zookeeper_ha_setup
+      - molecule_ldap_default
+    with:
+      collection_path: authorization/ldap
+      scenario: ha_setup
+
+  molecule_kerberos_default:
+    uses: ./.github/workflows/test-molecule.yml
+    needs:
+      - lint
+      - molecule_zookeeper_default
+      - molecule_zookeeper_ha_setup
+      - molecule_ldap_default
+      - molecule_ldap_ha_setup
+    with:
+      collection_path: authentication/kerberos
+      scenario: default
+
+  molecule_kerberos_ha_setup:
+    uses: ./.github/workflows/test-molecule.yml
+    needs:
+      - lint
+      - molecule_zookeeper_default
+      - molecule_zookeeper_ha_setup
+      - molecule_ldap_default
+      - molecule_ldap_ha_setup
+      - molecule_kerberos_default
+    with:
+      collection_path: authentication/kerberos
+      scenario: ha_setup
+
+  molecule_postgres_default:
+    uses: ./.github/workflows/test-molecule.yml
+    needs:
+      - lint
+      - molecule_zookeeper_default
+      - molecule_zookeeper_ha_setup
+      - molecule_ldap_default
+      - molecule_ldap_ha_setup
+      - molecule_kerberos_default
+      - molecule_kerberos_ha_setup
+    with:
+      collection_path: rdbms/postgres
+      scenario: default
+
+  molecule_postgres_ha_setup:
+    uses: ./.github/workflows/test-molecule.yml
+    needs:
+      - lint
+      - molecule_zookeeper_default
+      - molecule_zookeeper_ha_setup
+      - molecule_ldap_default
+      - molecule_ldap_ha_setup
+      - molecule_kerberos_default
+      - molecule_kerberos_ha_setup
+      - molecule_postgres_default
+    with:
+      collection_path: rdbms/postgres
+      scenario: ha_setup
+
+  molecule_hdfs_default:
+    uses: ./.github/workflows/test-molecule.yml
+    needs:
+      - lint
+      - molecule_zookeeper_default
+      - molecule_zookeeper_ha_setup
+      - molecule_ldap_default
+      - molecule_ldap_ha_setup
+      - molecule_kerberos_default
+      - molecule_kerberos_ha_setup
+      - molecule_postgres_default
+      - molecule_postgres_ha_setup
+    with:
+      collection_path: hadoop/hdfs
+      scenario: default
+
+  molecule_hdfs_ha_setup:
+    uses: ./.github/workflows/test-molecule.yml
+    needs:
+      - lint
+      - molecule_zookeeper_default
+      - molecule_zookeeper_ha_setup
+      - molecule_ldap_default
+      - molecule_ldap_ha_setup
+      - molecule_kerberos_default
+      - molecule_kerberos_ha_setup
+      - molecule_postgres_default
+      - molecule_postgres_ha_setup
+      - molecule_hdfs_default
+    with:
+      collection_path: hadoop/hdfs
+      scenario: ha_setup
+
+  molecule_yarn_default:
+    uses: ./.github/workflows/test-molecule.yml
+    needs:
+      - lint
+      - molecule_zookeeper_default
+      - molecule_zookeeper_ha_setup
+      - molecule_ldap_default
+      - molecule_ldap_ha_setup
+      - molecule_kerberos_default
+      - molecule_kerberos_ha_setup
+      - molecule_postgres_default
+      - molecule_postgres_ha_setup
+      - molecule_hdfs_default
+      - molecule_hdfs_ha_setup
+    with:
+      collection_path: hadoop/yarn
+      scenario: default
+
+  molecule_yarn_ha_setup:
+    uses: ./.github/workflows/test-molecule.yml
+    needs:
+      - lint
+      - molecule_zookeeper_default
+      - molecule_zookeeper_ha_setup
+      - molecule_ldap_default
+      - molecule_ldap_ha_setup
+      - molecule_kerberos_default
+      - molecule_kerberos_ha_setup
+      - molecule_postgres_default
+      - molecule_postgres_ha_setup
+      - molecule_hdfs_default
+      - molecule_hdfs_ha_setup
+      - molecule_yarn_default
+    with:
+      collection_path: hadoop/yarn
+      scenario: ha_setup

@@ -7,10 +7,12 @@
 
 - name: Add replication user '{{ ldap_replication_user }}'
   failed_when: ldapadd.rc not in [0,68]
+  changed_when: true
   ansible.builtin.command: ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/replicator.ldif
   register: ldapadd
 
 - name: Set password for IDE user '{{ ldap_replication_user }}'
+  changed_when: true
   ansible.builtin.command: ldappasswd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} \
     -s {{ ldap_replication_password }} {{ ldap_replication_user }}
 
@@ -22,6 +24,7 @@
 
 - name: Add replicator-acl-limits.ldif to ldap provider
   failed_when: ldapmodify.rc not in [0,20]
+  changed_when: true
   ansible.builtin.command: ldapmodify -Q -Y EXTERNAL -H ldapi:/// -f /tmp/replicator-acl-limits.ldif
   register: ldapmodify
 
@@ -33,5 +36,6 @@
 
 - name: Add provider_simple_sync.ldif to ldap provider
   failed_when: ldapmodify.rc not in [0,20]
+  changed_when: true
   ansible.builtin.command: ldapmodify -Q -Y EXTERNAL -H ldapi:/// -f /tmp/provider_simple_sync.ldif
   register: ldapmodify

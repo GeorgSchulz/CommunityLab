@@ -6,21 +6,4 @@ setup_hdfs_group: "{{ hdfs_group | default('hadoop') }}"
 setup_hdfs_gid: "{{ hdfs_gid | default('4001') }}"
 setup_hadoop_conf_dir: /opt/apache-hadoop
 setup_hadoop_log_dir: /var/log/hadoop
-keytab_folder: /etc/keytabs
-keytab_user_hdfs: hdfs
-keytab_user_yarn: yarn
-keytab_user_jupyter: jupyterhub
-keytab_user_http: HTTP
 setup_core_site_name: "{{ 'core-site-ha.xml' if (groups.namenodes | length == 3) else 'core-site.xml' }}"
-
-keystore_file: /etc/ssl/private/{{ ansible_fqdn if molecule_deployment is defined and molecule_deployment else inventory_hostname }}.jks
-keystore_password: changeit
-truststore_file: /etc/ssl/certs/truststore.jks
-truststore_password: changeit
-
-ldap_server_address: "{% for host in groups.ldap | shuffle %}ldaps://{{ host }}.example.com:636{% if not loop.last %},{% endif %}{% endfor %}"
-ldap_organization: dc=example,dc=com
-ldap_user_search_base: ou=people,{{ ldap_organization }}
-ldap_group_search_base: ou=groups,{{ ldap_organization }}
-ldap_bind_user: cn=admin,{{ ldap_organization }}
-ldap_password: changeit

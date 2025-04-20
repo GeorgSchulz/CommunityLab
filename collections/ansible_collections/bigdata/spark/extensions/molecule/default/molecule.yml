@@ -1,4 +1,17 @@
 ---
+scenario:
+  name: default
+  test_sequence:
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify
+    - cleanup
+    - converge
+    - destroy
 dependency:
   name: galaxy
   options:

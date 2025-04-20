@@ -10,22 +10,25 @@
     - group.ldif
 
 - name: Create organization unit for IDE users
+  changed_when: false
+  failed_when: ldapadd.rc not in [0,68]
   ansible.builtin.command: ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/org_people.ldif
   register: ldapadd
   until: ldapadd.rc in [0,68]
   retries: 5
   delay: 3
-  failed_when: ldapadd.rc not in [0,68]
 
 - name: Create organization unit for IDE groups
+  changed_when: false
+  failed_when: ldapadd.rc not in [0,68]
   ansible.builtin.command: ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/org_groups.ldif
   register: ldapadd
-  failed_when: ldapadd.rc not in [0,68]
 
 - name: Create group for IDE users
+  changed_when: false
+  failed_when: ldapadd.rc not in [0,68]
   ansible.builtin.command: ldapadd -H ldapi:/// -D cn=admin,{{ ldap_organization }} -w {{ ldap_password }} -f /tmp/group.ldif
   register: ldapadd
-  failed_when: ldapadd.rc not in [0,68]
 
 - name: Add IDE users to organization unit and ldap group
   ansible.builtin.include_tasks: add-ldap-users.yml

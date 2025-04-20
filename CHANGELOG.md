@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- communitylab#61: Add GitHub Action to lint and test all Ansible collections
 - communitylab#59: Upgrading to PostgreSQL 17
 - communitylab#57: Add new kernels for JupyterLab and upgrade software components
 - communitylab#55: Enable /bin/bash as default shell in JupyterLab

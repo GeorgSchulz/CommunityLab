@@ -1,4 +1,17 @@
 ---
+scenario:
+  name: default
+  test_sequence:
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify
+    - cleanup
+    - converge
+    - destroy
 dependency:
   name: galaxy
   options:
@@ -74,10 +87,13 @@ provisioner:
         self_signed_certificates: true
         domain: example.com
         keytab_folder: /etc/keytabs
+        hdfs_data_dir: /var/hadoop/hdfs
         realm: COMMUNITY.LAB
         ide_services_group: hadoop
+        keytab_user_hdfs: hdfs
         keytab_user_yarn: yarn
         keytab_user_http: HTTP
+        keytab_user_jupyter: jupyterhub
         ldap_organization: dc=example,dc=com
         ldap_server_address: "{% for host in groups.ldap | shuffle %}ldaps://{{ host }}.example.com:636{% if not loop.last %},{% endif %}{% endfor %}"
         ldap_user_search_base: ou=people,{{ ldap_organization }}
@@ -100,6 +116,10 @@ provisioner:
             uid_number: 6002
             gid_number: "{{ ide_users_gid }}"
             password: datascience
+        keystore_file: /etc/ssl/private/{{ ansible_fqdn }}.jks
+        keystore_password: changeit
+        truststore_file: /etc/ssl/certs/truststore.jks
+        truststore_password: changeit
       ldap:
         ldap_user: openldap
         ldap_uid: "5001"
@@ -120,6 +140,9 @@ provisioner:
         service_gid: "4001"
         tls_user: yarn
         tls_group: hadoop
+        kerberos_keytabs:
+          - principal: "{{ yarn_user }}"
+            keytab_user: "{{ yarn_user }}"
       nodemanagers:
         service_user: yarn
         service_name: Apache Hadoop
@@ -128,3 +151,6 @@ provisioner:
         service_gid: "4001"
         tls_user: yarn
         tls_group: hadoop
+        kerberos_keytabs:
+          - principal: "{{ yarn_user }}"
+            keytab_user: "{{ yarn_user }}"

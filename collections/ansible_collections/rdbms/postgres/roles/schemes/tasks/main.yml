@@ -1,10 +1,11 @@
 ---
 - name: Get ip address of remote host if jupyterhub_domain_ip_address is undefined - use bash to avoid dns python conflict for dig lookup
+  ansible.builtin.command: dig +short jupyterhub.{{ domain }}
   when:
     - jupyterhub_domain_ip_address is not defined
     - groups.hubs is defined
     - groups.hubs | length == 2
-  ansible.builtin.command: dig +short jupyterhub.{{ domain }}
+  changed_when: false
   register: get_jupyterhub_domain_ip_address
 
 - name: Set fact if jupyterhub_domain_ip_address is undefined

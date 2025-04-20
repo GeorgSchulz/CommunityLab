@@ -5,6 +5,7 @@
 
 - name: Get valid keytab for YARN user
   ansible.builtin.command: kinit -k yarn/{{ keytab_principal_hostname }}@{{ realm }} -t {{ keytab_folder }}/yarn.keytab
+  changed_when: false
 
 - name: Block for IDE HA setup
   when:
@@ -12,6 +13,7 @@
   block:
     - name: Check if YARN resourcemanagers are running
       ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/yarn rmadmin -getAllServiceState
+      changed_when: false
       register: ha_resourcemanagers
 
     - name: Print message depending on yarn rmadmin -getAllServiceState output
@@ -22,6 +24,7 @@
 
 - name: Check if YARN nodemanagers are running
   ansible.builtin.command: /opt/apache-hadoop/hadoop/bin/yarn node -list
+  changed_when: false
   register: nodemanagers
   until: nodemanagers.rc == 0
   retries: 3

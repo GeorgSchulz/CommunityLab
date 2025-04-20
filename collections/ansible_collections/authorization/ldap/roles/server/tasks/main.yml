@@ -21,9 +21,11 @@
 - name: Reconfigure slapd
   failed_when: false
   ansible.builtin.command: dpkg-reconfigure -f noninteractive slapd --force
+  changed_when: true
 
 - name: Change ownership of ldap folders
   ansible.builtin.command: chown -R {{ ldap_user }}:{{ ldap_group }} {{ item }}
+  changed_when: true
   loop:
     - /etc/ldap/slapd.d
     - /var/lib/ldap
@@ -48,6 +50,7 @@
 - name: Configure ldap server for TLS
   failed_when: ldapmodify.rc not in [20,0]
   ansible.builtin.command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/ssl.ldif
+  changed_when: true
   register: ldapmodify
 
 - name: Copy update-module.ldif
@@ -59,6 +62,7 @@
 - name: Load ldap module memberOf
   failed_when: ldapadd.rc not in [20,0]
   ansible.builtin.command: ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/update-module.ldif
+  changed_when: true
   register: ldapadd
 
 - name: Copy memberof-overlay.ldif
@@ -69,6 +73,7 @@
 
 - name: Add overlay to database
   ansible.builtin.command: ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/add-memberof-overlay.ldif
+  changed_when: true
 
 - name: Copy add-refint.ldif
   ansible.builtin.copy:
@@ -79,6 +84,7 @@
 - name: Ldapadd add-refint.ldif
   failed_when: ldapadd.rc not in [20,0]
   ansible.builtin.command: ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /tmp/add-refint.ldif
+  changed_when: true
   register: ldapadd
 
 - name: Configure ldap.conf

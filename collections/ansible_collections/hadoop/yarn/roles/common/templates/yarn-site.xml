@@ -86,7 +86,7 @@
   </properties>
   <!--properties>
     <name>yarn.nodemanager.log-dirs</name>
-    <value>{{ hdfs_data_dir }}/yarn/log_dirs</value>
+    <value>{{ common_hdfs_data_dir }}/yarn/log_dirs</value>
   </properties-->
   <properties>
     <name>yarn.nodemanager.log.retain-seconds</name>

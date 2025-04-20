@@ -1,5 +1,5 @@
 ---
-postgresql_major_version: 17
+install_postgresql_major_version: 17
 
 install_ssl_files:
   - "{{ chain_file_postgres }}"

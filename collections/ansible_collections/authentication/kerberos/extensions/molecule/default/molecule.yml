@@ -1,4 +1,17 @@
 ---
+scenario:
+  name: default
+  test_sequence:
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify
+    - cleanup
+    - converge
+    - destroy
 dependency:
   name: galaxy
   options:
@@ -21,3 +34,9 @@ provisioner:
     vvv: false
   playbooks:
     converge: converge.yml
+  inventory:
+    group_vars:
+      all:
+        molecule_deployment: true
+        realm: COMMUNITY.LAB
+        domain: example.com

@@ -1,5 +1,4 @@
 ---
-setup_hdfs_user: "{{ hdfs_user | default('hdfs') }}"
-setup_hdfs_group: "{{ hdfs_group | default('hadoop') }}"
+namenode_hdfs_user: "{{ hdfs_user | default('hdfs') }}"
+namenode_hdfs_group: "{{ hdfs_group | default('hadoop') }}"
 namenode_hdfs_data_dir: /var/hadoop/hdfs
-hdfs_user: hdfs

@@ -8,6 +8,7 @@
 - name: Get ip address of remote host - use bash to avoid dns python conflict for dig lookup
   when: jupyterhub_domain_ip_address is not defined
   ansible.builtin.command: dig +short jupyterhub.{{ domain }}
+  changed_when: false
   register: get_jupyterhub_domain_ip_address
 
 - name: Configure keepalived for Hetzner Cloud
