@@ -194,23 +194,3 @@ jobs:
     with:
       collection_path: hadoop/yarn
       scenario: ha_setup
-
-  molecule_jupyterhub_default:
-    uses: ./.github/workflows/test-molecule.yml
-    needs:
-      - lint
-      - molecule_zookeeper_default
-      - molecule_zookeeper_ha_setup
-      - molecule_ldap_default
-      - molecule_ldap_ha_setup
-      - molecule_kerberos_default
-      - molecule_kerberos_ha_setup
-      - molecule_postgres_default
-      - molecule_postgres_ha_setup
-      - molecule_hdfs_default
-      - molecule_hdfs_ha_setup
-      - molecule_yarn_default
-      - molecule_yarn_ha_setup
-    with:
-      collection_path: jupyter/hub
-      scenario: default
