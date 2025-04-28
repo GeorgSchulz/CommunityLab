@@ -9,8 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - communitylab#26: Error handling in Conda Package Manager
 
+## [v1.6.0] - 2025-04-28
+
 ### Added
 
+- communitylab#63: Extend GitHub Action, add Mamba for conda environments, update JupyterHub and JupyterLab
 - communitylab#61: Add GitHub Action to lint and test all Ansible collections
 - communitylab#59: Upgrading to PostgreSQL 17
 - communitylab#57: Add new kernels for JupyterLab and upgrade software components

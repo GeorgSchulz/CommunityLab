@@ -18,7 +18,7 @@
         - conda_packages
       ansible.builtin.shell: |
         . /opt/miniforge/miniforge/bin/activate
-        conda create -n jupyterlab python={{ setup_environment_python_version }} -y
+        mamba create -n jupyterlab python={{ setup_environment_python_version }} -y
       changed_when: true
 
     - name: Install jupyterlab conda packages in jupyterlab environment
@@ -26,12 +26,12 @@
         - conda_packages
       ansible.builtin.shell: |
         . /opt/miniforge/miniforge/bin/activate jupyterlab
-        conda install -c conda-forge {% for conda_package in setup_conda_packages %}{{ conda_package }}{% if not loop.last %} {% endif %}{% endfor %} -y
+        mamba install -c conda-forge {% for conda_package in setup_conda_packages %}{{ conda_package }}{% if not loop.last %} {% endif %}{% endfor %} -y
       changed_when: true
       args:
         executable: /bin/bash
-      async: 6800
-      poll: 300
+      async: 3400
+      poll: 150
 
     - name: Install jupyterlab pip packages in jupyterlab environment
       ansible.builtin.shell: |

@@ -8,8 +8,8 @@ _CommunityLab_ consists of following components:
 
 | Component        | Version |
 |------------------|---------|
-| JupyterHub       | 5.2.0   |
-| JupyterLab       | 4.3.0   |
+| JupyterHub       | 5.3.0   |
+| JupyterLab       | 4.4.1   |
 | Apache Hadoop    | 3.4.1   |
 | Apache Spark     | 3.5.3   |
 | Apache Zookeeper | 3.9.3   |

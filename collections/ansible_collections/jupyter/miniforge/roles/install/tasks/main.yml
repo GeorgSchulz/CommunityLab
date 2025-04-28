@@ -16,6 +16,13 @@
   changed_when: true
   when: not miniforge_install.stat.exists
 
+- name: Install mamba in base environment
+  ansible.builtin.shell: /opt/miniforge/{{ install_miniforge_version }}/bin/conda install mamba -n base -c conda-forge -y
+  changed_when: true
+  when: not miniforge_install.stat.exists
+  args:
+    executable: /bin/bash
+
 - name: Change ownership to miniforge user and group
   ansible.builtin.command: chown -R {{ miniforge_user }}:{{ miniforge_group }} /opt/miniforge
   changed_when: true

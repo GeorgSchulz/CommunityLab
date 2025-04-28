@@ -16,13 +16,13 @@
     - name: Create jupyterhub environment in /opt/miniforge/miniforge
       ansible.builtin.shell: |
         . /opt/miniforge/miniforge/bin/activate
-        conda create -n jupyterhub python={{ install_environment_python_version }} -y
+        mamba create -n jupyterhub python={{ install_environment_python_version }} -y
       changed_when: true
 
     - name: Install jupyterhub conda packages in jupyterhub environment
       ansible.builtin.shell: |
         . /opt/miniforge/miniforge/bin/activate jupyterhub
-        conda install -c conda-forge {% for conda_package in install_conda_packages %}{{ conda_package }}{% if not loop.last %} {% endif %}{% endfor %} -y
+        mamba install -c conda-forge {% for conda_package in install_conda_packages %}{{ conda_package }}{% if not loop.last %} {% endif %}{% endfor %} -y
       changed_when: true
       args:
         executable: /bin/bash

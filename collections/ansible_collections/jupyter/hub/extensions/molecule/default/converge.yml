@@ -98,3 +98,10 @@
   serial: 1
   roles:
     - role: jupyter.lab.setup
+
+- name: Check JupyterHub Health
+  hosts: hub1
+  become: true
+  gather_facts: true
+  roles:
+    - role: jupyter.hub.check
