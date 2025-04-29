@@ -1,18 +1,84 @@
 ---
-- name: Check if JupyterHub GUI is reachable
-  ansible.builtin.uri:
-    url: "{% if jupyterhub_domain_ip is defined %}{{ jupyterhub_domain }}{% else %}https://{{ inventory_hostname }}{% endif %}"
-    method: GET
-    validate_certs: false
-  register: jupyterhub_gui_status
-  retries: 10
-  until: jupyterhub_gui_status.status == 200
+- name: Install curl
+  ansible.builtin.apt:
+    name: curl
+    state: present
+    update_cache: true
 
-- name: Set variable jupyterhub_gui_status
-  ansible.builtin.debug:
-    var: jupyterhub_gui_status
+- name: Log into JupyterHub and start session
+  changed_when: true
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      curl -k -c cookies.txt https://172.23.27.3:8443/hub/login 2>/dev/null | \
+        grep -o 'name="_xsrf" value="[^"]*"' | \
+        sed -E 's/.*value="([^"]*)".*/\1/' > xsrf.txt
 
-- name: Debug variable jupyterhub_gui_status
+      xsrf=$(cat xsrf.txt)
+
+      curl -k -b cookies.txt -c cookies.txt -X POST https://172.23.27.3:8443/hub/login \
+        -d "_xsrf=$xsrf" \
+        -d "username=gschulz" \
+        -d "password=datascience"
+
+      # Trigger the user server
+      curl -k -b cookies.txt -c cookies.txt https://172.23.27.3:8443/hub/spawn
+    executable: /bin/bash
+  args:
+    chdir: /tmp
+
+- name: Wait for 30 seconds
+  ansible.builtin.pause:
+    seconds: 30
+
+- name: List YARN application
+  changed_when: false
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      app_ids=$(/opt/apache-hadoop/hadoop/bin/yarn application -list | awk 'NR>2 {print $1}')
+      if [ -n "$app_ids" ]; then
+        echo "$app_ids"
+      else
+        echo "No running applications found"
+      fi
+    executable: /bin/bash
+  delegate_to: "{{ groups['resourcemanager1'][0] }}"
+  run_once: true
+  become: true
+  become_user: "{{ yarn_user }}"
+  register: result_list_application
+
+- name: Assert that YARN application was found
+  ansible.builtin.assert:
+    that: result_list_application.stdout != "No running applications found"
+    fail_msg: No YARN application found, check Logs for more information
+    success_msg: YARN application found
+
+- name: Kill YARN application
+  changed_when: true
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      app_ids=$(/opt/apache-hadoop/hadoop/bin/yarn application -list | awk 'NR>2 {print $1}')
+      if [ -n "$app_ids" ]; then
+        echo "$app_ids" | xargs -r -n 1 -I {} /opt/apache-hadoop/hadoop/bin/yarn application -kill {}
+      else
+        echo "No running applications found"
+      fi
+    executable: /bin/bash
+  delegate_to: "{{ groups['resourcemanager1'][0] }}"
+  run_once: true
+  become: true
+  become_user: "{{ yarn_user }}"
+  register: result_kill_application
+
+- name: Assert that YARN application was killed
+  ansible.builtin.assert:
+    that: result_kill_application.stdout != "No running applications found"
+    fail_msg: No YARN applications killed, check Logs for more information
+    success_msg: YARN applications killed
+
+- name: Show that started YARN application was killed
   ansible.builtin.debug:
-    msg: "IDE installed successfully, you can now visit JupyterHub GUI under: https://hub1.{{ domain }}:8443"
-  when: jupyterhub_gui_status.status == 200
+    var: result_kill_application.stdout

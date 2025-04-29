@@ -139,8 +139,8 @@ provisioner:
         service_uid: "5001"
         service_group: jupyterhub
         service_gid: "4001"
-        tls_user: jupyterhub
-        tls_group: jupyterhub
+        tls_user: root
+        tls_group: root
         keytab_group: jupyterhub
         cert_file: /etc/ssl/private/cert.pem
         key_file: /etc/ssl/private/key.pem
@@ -159,6 +159,7 @@ provisioner:
         kerberos_keytabs:
           - principal: "{{ jupyterhub_user }}"
             keytab_user: "{{ jupyterhub_user }}"
+        common_hdfs_data_dir: /var/hadoop/hdfs
       ldap:
         ldap_user: openldap
         ldap_uid: "5001"

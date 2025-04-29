@@ -48,6 +48,19 @@
     group: "{{ jupyterhub_group }}"
     mode: "0600"
 
+- name: Set read ACL for jupyterhub user on SSL cert files
+  when: groups.hubs | length == 1
+  ansible.posix.acl:
+    path: "{{ item }}"
+    entity: jupyterhub
+    etype: user
+    permissions: r
+    state: present
+  loop:
+    - /etc/ssl/private/cert.pem
+    - /etc/ssl/private/chain.pem
+    - /etc/ssl/private/key.pem
+
 - name: Create system service for JupyterHub
   ansible.builtin.template:
     src: jupyterhub.service
@@ -69,3 +82,8 @@
   ansible.builtin.systemd:
     name: jupyterhub.service
     state: started
+
+- name: Wait until port 8443 is bound
+  ansible.builtin.wait_for:
+    port: 8443
+    timeout: 5

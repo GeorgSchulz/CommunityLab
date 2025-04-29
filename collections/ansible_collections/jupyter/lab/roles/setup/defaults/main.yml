@@ -6,9 +6,9 @@ setup_environment_python_version_short: "3.10"
 setup_conda_packages:
   # JupyterLab packages
   - nb_conda_kernels=2.5.1
-  - jupyterhub=5.2.0
+  - jupyterhub=5.3.0
   - jupyterhub-yarnspawner=0.4.0
-  - jupyterlab=4.3.0
+  - jupyterlab=4.4.1
   - jupyterlab-git=0.50.2
   - nodejs=22.11.0
   - protobuf=4.25.3
